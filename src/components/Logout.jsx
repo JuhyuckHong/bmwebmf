@@ -1,4 +1,4 @@
-import cookie from "react-cookies"
+import cookie from "react-cookies";
 
 function Logout({ setAuth }) {
     const logout = () => {
@@ -6,9 +6,7 @@ function Logout({ setAuth }) {
         setAuth(false);
     };
 
-    return (
-        <button onClick={logout}>Logout</button>
-    );
+    return <button onClick={logout}>Logout</button>;
 }
 
-export default Logout
+export default Logout;

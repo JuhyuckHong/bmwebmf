@@ -1,30 +1,32 @@
-import { API } from '../API'
-import cookie from "react-cookies"
-import { useState } from 'react'
+import { API } from "../API";
+import cookie from "react-cookies";
+import { useState } from "react";
 
 function Login({ setAuth }) {
-    const [id, setId] = useState("")
-    const [pw, setPw] = useState("")
-    const idEventHandler = (event) => setId(event.target.value)
-    const pwEventHandler = (event) => setPw(event.target.value)
+    const [id, setId] = useState("");
+    const [pw, setPw] = useState("");
+    const idEventHandler = (event) => setId(event.target.value);
+    const pwEventHandler = (event) => setPw(event.target.value);
 
     const RequestLogin = (event) => {
-        event.preventDefault()
+        event.preventDefault();
         const data = {
             username: id,
             password: pw,
-        }
+        };
 
-        API.signIn(data).then((res) => {
-            cookie.save("BM", "Bearer " + res.data.access_token);
-            alert(res.data.message);
-            setAuth(true)
-        }).catch((err) => {
-            event.preventDefault()
-            console.log(err)
-            // alert(err.data.message)
-        })
-    }
+        API.signIn(data)
+            .then((res) => {
+                cookie.save("BM", "Bearer " + res.data.access_token);
+                alert(res.data.message);
+                setAuth(true);
+            })
+            .catch((err) => {
+                event.preventDefault();
+                console.log(err);
+                // alert(err.data.message)
+            });
+    };
 
     return (
         <div className="LoginMain">
@@ -54,4 +56,4 @@ function Login({ setAuth }) {
     );
 }
 
-export default Login
+export default Login;
