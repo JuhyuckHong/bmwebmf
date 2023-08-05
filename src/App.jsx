@@ -6,9 +6,11 @@ import Logout from './components/Logout';
 import AllSites from "./components/AllSites"
 import { API } from './API';
 import './App.css';
+import SingleSite from './components/SingleSite';
 
 function App() {
   const [auth, setAuth] = useState(false)
+  const [site, setSite] = useState(null)
   useEffect(() => {
     const token = cookie.load("BM")
     if (token && decodeJwt(token).exp < parseInt(Date.now() / 1000)) {
@@ -21,13 +23,14 @@ function App() {
         .catch((err) => console.log("error in auth", err));
     }
   }, [auth])
+  console.log(auth)
   return (
     <>
       <div>
         {auth ? <Logout setAuth={setAuth} /> : <Login setAuth={setAuth} />}
       </div>
       <div>
-        {auth ? <AllSites /> : ""}
+        {auth ? site ? <SingleSite site={site} setSite={setSite} /> : <AllSites setSite={setSite} /> : ""}
       </div>
     </>
   );

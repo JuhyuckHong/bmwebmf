@@ -17,6 +17,15 @@ export const API = {
     auth: (headers) => api.get("/auth", { headers }),
     // Thumbnail 목록 조회
     getThumbnails: (headers) => api.get("/thumbnails", { headers }),
-    // 사진 조회 date: YYYY-MM-DD, time: hh-mm-ss
-    getImage: (headers, site, date, time) => api.get(`/image/${site}/${date}/${time}`, { headers }),
+    // 사진 한개 조회 date: YYYY-MM-DD, time: hh-mm-ss
+    getImage: (headers, site, date, time) =>
+        api.get(`/image/${site}/${date}/${time}`, { headers }),
+    // 최근 사진 조회
+    getRecent: (headers, site) =>
+        api.get(`/images/${site}/recent`, { headers, responseType: 'blob' }),
+    // 사이트에 사진이 있는 날짜 조회
+    getSiteDate: (headers, site) => api.get(`/images/${site}`, { headers }),
+    // 사이트 특정 날짜에 있는 사진 목록 조회
+    getSiteDateList: (headers, site, date) =>
+        api.get(`/images/${site}/${date}`, { headers }),
 };
