@@ -7,7 +7,6 @@ function AllSites({ setSite }) {
 
     useEffect(() => {
         const fetchThumbnails = () => {
-            console.log("a");
             API.getThumbnails({ Authorization: cookie.load("BM") })
                 .then((res) => {
                     setThumbnails(res.data?.thumbnail_urls);
@@ -21,7 +20,7 @@ function AllSites({ setSite }) {
 
         const intervalId = setInterval(
             fetchThumbnails,
-            REACT_APP_THUMBNAIL_INTERVAL,
+            process.env.REACT_APP_THUMBNAIL_INTERVAL,
         );
 
         return () => clearInterval(intervalId);

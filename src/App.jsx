@@ -23,7 +23,7 @@ function App() {
                 .catch((err) => console.log("error in auth", err));
         }
     }, [auth]);
-    console.log(auth);
+
     return (
         <>
             <div>
