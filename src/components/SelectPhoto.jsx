@@ -26,7 +26,8 @@ const SelectPhoto = ({ site }) => {
     const handleDateChange = (event) =>
         setSelectedDateIndex(event.target.value);
 
-    const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+    const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(undefined);
+    const [tempPhotoIndex, setTempPhotoIndex] = useState(0);
     const [photos, setPhotos] = useState([]);
 
     // 날짜를 선택한 경우 해당 날짜(=folder)에 있는 사진 목록을 요청
@@ -42,7 +43,7 @@ const SelectPhoto = ({ site }) => {
                         dates[selectedDateIndex],
                     );
                     setPhotos(response.data);
-                    setSelectedPhotoIndex(response.data.length - 1);
+                    setTempPhotoIndex(response.data.length - 1);
                 } catch (err) {
                     console.error("Failed to get photos:", err);
                 }
@@ -52,9 +53,16 @@ const SelectPhoto = ({ site }) => {
         getAndSetTimeInDate();
     }, [dates[selectedDateIndex]]);
 
-    const handlePhotoChange = (event) =>
-        setSelectedPhotoIndex(event.target.value);
+    // Debouncing
+    const handlePhotoChange = (event) => setTempPhotoIndex(event.target.value);
+    useEffect(() => {
+        const debounce = setTimeout(() => {
+            setSelectedPhotoIndex(tempPhotoIndex);
+        }, 500);
+        return () => clearTimeout(debounce);
+    }, [tempPhotoIndex]);
 
+    // 개별 사진 요청을 위한 상태
     const [imageUrl, setImageUrl] = useState("");
 
     // 개별 사진을 선택한 경우 해당 사진을 요청
@@ -105,11 +113,11 @@ const SelectPhoto = ({ site }) => {
                     type="range"
                     min={0}
                     max={photos.length - 1}
-                    value={selectedPhotoIndex}
+                    value={tempPhotoIndex}
                     onChange={handlePhotoChange}
                 />
             </div>
-            <p>Selected Photo: {photos[selectedPhotoIndex]}</p>
+            <p>Selected Photo: {photos[tempPhotoIndex]}</p>
             <div>
                 {imageUrl && (
                     <img
