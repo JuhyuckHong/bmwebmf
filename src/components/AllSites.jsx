@@ -6,14 +6,25 @@ function AllSites({ setSite }) {
     const [thumbnails, setThumbnails] = useState([]);
 
     useEffect(() => {
-        console.log("all site use effect");
-        API.getThumbnails({ Authorization: cookie.load("BM") })
-            .then((res) => {
-                setThumbnails(res.data?.thumbnail_urls);
-            })
-            .catch((err) => {
-                console.error(err);
-            });
+        const fetchThumbnails = () => {
+            console.log("a");
+            API.getThumbnails({ Authorization: cookie.load("BM") })
+                .then((res) => {
+                    setThumbnails(res.data?.thumbnail_urls);
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        };
+
+        fetchThumbnails();
+
+        const intervalId = setInterval(
+            fetchThumbnails,
+            REACT_APP_THUMBNAIL_INTERVAL,
+        );
+
+        return () => clearInterval(intervalId);
     }, []);
 
     const handleThumbnailClick = (imageName) => setSite(imageName);
@@ -36,7 +47,11 @@ function AllSites({ setSite }) {
                             height: "auto",
                             borderRadius: "5px",
                         }}
-                        src={process.env.REACT_APP_API_URL + thumbnail.url}
+                        src={
+                            process.env.REACT_APP_API_URL +
+                            thumbnail.url +
+                            `?${new Date().getTime()}`
+                        }
                         alt="thumbnail"
                         loading="lazy"
                         onClick={() => handleThumbnailClick(thumbnail.site)}
