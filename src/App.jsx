@@ -26,14 +26,18 @@ function App() {
 
     return (
         <>
-            <div>
+            <div
+                style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}>
                 {auth ? (
                     <Logout setAuth={setAuth} />
                 ) : (
                     <Login setAuth={setAuth} />
                 )}
-            </div>
-            <div>
                 {auth ? (
                     site ? (
                         <SingleSite site={site} setSite={setSite} />
