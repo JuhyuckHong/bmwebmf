@@ -6,6 +6,7 @@ const SelectPhoto = ({ site }) => {
     const [selectedDateIndex, setSelectedDateIndex] = useState(0);
     const [dates, setDates] = useState([]);
 
+    // site 선택한 경우(=thumbnail 선택) 해당 site에서 촬영된 날짜(=folder) 목록을 요청
     useEffect(() => {
         const authHeader = { Authorization: cookie.load("BM") };
 
@@ -22,21 +23,18 @@ const SelectPhoto = ({ site }) => {
         getAndSetDateInSite();
     }, [site]);
 
-    const handleDateChange = (event) => {
+    const handleDateChange = (event) =>
         setSelectedDateIndex(event.target.value);
-    };
 
     const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
     const [photos, setPhotos] = useState([]);
 
+    // 날짜를 선택한 경우 해당 날짜(=folder)에 있는 사진 목록을 요청
     useEffect(() => {
         const authHeader = { Authorization: cookie.load("BM") };
 
         const getAndSetTimeInDate = async () => {
-            if (
-                selectedDateIndex !== null &&
-                dates[selectedDateIndex] !== undefined
-            ) {
+            if (site && dates[selectedDateIndex]) {
                 try {
                     const response = await API.getSiteDateList(
                         authHeader,
@@ -52,19 +50,26 @@ const SelectPhoto = ({ site }) => {
         };
 
         getAndSetTimeInDate();
-    }, [selectedDateIndex, dates]);
+    }, [dates[selectedDateIndex]]);
 
-    const handlePhotoChange = (event) => {
+    const handlePhotoChange = (event) =>
         setSelectedPhotoIndex(event.target.value);
-    };
 
     const [imageUrl, setImageUrl] = useState("");
 
+    // 개별 사진을 선택한 경우 해당 사진을 요청
     useEffect(() => {
         const authHeader = { Authorization: cookie.load("BM") };
+        console.log(dates[selectedDateIndex], photos[photos.length - 1]);
 
         const getAndSetImage = async () => {
-            {
+            if (
+                site &&
+                dates[selectedDateIndex] &&
+                photos[selectedPhotoIndex] &&
+                dates[selectedDateIndex] ===
+                    photos[selectedPhotoIndex].split("_")[0]
+            ) {
                 try {
                     const response = await API.getImage(
                         authHeader,
@@ -80,7 +85,7 @@ const SelectPhoto = ({ site }) => {
         };
 
         getAndSetImage();
-    }, [setSelectedPhotoIndex, selectedPhotoIndex, site]);
+    }, [photos[selectedPhotoIndex]]);
 
     return (
         <>
