@@ -20,6 +20,13 @@ export const API = {
     signIn: (body) => api.post("/login", body),
     // 사용자 토큰 확인
     auth: (headers) => api.get("/auth", { headers }),
+
+    // 전체 현장 정보 조회
+    getAllInformation: (headers) => api.get("/information/all", { headers }),
+    // 선택 현장 정보 조회
+    getInformation: (headers, site) =>
+        api.get(`/information/${site}`, { headers }),
+
     // Thumbnail 목록 조회
     getThumbnails: (headers) => api.get("/thumbnails", { headers }),
     // 사진 한개 조회 date: YYYY-MM-DD, photo: YYYY-MM-DD_hh-mm-ss
