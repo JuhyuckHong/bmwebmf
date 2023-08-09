@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import cookie from "react-cookies";
 import { API } from "../API";
+import "../CSS/AllSites.css";
 
 function AllSites({ setSite }) {
     const [thumbnails, setThumbnails] = useState([]);
@@ -29,17 +30,9 @@ function AllSites({ setSite }) {
     const handleThumbnailClick = (imageName) => setSite(imageName);
 
     return (
-        <div
-            style={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "center",
-                alignItems: "center",
-            }}>
+        <div className="thumbnails">
             {thumbnails.map((thumbnail) => (
-                <div
-                    key={thumbnail.site}
-                    style={{ width: "200px", margin: "10px" }}>
+                <div key={thumbnail.site} className="thumbnails-individual">
                     <img
                         style={{
                             width: "100%",

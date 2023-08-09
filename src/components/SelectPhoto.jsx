@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { API } from "../API";
 import cookie from "react-cookies";
+import "../CSS/SelectPhoto.css";
 
 const SelectPhoto = ({ site }) => {
     const [selectedDateIndex, setSelectedDateIndex] = useState(0);
@@ -68,7 +69,6 @@ const SelectPhoto = ({ site }) => {
     // 개별 사진을 선택한 경우 해당 사진을 요청
     useEffect(() => {
         const authHeader = { Authorization: cookie.load("BM") };
-        console.log(dates[selectedDateIndex], photos[photos.length - 1]);
 
         const getAndSetImage = async () => {
             if (
@@ -97,27 +97,62 @@ const SelectPhoto = ({ site }) => {
 
     return (
         <>
+            <hr />
             <div>
-                <input
-                    type="range"
-                    min={0}
-                    max={dates.length - 1}
-                    value={selectedDateIndex}
-                    onChange={handleDateChange}
-                />
+                <label>
+                    <span className="input-range-label">날짜</span>
+                    <input
+                        className="input-range-date"
+                        name="date"
+                        type="range"
+                        min={0}
+                        max={dates.length - 1}
+                        value={selectedDateIndex}
+                        step={1}
+                        onChange={handleDateChange}
+                        list="dateTicks"
+                    />
+                    <datalist id="dateTicks">
+                        {dates.map((date, index) => (
+                            <option value={index} key={index} />
+                        ))}
+                    </datalist>
+                    <span className="input-range-value">
+                        {photos[tempPhotoIndex]
+                            ?.split("_")[0]
+                            .replaceAll("-", "/")}
+                    </span>
+                </label>
             </div>
-            <p>Selected Date: {dates[selectedDateIndex]}</p>
-
+            <hr />
             <div>
-                <input
-                    type="range"
-                    min={0}
-                    max={photos.length - 1}
-                    value={tempPhotoIndex}
-                    onChange={handlePhotoChange}
-                />
+                <label>
+                    <span className="input-range-label">시간</span>
+                    <input
+                        className="input-range-photo"
+                        name="photo"
+                        type="range"
+                        min={0}
+                        max={photos.length - 1}
+                        value={tempPhotoIndex}
+                        step={1}
+                        onChange={handlePhotoChange}
+                        list="photoTicks"
+                    />
+                    <datalist id="photoTicks">
+                        {photos.map((photo, index) => (
+                            <option value={index} key={index} />
+                        ))}
+                    </datalist>
+                    <span className="input-range-value">
+                        {photos[tempPhotoIndex]
+                            ?.split(".")[0]
+                            .split("_")[1]
+                            .replaceAll("-", ":")}
+                    </span>
+                </label>
             </div>
-            <p>Selected Photo: {photos[tempPhotoIndex]}</p>
+            <hr />
             <div>
                 {imageUrl && (
                     <img
@@ -130,6 +165,8 @@ const SelectPhoto = ({ site }) => {
                     />
                 )}
             </div>
+
+            <hr />
         </>
     );
 };

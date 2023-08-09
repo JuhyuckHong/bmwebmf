@@ -22,9 +22,7 @@ function Login({ setAuth }) {
                 setAuth(true);
             })
             .catch((err) => {
-                event.preventDefault();
-                console.log(err);
-                // alert(err.data.message)
+                alert(err.response.data.message);
             });
     };
 
@@ -49,7 +47,7 @@ function Login({ setAuth }) {
                         onChange={pwEventHandler}
                         className="FormInput"
                     />
-                    <button className="Submit"> Submit </button>
+                    <button className="Submit"> 로그인 </button>
                 </form>
             </div>
         </div>

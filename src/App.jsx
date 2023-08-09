@@ -7,10 +7,13 @@ import AllSites from "./components/AllSites";
 import { API } from "./API";
 import "./App.css";
 import SingleSite from "./components/SingleSite";
+import Signup from "./components/Signup";
+import PendingUsers from "./components/PendingUsers";
 
 function App() {
     const [auth, setAuth] = useState(false);
     const [site, setSite] = useState(null);
+    const [admin, setAdmin] = useState(false);
     useEffect(() => {
         const token = cookie.load("BM");
         if (token && decodeJwt(token).exp < parseInt(Date.now() / 1000)) {
@@ -19,25 +22,37 @@ function App() {
         } else if (token) {
             // if token has not expired, try login
             API.auth({ Authorization: token })
-                .then((res) => setAuth(true))
+                .then((res) => {
+                    const identity = res?.data.identity;
+                    if (identity.class === identity.username) setAdmin(true);
+                    setAuth(true);
+                })
                 .catch((err) => console.log("error in auth", err));
+        } else {
+            setAuth(false);
+            setAdmin(false);
         }
     }, [auth]);
 
+    console.log("admin: ", admin);
+
     return (
         <>
-            <div
-                style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    justifyContent: "center",
-                    alignItems: "center",
-                }}>
+            <div className="user">
                 {auth ? (
                     <Logout setAuth={setAuth} />
                 ) : (
-                    <Login setAuth={setAuth} />
+                    <>
+                        <div>
+                            <Login setAuth={setAuth} />
+                        </div>
+                        <div>
+                            <Signup />
+                        </div>
+                    </>
                 )}
+            </div>
+            <div className="display">
                 {auth ? (
                     site ? (
                         <SingleSite site={site} setSite={setSite} />
@@ -48,6 +63,7 @@ function App() {
                     ""
                 )}
             </div>
+            <div>{admin ? <PendingUsers /> : ""}</div>
         </>
     );
 }

@@ -1,6 +1,3 @@
-import { useEffect, useState } from "react";
-import { API } from "../API";
-import cookie from "react-cookies";
 import SelectPhoto from "./SelectPhoto";
 
 function SingleSite({ site, setSite }) {
