@@ -34,6 +34,19 @@ function PendingUsers() {
         }
     };
 
+    const handleDecline = async (username) => {
+        try {
+            const token = cookie.load("BM");
+            await API.declineUser({ Authorization: token }, username);
+            // After successful approval, remove user from the pending list in UI
+            setPendingUsers((prevUsers) =>
+                prevUsers.filter((user) => user.username !== username),
+            );
+        } catch (error) {
+            console.error(`Error declining user ${username}:`, error);
+        }
+    };
+
     return (
         <div>
             <h1>Pending Users</h1>
@@ -43,6 +56,9 @@ function PendingUsers() {
                         Username: {user.username}, Code: {user.code}
                         <button onClick={() => handleApproval(user.username)}>
                             Approve
+                        </button>
+                        <button onClick={() => handleDecline(user.username)}>
+                            Decline
                         </button>
                     </li>
                 ))}

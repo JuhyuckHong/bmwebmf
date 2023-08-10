@@ -13,9 +13,12 @@ export const API = {
     signUp: (body) => api.post("/signup", body),
     // 회원 승인 대기 목록
     pendingUsers: (headers) => api.get("/users/pending", { headers }),
-    // 회원 승인
+    // 회원 가입 승인
     approveUser: (headers, username) =>
         api.put(`/approve/${username}`, { headers }),
+    // 회원 가입 거절
+    declineUser: (headers, username) =>
+        api.put(`/decline/${username}`, { headers }),
     // 로그인
     signIn: (body) => api.post("/login", body),
     // 사용자 토큰 확인
