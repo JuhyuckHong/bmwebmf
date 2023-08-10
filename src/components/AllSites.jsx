@@ -62,56 +62,70 @@ function AllSites({ setSite, reload }) {
 
     return (
         <div className="thumbnails">
-            {thumbnails.map((thumbnail, index) => {
-                const siteInfo = siteInformation[thumbnail.site] || {};
-                const imageUrl = staticUrls[index];
+            {thumbnails
+                .sort((a, b) => {
+                    const nameA = a.site.toUpperCase();
+                    const nameB = b.site.toUpperCase();
+                    if (nameA < nameB) return -1;
+                    if (nameA > nameB) return 1;
+                    return 0;
+                })
+                .map((thumbnail, index) => {
+                    const siteInfo = siteInformation[thumbnail.site] || {};
+                    const imageUrl = staticUrls[index];
 
-                return (
-                    <div key={thumbnail.site} className="thumbnails-individual">
-                        {imageUrl && (
-                            <img
-                                style={{
-                                    width: "100%",
-                                    height: "auto",
-                                    borderRadius: "5px",
-                                }}
-                                src={imageUrl}
-                                alt={thumbnail.site}
-                                loading="lazy"
-                                onClick={() =>
-                                    handleThumbnailClick(thumbnail.site)
-                                }
-                            />
-                        )}
-                        {siteInfo && (
-                            <div className="site-information">
-                                <p>현장: {thumbnail.site}</p>
-                                <p>
-                                    최근:{" "}
-                                    {formatRecentPhoto(siteInfo.recent_photo)}
-                                </p>
-                                <p>
-                                    운영: {formatTime(siteInfo.time_start)}~
-                                    {formatTime(siteInfo.time_end)}
-                                </p>
-                                <p>간격: {siteInfo.time_interval}분</p>
-                                <p>
-                                    현재: {siteInfo.photos_count}/
-                                    {siteInfo.shooting_count_till_now}
-                                    {"(총 촬영 수:"}
-                                    {siteInfo.shooting_count}
-                                    {")"}
-                                </p>
-                                <p>원격: {siteInfo.remote_condition}</p>
-                                <p>
-                                    모듈:{" "}
-                                    {formatDeviceNumber(siteInfo.device_number)}
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                );
-            })}
+                    return (
+                        <div
+                            key={thumbnail.site}
+                            className="thumbnails-individual">
+                            {imageUrl && (
+                                <img
+                                    style={{
+                                        width: "100%",
+                                        height: "auto",
+                                        borderRadius: "5px",
+                                    }}
+                                    src={imageUrl}
+                                    alt={thumbnail.site}
+                                    loading="lazy"
+                                    onClick={() =>
+                                        handleThumbnailClick(thumbnail.site)
+                                    }
+                                />
+                            )}
+                            {siteInfo && (
+                                <div className="site-information">
+                                    <p>현장: {thumbnail.site}</p>
+                                    <p>
+                                        최근:{" "}
+                                        {formatRecentPhoto(
+                                            siteInfo.recent_photo,
+                                        )}
+                                    </p>
+                                    <p>
+                                        운영: {formatTime(siteInfo.time_start)}~
+                                        {formatTime(siteInfo.time_end)}
+                                    </p>
+                                    <p>간격: {siteInfo.time_interval}분</p>
+                                    <p>
+                                        현재: {siteInfo.photos_count}/
+                                        {siteInfo.shooting_count_till_now}
+                                        {"(총 촬영 수:"}
+                                        {siteInfo.shooting_count}
+                                        {")"}
+                                    </p>
+                                    <p>원격: {siteInfo.remote_condition}</p>
+                                    <p>
+                                        모듈:{" "}
+                                        {formatDeviceNumber(
+                                            siteInfo.device_number,
+                                        )}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
         </div>
     );
 }
