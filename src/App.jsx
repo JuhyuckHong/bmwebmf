@@ -9,11 +9,14 @@ import "./App.css";
 import SingleSite from "./components/SingleSite";
 import Signup from "./components/Signup";
 import PendingUsers from "./components/PendingUsers";
+import UserPermission from "./components/UserPermission";
 
 function App() {
     const [auth, setAuth] = useState(false);
     const [site, setSite] = useState(null);
     const [admin, setAdmin] = useState(false);
+    const [reload, setReload] = useState(false);
+
     useEffect(() => {
         const token = cookie.load("BM");
         if (token && decodeJwt(token).exp < parseInt(Date.now() / 1000)) {
@@ -57,13 +60,20 @@ function App() {
                     site ? (
                         <SingleSite site={site} setSite={setSite} />
                     ) : (
-                        <AllSites setSite={setSite} />
+                        <AllSites setSite={setSite} reload={reload} />
                     )
                 ) : (
                     ""
                 )}
             </div>
             <div>{admin ? <PendingUsers /> : ""}</div>
+            <div>
+                {admin ? (
+                    <UserPermission reload={reload} setReload={setReload} />
+                ) : (
+                    ""
+                )}
+            </div>
         </>
     );
 }

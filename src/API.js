@@ -23,8 +23,15 @@ export const API = {
     signIn: (body) => api.post("/login", body),
     // 사용자 토큰 확인
     auth: (headers) => api.get("/auth", { headers }),
+    // 사용자 전체 조회
+    allUsers: (headers) => api.get("/users", { headers }),
+    // 사용자 사이트 조회 권한 변경
+    userSiteViewAuthSet: (headers, username, sites) =>
+        api.put(`/user/${username}/update`, sites, { headers }),
+    // 서비스 중인 전체 현장 목록 조회
+    allSites: (headers) => api.get("/sites/all", { headers }),
 
-    // 전체 현장 정보 조회
+    // 전체 현장 정보 조회(사용자 조회 권한 있는 사이트만)
     getAllInformation: (headers) => api.get("/information/all", { headers }),
     // 선택 현장 정보 조회
     getInformation: (headers, site) =>
@@ -32,6 +39,9 @@ export const API = {
 
     // Thumbnail 목록 조회
     getThumbnails: (headers) => api.get("/thumbnails", { headers }),
+    // Thumbnail 이미지 조회
+    getStatic: (headers, file) =>
+        api.get(`/static/${file}`, { headers, responseType: "blob" }),
     // 사진 한개 조회 date: YYYY-MM-DD, photo: YYYY-MM-DD_hh-mm-ss
     getImage: (headers, site, date, photo) =>
         api.get(`/images/${site}/${date}/${photo}`, {
