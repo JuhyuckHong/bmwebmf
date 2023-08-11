@@ -31,16 +31,15 @@ function AllSites({ setSite, reload }) {
 
     const handleThumbnailClick = (imageName) => setSite(imageName);
 
-    const [staticUrls, setStaticUrls] = useState([]);
+    const [staticURLs, setStaticURLs] = useState({});
 
-    const getStaticUrl = async (url) => {
+    const getStaticURL = async (url) => {
         try {
             const response = await API.getStatic(
                 { Authorization: cookie.load("BM") },
                 url,
             );
 
-            console.log(url, response);
             const staticURL = URL.createObjectURL(response.data);
             return staticURL;
         } catch (err) {
@@ -49,84 +48,116 @@ function AllSites({ setSite, reload }) {
     };
 
     useEffect(() => {
-        const fetchStaticUrls = async () => {
-            const urls = await Promise.all(
+        const fetchStaticURLs = async () => {
+            // get static url concurrently
+            const URLs = await Promise.all(
                 thumbnails.map(async (thumbnail) => {
-                    return getStaticUrl(thumbnail.url);
+                    const url = await getStaticURL(thumbnail.url);
+                    return { site: thumbnail.site, url };
                 }),
             );
-            setStaticUrls(urls);
+
+            // to make {site: url} object
+            const urlsObj = URLs.reduce((acc, curr) => {
+                acc[curr.site] = curr.url;
+                return acc;
+            }, {});
+
+            setStaticURLs(urlsObj);
         };
-        fetchStaticUrls();
+        fetchStaticURLs();
     }, [thumbnails]);
 
-    return (
-        <div className="thumbnails">
-            {thumbnails
-                .sort((a, b) => {
-                    const nameA = a.site.toUpperCase();
-                    const nameB = b.site.toUpperCase();
-                    if (nameA < nameB) return -1;
-                    if (nameA > nameB) return 1;
-                    return 0;
-                })
-                .map((thumbnail, index) => {
-                    const siteInfo = siteInformation[thumbnail.site] || {};
-                    const imageUrl = staticUrls[index];
+    // Sorting state
+    const [sorting, setSorting] = useState(true);
+    const handleSorting = () => setSorting((prev) => !prev);
 
-                    return (
-                        <div
-                            key={thumbnail.site}
-                            className="thumbnails-individual">
-                            {imageUrl && (
-                                <img
-                                    style={{
-                                        width: "100%",
-                                        height: "auto",
-                                        borderRadius: "5px",
-                                    }}
-                                    src={imageUrl}
-                                    alt={thumbnail.site}
-                                    loading="lazy"
-                                    onClick={() =>
-                                        handleThumbnailClick(thumbnail.site)
-                                    }
-                                />
-                            )}
-                            {siteInfo && (
-                                <div className="site-information">
-                                    <p>현장: {thumbnail.site}</p>
-                                    <p>
-                                        최근:{" "}
-                                        {formatRecentPhoto(
-                                            siteInfo.recent_photo,
-                                        )}
-                                    </p>
-                                    <p>
-                                        운영: {formatTime(siteInfo.time_start)}~
-                                        {formatTime(siteInfo.time_end)}
-                                    </p>
-                                    <p>간격: {siteInfo.time_interval}분</p>
-                                    <p>
-                                        현재: {siteInfo.photos_count}/
-                                        {siteInfo.shooting_count_till_now}
-                                        {"(총 촬영 수:"}
-                                        {siteInfo.shooting_count}
-                                        {")"}
-                                    </p>
-                                    <p>원격: {siteInfo.remote_condition}</p>
-                                    <p>
-                                        모듈:{" "}
-                                        {formatDeviceNumber(
+    return (
+        <>
+            <div className="sorting">
+                <button onClick={handleSorting}>
+                    {sorting ? "모듈번호 순으로" : "현장이름 순으로"}
+                </button>
+            </div>
+            <div className="thumbnails">
+                {thumbnails
+                    .sort((a, b) => {
+                        if (sorting) {
+                            const nameA = a.site.toUpperCase();
+                            const nameB = b.site.toUpperCase();
+                            if (nameA < nameB) return -1;
+                            if (nameA > nameB) return 1;
+                            return 0;
+                        } else {
+                            const nameA = siteInformation[a.site].device_number;
+                            const nameB = siteInformation[b.site].device_number;
+                            if (nameA < nameB) return -1;
+                            if (nameA > nameB) return 1;
+                            return 0;
+                        }
+                    })
+                    .map((thumbnail) => {
+                        const siteInfo = siteInformation[thumbnail.site] || {};
+                        const imageURL = staticURLs[thumbnail.site];
+
+                        return (
+                            <div
+                                key={thumbnail.site}
+                                className="thumbnails-individual">
+                                {imageURL && (
+                                    <img
+                                        style={{
+                                            width: "100%",
+                                            height: "auto",
+                                            borderRadius: "5px",
+                                        }}
+                                        src={imageURL}
+                                        alt={thumbnail.site}
+                                        loading="lazy"
+                                        onClick={() =>
+                                            handleThumbnailClick(thumbnail.site)
+                                        }
+                                    />
+                                )}
+                                {siteInfo && (
+                                    <div className="site-information">
+                                        <p>{`현장: ${
+                                            thumbnail.site
+                                        } (${formatDeviceNumber(
                                             siteInfo.device_number,
-                                        )}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    );
-                })}
-        </div>
+                                        )})`}</p>
+                                        <p>
+                                            {`최근: ${formatRecentPhoto(
+                                                siteInfo.recent_photo,
+                                            )}`}
+                                        </p>
+                                        <p>
+                                            {`운영: ${formatTime(
+                                                siteInfo.time_start,
+                                            )} ~ ${formatTime(
+                                                siteInfo.time_end,
+                                            )} (간격: ${
+                                                siteInfo.time_interval
+                                            }분)`}
+                                        </p>
+                                        <p>
+                                            {`촬영: ${siteInfo.photos_count} (${
+                                                siteInfo.shooting_count_till_now -
+                                                siteInfo.photos_count
+                                            }개 누락) (오늘 예정: ${
+                                                siteInfo.shooting_count
+                                            })`}
+                                        </p>
+                                        <p>{`원격: ${
+                                            siteInfo.ssh ? "O" : "X"
+                                        }`}</p>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+            </div>
+        </>
     );
 }
 
@@ -143,7 +174,7 @@ const formatTime = (time) => {
 
 const formatDeviceNumber = (device) => {
     if (!device) return "";
-    return device.replace("bmotion", "");
+    return parseInt(device.replace("bmotion", ""));
 };
 
 export default AllSites;
