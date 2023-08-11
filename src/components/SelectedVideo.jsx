@@ -112,7 +112,7 @@ function SelectedVideo({ site }) {
                 {loading ? (
                     <div className="spinner"></div>
                 ) : (
-                    <video controls ref={videoRef}>
+                    <video controls autoplay muted ref={videoRef}>
                         <source src={videoURL} type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
