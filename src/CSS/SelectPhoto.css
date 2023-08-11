@@ -5,11 +5,11 @@ input[type="range"] {
 }
 
 input[name="date"] {
-    accent-color: grey;
+    accent-color: #fabe00;
 }
 
 input[name="photo"] {
-    accent-color: grey;
+    accent-color: #fabe00;
 }
 
 span {

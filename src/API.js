@@ -56,4 +56,10 @@ export const API = {
     // 사이트 특정 날짜에 있는 사진 목록 조회
     getSiteDateList: (headers, site, date) =>
         api.get(`/images/${site}/${date}`, { headers }),
+    // 사이트 특정 날짜에 있는 영상 목록 조회
+    getSiteDailyVideoList: (headers, site) =>
+        api.get(`/video/${site}`, { headers }),
+    // 사이트 특정 날짜에 있는 영상 목록 조회
+    getSiteDailyVideo: (headers, site, video) =>
+        api.get(`/video/${site}/${video}`, { headers, responseType: "blob" }),
 };

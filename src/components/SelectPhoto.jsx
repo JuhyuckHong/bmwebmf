@@ -64,7 +64,7 @@ const SelectPhoto = ({ site }) => {
     }, [tempPhotoIndex]);
 
     // 개별 사진 요청을 위한 상태
-    const [imageUrl, setImageUrl] = useState("");
+    const [imageURL, setImageURL] = useState("");
 
     // 개별 사진을 선택한 경우 해당 사진을 요청
     useEffect(() => {
@@ -85,7 +85,7 @@ const SelectPhoto = ({ site }) => {
                         dates[selectedDateIndex],
                         photos[selectedPhotoIndex]?.split(".")[0],
                     );
-                    setImageUrl(URL.createObjectURL(response.data));
+                    setImageURL(URL.createObjectURL(response.data));
                 } catch (err) {
                     console.error("Failed to get photos:", err);
                 }
@@ -154,9 +154,9 @@ const SelectPhoto = ({ site }) => {
             </div>
             <hr />
             <div>
-                {imageUrl && (
+                {imageURL && (
                     <img
-                        src={imageUrl}
+                        src={imageURL}
                         alt="Recent"
                         style={{
                             maxHeight: "40vh",
@@ -165,8 +165,6 @@ const SelectPhoto = ({ site }) => {
                     />
                 )}
             </div>
-
-            <hr />
         </>
     );
 };

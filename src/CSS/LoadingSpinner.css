@@ -1,0 +1,38 @@
+video,
+.spinner {
+    box-sizing: border-box;
+    width: 100%; /* or a specific width if needed */
+    height: 40vh;
+    margin: 0;
+    padding: 0;
+}
+
+.spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+}
+
+.spinner::before {
+    content: "";
+    width: 60px;
+    height: 60px;
+    border: 8px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 8px solid #3498db;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+input[name="video"] {
+    accent-color: #fabe00;
+}

@@ -1,4 +1,5 @@
 import SelectPhoto from "./SelectPhoto";
+import SelectedVideo from "./SelectedVideo";
 
 function SingleSite({ site, setSite }) {
     const handleGoToMainPage = () => setSite(null);
@@ -15,6 +16,7 @@ function SingleSite({ site, setSite }) {
             <button onClick={handleGoToMainPage}>Go to Main Page</button>
             <h2>{site}</h2>
             <SelectPhoto site={site} />
+            <SelectedVideo site={site} />
         </div>
     );
 }
