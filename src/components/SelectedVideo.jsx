@@ -22,7 +22,7 @@ function SelectedVideo({ site }) {
                     site,
                 );
                 setDates(response.data);
-                setSelectedDateIndex(response.data.length - 1);
+                setTempDateIndex(response.data.length - 1);
             } catch (err) {
                 console.error("Failed to get date:", err);
             }
