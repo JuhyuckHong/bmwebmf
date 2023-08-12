@@ -16,6 +16,8 @@ function App() {
     const [site, setSite] = useState(null);
     const [admin, setAdmin] = useState(false);
     const [reload, setReload] = useState(false);
+    const [adminToggle, setAdminToggle] = useState(false);
+    const [loginToggle, setLoginToggle] = useState(false);
 
     useEffect(() => {
         const token = cookie.load("BM");
@@ -37,26 +39,39 @@ function App() {
         }
     }, [auth]);
 
-    console.log("admin: ", admin);
+    const handleAdminToggle = () => setAdminToggle((prev) => !prev);
+    // 회원가입 ↔ 로그인
+    const handleLoginToggle = () => setLoginToggle((prev) => !prev);
 
     return (
         <>
-            <div className="user">
-                {auth ? (
+            {auth ? (
+                <div className="user">
                     <Logout setAuth={setAuth} />
-                ) : (
-                    <>
-                        <div>
-                            <Login setAuth={setAuth} />
-                        </div>
-                        <div>
-                            <Signup />
-                        </div>
-                    </>
-                )}
-            </div>
+                    <span>&nbsp;</span>
+                    {admin && (
+                        <button onClick={handleAdminToggle}>
+                            {adminToggle ? "User" : "Admin"}
+                        </button>
+                    )}
+                </div>
+            ) : (
+                <>
+                    <div className="landing">
+                        {loginToggle ? (
+                            <Login
+                                setAuth={setAuth}
+                                handleLoginToggle={handleLoginToggle}
+                            />
+                        ) : (
+                            <Signup handleLoginToggle={handleLoginToggle} />
+                        )}
+                    </div>
+                </>
+            )}
+
             <div className="display">
-                {auth ? (
+                {auth && !adminToggle ? (
                     site ? (
                         <SingleSite site={site} setSite={setSite} />
                     ) : (
@@ -66,12 +81,10 @@ function App() {
                     ""
                 )}
             </div>
-            <div>{admin ? <PendingUsers /> : ""}</div>
+            <div>{auth && adminToggle && <PendingUsers />}</div>
             <div>
-                {admin ? (
+                {auth && adminToggle && (
                     <UserPermission reload={reload} setReload={setReload} />
-                ) : (
-                    ""
                 )}
             </div>
         </>

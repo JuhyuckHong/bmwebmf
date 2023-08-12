@@ -9,41 +9,95 @@
 .user {
     display: flex;
     flex-wrap: wrap;
+    justify-content: right;
+    align-items: center;
+    height: 5vh;
+}
+
+/* Common styles */
+.user button {
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: none;
+    background-color: darkolivegreen;
+    color: lightcyan;
+    transition: background-color 0.3s;
+}
+
+.user button:hover {
+    background-color: lightslategray;
+}
+
+.landing {
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
 }
 
-/* Login and Logout button styles */
-.Login,
-.Logout {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
+.landing input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40vw;
+    height: 32px;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    border: 0px;
+    border-radius: 1ch;
+    padding-left: 1vw;
+    margin-bottom: 5vh;
+    background-color: lightgrey;
+}
+
+.landing h2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 40vw;
+    height: 10vh;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    font-weight: bolder;
+    margin-top: 5vh;
+    margin-bottom: 5vh;
+    padding: 1vh;
+    background-color: grey;
+    color: whitesmoke;
+    border-radius: 1ch;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40vw;
+}
+
+.landing button {
     cursor: pointer;
-    margin-right: 10px; /* Add space between Login and Logout */
+    padding: 10px 10px;
+    width: 50%;
+    border-radius: 1ch;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    border: none;
+    transition: background-color 0.3s;
 }
 
-/* Hover effects */
-.Login:hover,
-.Logout:hover {
-    opacity: 0.9;
+.landing button:hover {
+    background-color: lightslategray;
 }
 
-.Login {
-    background-color: #007bff;
-    color: #fff;
+.login-toggle {
+    margin-right: 10px;
+    color: green;
 }
 
-.Logout {
-    background-color: #dc3545;
-    color: #fff;
-}
-
-/* Single site and All sites styles */
 .SingleSite,
 .AllSites {
     width: 100%;
-    max-width: 90vh;
+    width: 90vw;
+    height: 90vh;
     margin-top: 10px;
     background-color: #fff;
     border-radius: 5px;

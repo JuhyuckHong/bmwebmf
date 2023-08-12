@@ -1,0 +1,99 @@
+:root {
+    --image-video-height: 40vh;
+}
+
+.single-site-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.to-all-button {
+    height: 2.5vh;
+}
+
+.single-site-container button {
+    height: 2.5vh;
+}
+
+.active {
+    filter: brightness(100%);
+}
+
+.inactive {
+    filter: grayscale(80%);
+    opacity: 0.5;
+}
+
+h2 {
+    width: auto;
+    height: 5vh;
+    display: flex;
+    align-items: center;
+}
+
+input[type="range"] {
+    vertical-align: middle;
+    width: 70vw;
+}
+
+input[name="date"] {
+    accent-color: #fabe00;
+}
+
+input[name="photo"] {
+    accent-color: #fabe00;
+}
+
+input[name="video"] {
+    accent-color: #fabe00;
+}
+
+span {
+    font-size: 1.2em;
+    vertical-align: middle;
+}
+
+.input-range-label {
+    display: inline-block;
+    width: 8vw;
+    text-align: center;
+    margin-right: 1vw;
+    font-size: clamp(0.5rem, 2vw, 1rem);
+}
+
+.input-range-value {
+    display: inline-block;
+    width: 8vw;
+    text-align: center;
+    margin-left: 1vw;
+    font-size: clamp(0.5rem, 2vw, 1rem);
+}
+
+hr {
+    width: 100%;
+    color: grey;
+    size: 3;
+}
+
+img {
+    height: var(--image-video-height);
+    width: 100%;
+    object-fit: contain;
+}
+
+video {
+    box-sizing: border-box;
+    width: 100%;
+    height: var(--image-video-height);
+    margin: 0;
+    padding: 0;
+}
+
+.selector-container {
+    height: 5vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}

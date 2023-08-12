@@ -81,7 +81,7 @@ function SelectedVideo({ site }) {
     return (
         <>
             <hr />
-            <div>
+            <div className="selector-container">
                 <label>
                     <span className="input-range-label">영상</span>
                     <input
@@ -108,7 +108,8 @@ function SelectedVideo({ site }) {
                     </span>
                 </label>
             </div>
-            <div>
+            <hr />
+            <div className="video-container">
                 {loading ? (
                     <div className="spinner"></div>
                 ) : (
@@ -118,6 +119,7 @@ function SelectedVideo({ site }) {
                     </video>
                 )}
             </div>
+            <hr />
         </>
     );
 }

@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import cookie from "react-cookies";
 import { API } from "../API";
 import "../CSS/AllSites.css";
+import WidthAdjuster from "./WidthAdjuster";
 
 function AllSites({ setSite, reload }) {
     const [thumbnails, setThumbnails] = useState([]);
@@ -68,70 +69,69 @@ function AllSites({ setSite, reload }) {
         fetchStaticURLs();
     }, [thumbnails]);
 
-    // Sorting state
+    // Sorting state and function, useMemo for optimization
     const [sorting, setSorting] = useState(true);
     const handleSorting = () => setSorting((prev) => !prev);
+    const sortFunc = (a, b) => {
+        if (sorting) {
+            const nameA = a.site.toUpperCase();
+            const nameB = b.site.toUpperCase();
+            return nameA.localeCompare(nameB);
+        } else {
+            const nameA = siteInformation[a.site]?.device_number || "";
+            const nameB = siteInformation[b.site]?.device_number || "";
+            return nameA.localeCompare(nameB);
+        }
+    };
+    const sortedThumbnails = useMemo(() => {
+        return [...thumbnails].sort(sortFunc);
+    }, [thumbnails, sorting, siteInformation]);
 
     return (
         <>
             <div className="sorting">
                 <button onClick={handleSorting}>
-                    {sorting ? "모듈번호 순으로" : "현장이름 순으로"}
+                    {sorting ? "모듈번호 정렬" : "현장이름 정렬"}
                 </button>
+                <WidthAdjuster />
             </div>
             <div className="thumbnails">
-                {thumbnails
-                    .sort((a, b) => {
-                        if (sorting) {
-                            const nameA = a.site.toUpperCase();
-                            const nameB = b.site.toUpperCase();
-                            if (nameA < nameB) return -1;
-                            if (nameA > nameB) return 1;
-                            return 0;
-                        } else {
-                            const nameA = siteInformation[a.site].device_number;
-                            const nameB = siteInformation[b.site].device_number;
-                            if (nameA < nameB) return -1;
-                            if (nameA > nameB) return 1;
-                            return 0;
-                        }
-                    })
-                    .map((thumbnail) => {
-                        const siteInfo = siteInformation[thumbnail.site] || {};
-                        const imageURL = staticURLs[thumbnail.site];
+                {sortedThumbnails.map((thumbnail) => {
+                    const siteInfo = siteInformation[thumbnail.site] || {};
+                    const imageURL = staticURLs[thumbnail.site];
+                    const siteStatus = getSiteStatus(siteInfo);
 
-                        return (
-                            <div
-                                key={thumbnail.site}
-                                className="thumbnails-individual">
-                                {imageURL && (
-                                    <img
-                                        style={{
-                                            width: "100%",
-                                            height: "auto",
-                                            borderRadius: "5px",
-                                        }}
-                                        src={imageURL}
-                                        alt={thumbnail.site}
-                                        loading="lazy"
-                                        onClick={() =>
-                                            handleThumbnailClick(thumbnail.site)
-                                        }
-                                    />
-                                )}
-                                {siteInfo && (
-                                    <div className="site-information">
-                                        <p>{`현장: ${
-                                            thumbnail.site
-                                        } (${formatDeviceNumber(
-                                            siteInfo.device_number,
-                                        )})`}</p>
-                                        <p>
-                                            {`최근: ${formatRecentPhoto(
-                                                siteInfo.recent_photo,
-                                            )}`}
-                                        </p>
-                                        <p>
+                    return (
+                        <div
+                            key={thumbnail.site}
+                            className={`thumbnails-individual ${siteStatus}`}>
+                            {imageURL && (
+                                <img
+                                    style={{
+                                        width: "100%",
+                                        height: "auto",
+                                        borderRadius: "5px",
+                                    }}
+                                    src={imageURL}
+                                    alt={thumbnail.site}
+                                    loading="lazy"
+                                    onClick={() =>
+                                        handleThumbnailClick(thumbnail.site)
+                                    }
+                                />
+                            )}
+                            {siteInfo && (
+                                <div className="site-information">
+                                    <p>
+                                        <br />
+                                        <span>현장:</span>
+                                        <span className="site-name">{` ${thumbnail.site} `}</span>
+                                        <br />
+                                        <span className="recent-photo">{`최근: ${formatRecentPhoto(
+                                            siteInfo.recent_photo,
+                                        )}`}</span>
+                                        <br />
+                                        <span className="operation-time">
                                             {`운영: ${formatTime(
                                                 siteInfo.time_start,
                                             )} ~ ${formatTime(
@@ -139,23 +139,44 @@ function AllSites({ setSite, reload }) {
                                             )} (간격: ${
                                                 siteInfo.time_interval
                                             }분)`}
-                                        </p>
-                                        <p>
-                                            {`촬영: ${siteInfo.photos_count} (${
-                                                siteInfo.shooting_count_till_now -
-                                                siteInfo.photos_count
-                                            }개 누락) (오늘 예정: ${
-                                                siteInfo.shooting_count
-                                            })`}
-                                        </p>
-                                        <p>{`원격: ${
+                                        </span>
+                                        <br />
+                                        <span>
+                                            {`촬영: ${siteInfo.photos_count} `}
+                                        </span>
+                                        <span
+                                            className={getMissingPhotosClass(
+                                                siteInfo.photos_count,
+                                                siteInfo.shooting_count_till_now,
+                                            )}>{`(${
+                                            siteInfo.shooting_count_till_now -
+                                            siteInfo.photos_count
+                                        }개 누락)`}</span>
+                                        <span className="today-total-photo">{` (오늘: ${siteInfo.shooting_count})`}</span>
+                                        <br />
+                                        <span>원격:&nbsp;</span>
+                                        <span
+                                            className={`remote-status ${
+                                                siteInfo.ssh
+                                                    ? "remote-on"
+                                                    : "remote-off"
+                                            } `}>{` ${
                                             siteInfo.ssh ? "O" : "X"
-                                        }`}</p>
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
+                                        } `}</span>
+                                        <span className="device-number">
+                                            (
+                                            {`${formatDeviceNumber(
+                                                siteInfo.device_number,
+                                            )}번`}
+                                            )
+                                        </span>
+                                        <br />
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         </>
     );
@@ -164,7 +185,9 @@ function AllSites({ setSite, reload }) {
 const formatRecentPhoto = (photo) => {
     if (photo === "No Photo Available" || !photo) return photo;
     const [date, time] = photo.split("_");
-    return `${date?.replaceAll("-", "/")} ${time?.replaceAll("-", ":")}`;
+    return `${date?.replaceAll("-", "/")} ${time
+        ?.split(".")[0]
+        .replaceAll("-", ":")}`;
 };
 
 const formatTime = (time) => {
@@ -177,4 +200,32 @@ const formatDeviceNumber = (device) => {
     return parseInt(device.replace("bmotion", ""));
 };
 
+const getSiteStatus = (siteInfo) => {
+    const currentTime = new Date().getHours() + new Date().getMinutes() / 60;
+    const startTime =
+        parseInt(siteInfo.time_start?.slice(0, 2)) +
+        parseInt(siteInfo.time_start?.slice(2)) / 60;
+    const endTime =
+        parseInt(siteInfo.time_end?.slice(0, 2)) +
+        parseInt(siteInfo.time_end?.slice(2)) / 60;
+
+    const operational = currentTime >= startTime && currentTime <= endTime;
+    const missing = siteInfo.shooting_count_till_now - siteInfo.photos_count;
+    const remote = siteInfo.ssh;
+
+    if (!operational) return "not-operational-time";
+    if (missing >= 5 && !remote) return "need-solution";
+    if (missing >= 5 && remote) return "need-check";
+    if (missing < 5 && !remote) return "remote-issue";
+    if (missing < 5 && remote) return "operational";
+
+    return "";
+};
+
+const getMissingPhotosClass = (photosCount, shootingCount) => {
+    const missing = shootingCount - photosCount;
+    if (missing >= 5) return "missing-high";
+    if (missing >= 1) return "missing-medium";
+    return "";
+};
 export default AllSites;

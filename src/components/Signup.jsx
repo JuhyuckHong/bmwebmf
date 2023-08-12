@@ -3,7 +3,7 @@ import { useState } from "react";
 import PasswordChecker from "./PasswordChecker";
 import PasswordConfirm from "./PasswordConfirm";
 
-function Signup() {
+function Signup({ handleLoginToggle }) {
     const [id, setId] = useState("");
     const [pw, setPw] = useState("");
     const [pwConfirm, setPwConfirm] = useState("");
@@ -29,12 +29,12 @@ function Signup() {
     return (
         <div className="SignupMain">
             <div className="SignupContent">
-                <h2> Sign Up </h2>
+                <h2 className="title"> 회원가입 </h2>
 
                 <form className="SignupBox" onSubmit={RequestSignup}>
                     <input
                         type="text"
-                        placeholder="ID"
+                        placeholder="아이디"
                         value={id}
                         onChange={idEventHandler}
                         className="FormInput"
@@ -42,7 +42,7 @@ function Signup() {
 
                     <input
                         type="password"
-                        placeholder="Password"
+                        placeholder="비밀번호"
                         value={pw}
                         onChange={pwEventHandler}
                         className="FormInput"
@@ -50,7 +50,7 @@ function Signup() {
                     {pw !== "" ? <PasswordChecker password={pw} /> : ""}
                     <input
                         type="password"
-                        placeholder="Password Confirm"
+                        placeholder="비밀번호 확인"
                         value={pwConfirm}
                         onChange={pwConfirmEventHandler}
                         className="FormInput"
@@ -70,7 +70,16 @@ function Signup() {
                         onChange={codeEventHandler}
                         className="FormInput"
                     />
-                    <button className="Submit"> 회원가입 </button>
+                    <div className="button-container">
+                        <button
+                            type="button"
+                            className="login-toggle"
+                            onClick={handleLoginToggle}>
+                            {""}
+                            로그인{" "}
+                        </button>
+                        <button className="Submit"> 회원가입</button>
+                    </div>
                 </form>
             </div>
         </div>

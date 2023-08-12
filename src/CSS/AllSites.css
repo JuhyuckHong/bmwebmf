@@ -1,15 +1,165 @@
+:root {
+    --site-info-width: 200px;
+}
+
+/* Common styles */
+.display button {
+    height: 2.5vh;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: none;
+    background-color: midnightblue;
+    color: lightgoldenrodyellow;
+    transition: background-color 0.3s;
+    margin: 0px 5px;
+    font-size: medium;
+}
+
+.display button:hover {
+    background-color: blue;
+}
+
+/* Sorting styles */
+.sorting {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Thumbnails container */
 .thumbnails {
     display: flex;
     flex-wrap: wrap;
+    gap: 20px;
     justify-content: center;
+}
+
+/* Individual thumbnail and its details */
+.thumbnails-individual {
+    width: var(--site-info-width);
+    display: flex;
+    flex-direction: column;
     align-items: center;
 }
 
-.thumbnails-individual {
-    width: 200px;
-    margin: 10px;
+.thumbnails-individual img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    transition: transform 0.3s;
 }
 
-p {
-    font-size: x-small;
+.thumbnails-individual img:hover {
+    transform: scale(1.05);
+}
+
+.site-information {
+    max-width: var(--site-info-width);
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+}
+
+.site-information p {
+    width: var(--site-info-width);
+    font-size: calc(var(--site-info-width) / 20);
+    white-space: nowrap;
+    border-radius: 5px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.site-name {
+    font-weight: bold;
+    background-color: blue;
+    color: whitesmoke;
+    border-radius: 4px;
+    padding: 0px 3px;
+    display: inline-block;
+    width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.missing-medium {
+    background-color: lightpink;
+    border-radius: 4px;
+    padding: 0 2px;
+}
+
+.missing-high {
+    background-color: red;
+    border-radius: 4px;
+    padding: 0 2px;
+    color: whitesmoke;
+    font-weight: bold;
+}
+
+.today-total-photo {
+    font-size: smaller;
+}
+
+.remote-status.remote-on {
+    background-color: green;
+    color: whitesmoke;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.remote-status.remote-off {
+    background-color: red;
+    color: whitesmoke;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.device-number {
+    font-weight: lighter;
+    margin-left: 0.5vw;
+}
+
+/* 기존 CSS에 추가/수정될 스타일 */
+.thumbnails-individual.non-operational {
+    filter: grayscale(70%);
+    opacity: 0.7;
+}
+
+.need-solution {
+    box-shadow: 0 0 1px 0px red;
+    border-radius: 5px;
+}
+.need-check {
+    box-shadow: 0 0 1px 0px orange;
+    border-radius: 5px;
+}
+.remote-issue {
+    box-shadow: 0 0 1px 0px yellow;
+    border-radius: 5px;
+}
+.operational {
+    box-shadow: 0 0 1px 0px green;
+    border-radius: 5px;
+}
+.not-operational-time {
+    box-shadow: 0 0 1px 0px grey;
+    filter: grayscale(50%);
+    opacity: 0.5;
+    border-radius: 5px;
+}
+
+br {
+    content: "";
+    display: block;
+    border-top: 0px;
+    margin-top: 0.1em;
+}
+
+.width-current-value {
+    font-size: medium;
+    font-weight: 900;
+    color: midnightblue;
+    border-radius: 5px;
 }

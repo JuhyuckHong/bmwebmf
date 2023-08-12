@@ -2,7 +2,7 @@ import { API } from "../API";
 import cookie from "react-cookies";
 import { useState } from "react";
 
-function Login({ setAuth }) {
+function Login({ setAuth, handleLoginToggle }) {
     const [id, setId] = useState("");
     const [pw, setPw] = useState("");
     const idEventHandler = (event) => setId(event.target.value);
@@ -29,12 +29,12 @@ function Login({ setAuth }) {
     return (
         <div className="LoginMain">
             <div className="LoginContent">
-                <h2> Sign In </h2>
+                <h2 className="title"> 로그인 </h2>
 
                 <form className="LoginBox" onSubmit={RequestLogin}>
                     <input
                         type="text"
-                        placeholder="ID"
+                        placeholder="아이디"
                         value={id}
                         onChange={idEventHandler}
                         className="FormInput"
@@ -42,12 +42,21 @@ function Login({ setAuth }) {
 
                     <input
                         type="password"
-                        placeholder="Password"
+                        placeholder="비밀번호"
                         value={pw}
                         onChange={pwEventHandler}
                         className="FormInput"
                     />
-                    <button className="Submit"> 로그인 </button>
+                    <div className="button-container">
+                        <button
+                            type="button"
+                            className="login-toggle"
+                            onClick={handleLoginToggle}>
+                            {" "}
+                            가입하기{" "}
+                        </button>
+                        <button className="Submit"> 로그인 </button>
+                    </div>
                 </form>
             </div>
         </div>

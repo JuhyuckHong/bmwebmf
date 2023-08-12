@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { API } from "../API";
 import cookie from "react-cookies";
-import "../CSS/SelectPhoto.css";
 
 const SelectPhoto = ({ site }) => {
     const [selectedDateIndex, setSelectedDateIndex] = useState(0);
@@ -98,7 +97,7 @@ const SelectPhoto = ({ site }) => {
     return (
         <>
             <hr />
-            <div>
+            <div className="selector-container">
                 <label>
                     <span className="input-range-label">날짜</span>
                     <input
@@ -125,7 +124,7 @@ const SelectPhoto = ({ site }) => {
                 </label>
             </div>
             <hr />
-            <div>
+            <div className="selector-container">
                 <label>
                     <span className="input-range-label">시간</span>
                     <input
@@ -153,15 +152,15 @@ const SelectPhoto = ({ site }) => {
                 </label>
             </div>
             <hr />
-            <div>
+            <div className="photo-container">
                 {imageURL && (
                     <img
                         src={imageURL}
                         alt="Recent"
-                        style={{
-                            maxHeight: "40vh",
-                            objectFit: "contain",
-                        }}
+                        // style={{
+                        //     maxHeight: "40vh",
+                        //     objectFit: "contain",
+                        // }}
                     />
                 )}
             </div>
