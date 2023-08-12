@@ -17,7 +17,7 @@ function App() {
     const [admin, setAdmin] = useState(false);
     const [reload, setReload] = useState(false);
     const [adminToggle, setAdminToggle] = useState(false);
-    const [loginToggle, setLoginToggle] = useState(false);
+    const [loginToggle, setLoginToggle] = useState(true);
 
     useEffect(() => {
         const token = cookie.load("BM");
