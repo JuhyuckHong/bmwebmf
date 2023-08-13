@@ -1,16 +1,26 @@
 import { API } from "../API";
-import { useState } from "react";
-import PasswordChecker from "./PasswordChecker";
-import PasswordConfirm from "./PasswordConfirm";
+import { useState, useEffect } from "react";
 
 function Signup({ handleLoginToggle }) {
     const [id, setId] = useState("");
     const [pw, setPw] = useState("");
     const [pwConfirm, setPwConfirm] = useState("");
     const [code, setCode] = useState("");
+
+    const [isPasswordValid, setIsPasswordValid] = useState(false);
+    const [isPasswordConfirmed, setIsPasswordConfirmed] = useState(false);
+
     const idEventHandler = (event) => setId(event.target.value);
-    const pwEventHandler = (event) => setPw(event.target.value);
-    const pwConfirmEventHandler = (event) => setPwConfirm(event.target.value);
+    const pwEventHandler = (event) => {
+        setPw(event.target.value);
+        const regex =
+            /^(?=.*[A-Za-z])(?=.*[\d~!@#$%^&*()_+])[A-Za-z\d~!@#$%^&*()_+]{8,}$/;
+        setIsPasswordValid(regex.test(event.target.value));
+    };
+    const pwConfirmEventHandler = (event) => {
+        setPwConfirm(event.target.value);
+        setIsPasswordConfirmed(pw === event.target.value);
+    };
     const codeEventHandler = (event) => setCode(event.target.value);
 
     const RequestSignup = (event) => {
@@ -52,7 +62,12 @@ function Signup({ handleLoginToggle }) {
                         onChange={pwEventHandler}
                         className="FormInput"
                     />
-                    {pw !== "" ? <PasswordChecker password={pw} /> : ""}
+                    {!isPasswordValid && pw !== "" ? (
+                        <span>
+                            8글자 이상의 영문과 숫자/특수문자 조합이 필요합니다.
+                        </span>
+                    ) : null}
+
                     <input
                         type="password"
                         placeholder="비밀번호 확인"
@@ -60,14 +75,10 @@ function Signup({ handleLoginToggle }) {
                         onChange={pwConfirmEventHandler}
                         className="FormInput"
                     />
-                    {pwConfirm !== "" ? (
-                        <PasswordConfirm
-                            password={pw}
-                            passwordConfirm={pwConfirm}
-                        />
-                    ) : (
-                        ""
-                    )}
+                    {!isPasswordConfirmed && pwConfirm !== "" ? (
+                        <span>비밀번호가 일치하지 않습니다.</span>
+                    ) : null}
+
                     <input
                         type="text"
                         placeholder="회원가입 코드"
@@ -80,10 +91,14 @@ function Signup({ handleLoginToggle }) {
                             type="button"
                             className="login-toggle"
                             onClick={handleLoginToggle}>
-                            {""}
-                            로그인{" "}
+                            로그인
                         </button>
-                        <button className="Submit"> 회원가입</button>
+                        <button
+                            className="Submit"
+                            disabled={!isPasswordValid || !isPasswordConfirmed}>
+                            {" "}
+                            회원가입
+                        </button>
                     </div>
                 </form>
             </div>
