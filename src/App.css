@@ -6,15 +6,27 @@
     font-family: "Nanum Gothic", sans-serif;
 }
 
+.ci-background {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 84px;
+    height: 48px;
+    background-color: #123456;
+    background-image: url("../public/CI.png");
+    background-repeat: no-repeat;
+    background-size: 84px 48px;
+}
+
 .user {
     display: flex;
     flex-wrap: wrap;
     justify-content: right;
     align-items: center;
-    height: 5vh;
+    height: 55px;
+    background-color: #123456;
 }
 
-/* Common styles */
 .user button {
     cursor: pointer;
     padding: 2px 4px;
@@ -58,13 +70,20 @@
     width: 40vw;
     height: 10vh;
     font-size: clamp(1rem, 2vw, 1.2rem);
-    font-weight: bolder;
+    font-weight: 800;
     margin-top: 5vh;
     margin-bottom: 5vh;
     padding: 1vh;
     background-color: grey;
-    color: whitesmoke;
+    color: #123456;
     border-radius: 1ch;
+}
+
+.landing h3 {
+    line-height: 3vh;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    font-weight: 400;
+    color: whitesmoke;
 }
 
 .button-container {

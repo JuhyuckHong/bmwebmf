@@ -48,15 +48,18 @@ function App() {
     return (
         <>
             {auth ? (
-                <div className="user">
-                    <Logout setAuth={setAuth} />
-                    <span>&nbsp;</span>
-                    {admin && (
-                        <button onClick={handleAdminToggle}>
-                            {adminToggle ? "User" : "Admin"}
-                        </button>
-                    )}
-                </div>
+                <>
+                    <div className="ci-background"></div>
+                    <div className="user">
+                        <Logout setAuth={setAuth} />
+                        <span>&nbsp;</span>
+                        {admin && (
+                            <button onClick={handleAdminToggle}>
+                                {adminToggle ? "User" : "Admin"}
+                            </button>
+                        )}
+                    </div>
+                </>
             ) : (
                 <>
                     <div className="landing">
@@ -81,7 +84,11 @@ function App() {
                             setSite={setSite}
                         />
                     ) : (
-                        <AllSites setSite={setSite} reload={reload} />
+                        <AllSites
+                            admin={admin}
+                            setSite={setSite}
+                            reload={reload}
+                        />
                     )
                 ) : (
                     ""

@@ -153,16 +153,7 @@ const SelectPhoto = ({ site }) => {
             </div>
             <hr />
             <div className="photo-container">
-                {imageURL && (
-                    <img
-                        src={imageURL}
-                        alt="Recent"
-                        // style={{
-                        //     maxHeight: "40vh",
-                        //     objectFit: "contain",
-                        // }}
-                    />
-                )}
+                {imageURL && <img src={imageURL} alt="Selected Photo" />}
             </div>
         </>
     );

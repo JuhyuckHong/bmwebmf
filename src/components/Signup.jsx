@@ -29,7 +29,12 @@ function Signup({ handleLoginToggle }) {
     return (
         <div className="SignupMain">
             <div className="SignupContent">
-                <h2 className="title"> 회원가입 </h2>
+                <h2 className="title">
+                    빌드모션 웹 모니터링
+                    <br />
+                    <h3 className="subtitle">회원가입</h3>
+                    <br />
+                </h2>
 
                 <form className="SignupBox" onSubmit={RequestSignup}>
                     <input

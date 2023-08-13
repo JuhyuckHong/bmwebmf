@@ -4,7 +4,7 @@ import { API } from "../API";
 import "../CSS/AllSites.css";
 import WidthAdjuster from "./WidthAdjuster";
 
-function AllSites({ setSite, reload }) {
+function AllSites({ admin, setSite, reload }) {
     const [thumbnails, setThumbnails] = useState([]);
     const [siteInformation, setSiteInformation] = useState({});
 
@@ -33,6 +33,7 @@ function AllSites({ setSite, reload }) {
     const handleThumbnailClick = (imageName) => setSite(imageName);
 
     const [staticURLs, setStaticURLs] = useState({});
+    const [monitorURL, setMonitorURL] = useState("");
 
     const getStaticURL = async (url) => {
         try {
@@ -64,6 +65,11 @@ function AllSites({ setSite, reload }) {
                 return acc;
             }, {});
 
+            if (admin) {
+                const URLmonitor = await getStaticURL("monitor.jpg");
+                setMonitorURL(URLmonitor);
+            }
+
             setStaticURLs(urlsObj);
         };
         fetchStaticURLs();
@@ -87,6 +93,10 @@ function AllSites({ setSite, reload }) {
         return [...thumbnails].sort(sortFunc);
     }, [thumbnails, sortFunc]);
 
+    // Monitor image show
+    const [showMonitorLarge, setShowMonitorLarge] = useState(false);
+    const handleMonitorClick = () => setShowMonitorLarge(true);
+
     return (
         <>
             <div className="sorting-adjust">
@@ -99,7 +109,22 @@ function AllSites({ setSite, reload }) {
                 {" |"}
             </div>
             <div className="thumbnails">
-                <div className="summary"></div>
+                {admin && monitorURL && (
+                    <div className="summary">
+                        <img
+                            src={monitorURL}
+                            alt={"monitor-all"}
+                            onClick={handleMonitorClick}
+                        />
+                    </div>
+                )}
+                {showMonitorLarge && (
+                    <div
+                        className="modal"
+                        onClick={() => setShowMonitorLarge(false)}>
+                        <img src={monitorURL} alt={"monitor-all-large"} />
+                    </div>
+                )}
                 {sortedThumbnails.map((thumbnail) => {
                     const siteInfo = siteInformation[thumbnail.site] || {};
                     const imageURL = staticURLs[thumbnail.site];

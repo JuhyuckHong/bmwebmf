@@ -29,7 +29,12 @@ function Login({ setAuth, handleLoginToggle }) {
     return (
         <div className="LoginMain">
             <div className="LoginContent">
-                <h2 className="title"> 로그인 </h2>
+                <h2 className="title">
+                    빌드모션 웹 모니터링
+                    <br />
+                    <h3 className="subtitle">로그인</h3>
+                    <br />
+                </h2>
 
                 <form className="LoginBox" onSubmit={RequestLogin}>
                     <input

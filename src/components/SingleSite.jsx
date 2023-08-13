@@ -14,14 +14,14 @@ function SingleSite({ site, setSite, authSites }) {
             case "video":
                 rootStyle.setProperty(
                     "--image-video-height",
-                    "calc(70vh - 30px)",
+                    "calc(70vh - 90px)",
                 );
                 break;
             case "both":
             default:
                 rootStyle.setProperty(
                     "--image-video-height",
-                    "calc(35vh - 15px)",
+                    "calc(35vh - 45px)",
                 );
                 break;
         }
@@ -38,7 +38,7 @@ function SingleSite({ site, setSite, authSites }) {
 
     return (
         <div className="single-site-container">
-            <div>
+            <div className="single-site-control">
                 <button className="to-all-button" onClick={handleGoToMainPage}>
                     전체 현장 보기
                 </button>

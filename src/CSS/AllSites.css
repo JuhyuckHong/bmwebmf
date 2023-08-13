@@ -28,7 +28,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 15px;
+    margin: 10px 0px;
     height: 30px;
     font-size: clamp(0.5rem, 2.5vw, 1.2rem);
     font-weight: normal;
@@ -41,13 +41,44 @@
     gap: 20px;
     justify-content: center;
 }
-
 .summary {
     width: var(--site-info-width);
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-size: calc(var(--site-info-width) / 50);
+    height: calc(var(--site-info-width) * 1.03);
+}
+
+.summary img {
+    object-fit: fill;
+    height: 100%;
+    width: 100%;
+    border-radius: 5px 5px 0px 0px;
+    transition: transform 0.1s ease-in-out;
+    cursor: pointer;
+}
+
+.summary img:hover {
+    transform: scaleX(1.015) scaleY(1.015);
+    border-radius: 10px 10px 0px 0px;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal img {
+    max-width: 90%;
+    max-height: 90%;
 }
 
 /* Individual thumbnail and its details */
@@ -103,8 +134,6 @@
 }
 
 .missing-high {
-    /* background-color: red; */
-    /* border-radius: 4px; */
     padding: 0 2px;
     color: red;
     font-weight: 800;
@@ -115,17 +144,15 @@
 }
 
 .remote-status.remote-on {
-    background-color: rgba(0, 128, 0, 0.75);
-    color: whitesmoke;
+    color: green;
     border-radius: 20px;
-    font-weight: bold;
+    font-weight: 800;
 }
 
 .remote-status.remote-off {
-    background-color: rgba(255, 0, 0, 0.75);
-    color: whitesmoke;
+    color: orange;
     border-radius: 10px;
-    font-weight: bold;
+    font-weight: 800;
 }
 
 .device-number {
