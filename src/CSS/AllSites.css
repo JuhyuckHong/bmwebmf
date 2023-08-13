@@ -4,28 +4,34 @@
 
 /* Common styles */
 .display button {
-    height: 2.5vh;
+    height: 30px;
     cursor: pointer;
     padding: 2px 4px;
     border-radius: 4px;
     border: none;
     background-color: midnightblue;
+    opacity: 0.8;
     color: lightgoldenrodyellow;
     transition: background-color 0.3s;
     margin: 0px 5px;
-    font-size: medium;
+    font-size: clamp(0.5rem, 2.5vw, 1.2rem);
+    font-weight: normal;
 }
 
 .display button:hover {
-    background-color: blue;
+    background-color: black;
+    opacity: 0.8;
 }
 
 /* Sorting styles */
-.sorting {
+.sorting-adjust {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    height: 30px;
+    font-size: clamp(0.5rem, 2.5vw, 1.2rem);
+    font-weight: normal;
 }
 
 /* Thumbnails container */
@@ -34,6 +40,14 @@
     flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
+}
+
+.summary {
+    width: var(--site-info-width);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: calc(var(--site-info-width) / 50);
 }
 
 /* Individual thumbnail and its details */
@@ -47,12 +61,14 @@
 .thumbnails-individual img {
     width: 100%;
     height: auto;
-    border-radius: 5px;
-    transition: transform 0.3s;
+    border-radius: 5px 5px 0px 0px;
+    transition: transform 0.1s ease-in-out;
+    cursor: pointer;
 }
 
 .thumbnails-individual img:hover {
-    transform: scale(1.05);
+    transform: scaleX(1.015) scaleY(1.015);
+    border-radius: 10px 10px 0px 0px;
 }
 
 .site-information {
@@ -65,16 +81,18 @@
 
 .site-information p {
     width: var(--site-info-width);
-    font-size: calc(var(--site-info-width) / 20);
+    font-size: calc(var(--site-info-width) / 21);
     white-space: nowrap;
     border-radius: 5px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    padding-left: 5px;
 }
 
 .site-name {
-    font-weight: bold;
-    background-color: blue;
-    color: whitesmoke;
+    cursor: pointer;
+    font-weight: 800;
+    background-color: whitesmoke;
+    color: midnightblue;
     border-radius: 4px;
     padding: 0px 3px;
     display: inline-block;
@@ -84,18 +102,12 @@
     text-align: center;
 }
 
-.missing-medium {
-    background-color: lightpink;
-    border-radius: 4px;
-    padding: 0 2px;
-}
-
 .missing-high {
-    background-color: red;
-    border-radius: 4px;
+    /* background-color: red; */
+    /* border-radius: 4px; */
     padding: 0 2px;
-    color: whitesmoke;
-    font-weight: bold;
+    color: red;
+    font-weight: 800;
 }
 
 .today-total-photo {
@@ -103,14 +115,14 @@
 }
 
 .remote-status.remote-on {
-    background-color: green;
+    background-color: rgba(0, 128, 0, 0.75);
     color: whitesmoke;
-    border-radius: 10px;
+    border-radius: 20px;
     font-weight: bold;
 }
 
 .remote-status.remote-off {
-    background-color: red;
+    background-color: rgba(255, 0, 0, 0.75);
     color: whitesmoke;
     border-radius: 10px;
     font-weight: bold;
@@ -121,30 +133,61 @@
     margin-left: 0.5vw;
 }
 
-/* 기존 CSS에 추가/수정될 스타일 */
 .thumbnails-individual.non-operational {
     filter: grayscale(70%);
     opacity: 0.7;
 }
 
+@keyframes blink {
+    0% {
+        box-shadow: 0px 0px 0px var(--shadow-size) var(--shadow-color);
+    }
+    50% {
+        box-shadow: 0px 0px 0px calc(var(--shadow-size) - 0.5px)
+            var(--shadow-color-change);
+    }
+    100% {
+        box-shadow: 0px 0px 0px var(--shadow-size) var(--shadow-color);
+    }
+}
+
 .need-solution {
-    box-shadow: 0 0 1px 0px red;
+    --shadow-color: rgba(200, 0, 0, 0.4);
+    --shadow-color-change: rgba(200, 0, 0, 0.5);
+    --shadow-size: 4px;
     border-radius: 5px;
+    animation: blink 2s infinite;
+    animation-timing-function: ease-in-out;
 }
+
 .need-check {
-    box-shadow: 0 0 1px 0px orange;
+    --shadow-color: rgba(255, 166, 0, 0.3);
+    --shadow-color-change: rgba(255, 166, 0, 0.5);
+    --shadow-size: 3px;
     border-radius: 5px;
+    animation: blink 2s infinite;
+    animation-timing-function: ease-in-out;
 }
+
 .remote-issue {
-    box-shadow: 0 0 1px 0px yellow;
+    --shadow-color: rgba(255, 217, 0, 0.3);
+    --shadow-color-change: rgba(255, 217, 0, 0.5);
+    --shadow-size: 2px;
     border-radius: 5px;
+    animation: blink 2s infinite;
+    animation-timing-function: ease-in-out;
 }
+
 .operational {
-    box-shadow: 0 0 1px 0px green;
+    --shadow-color: rgba(0, 50, 0, 0.3);
+    --shadow-color-change: rgba(0, 50, 0, 0.5);
+    --shadow-size: 1px;
     border-radius: 5px;
+    animation: blink 2s infinite;
+    animation-timing-function: ease-in-out;
 }
+
 .not-operational-time {
-    box-shadow: 0 0 1px 0px grey;
     filter: grayscale(50%);
     opacity: 0.5;
     border-radius: 5px;
@@ -160,6 +203,4 @@ br {
 .width-current-value {
     font-size: medium;
     font-weight: 900;
-    color: midnightblue;
-    border-radius: 5px;
 }

@@ -10,11 +10,11 @@
 }
 
 .to-all-button {
-    height: 2.5vh;
+    height: 30px;
 }
 
 .single-site-container button {
-    height: 2.5vh;
+    height: 30px;
 }
 
 .active {
@@ -22,8 +22,7 @@
 }
 
 .inactive {
-    filter: grayscale(80%);
-    opacity: 0.5;
+    filter: opacity(0.5);
 }
 
 h2 {

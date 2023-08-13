@@ -1,34 +1,37 @@
 import { useState, useEffect } from "react";
 
 function WidthAdjuster() {
-    const [width, setWidth] = useState(300); // 초기값 300px
+    // 초기값을 localStorage에서 가져오거나, 없으면 300px로 설정
+    const [width, setWidth] = useState(
+        () => Number(localStorage.getItem("site-info-width")) || 300,
+    );
 
     useEffect(() => {
         document.documentElement.style.setProperty(
             "--site-info-width",
             `${width}px`,
         );
+        // width 값이 변경될 때마다 localStorage에 저장
+        localStorage.setItem("site-info-width", width);
     }, [width]);
 
     const increaseWidth = () => {
         if (width < 500) {
-            // 상한선 500px 체크
             setWidth((prevWidth) => prevWidth + 25);
         }
     };
 
     const decreaseWidth = () => {
         if (width > 150) {
-            // 하한선 150px 체크
             setWidth((prevWidth) => prevWidth - 25);
         }
     };
 
     return (
         <>
-            <button onClick={increaseWidth}>△</button>
-            <button onClick={decreaseWidth}>▽</button>
-            <span className="width-current-value">사진 크기: {width}px</span>
+            사진 크기: {width}px
+            <button onClick={increaseWidth}>▲</button>
+            <button onClick={decreaseWidth}>▼</button>
         </>
     );
 }

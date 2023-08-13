@@ -18,6 +18,7 @@ function App() {
     const [reload, setReload] = useState(false);
     const [adminToggle, setAdminToggle] = useState(false);
     const [loginToggle, setLoginToggle] = useState(true);
+    const [authSites, setAuthSites] = useState([]);
 
     useEffect(() => {
         const token = cookie.load("BM");
@@ -28,9 +29,10 @@ function App() {
             // if token has not expired, try login
             API.auth({ Authorization: token })
                 .then((res) => {
-                    const identity = res?.data.identity;
-                    if (identity.class === identity.username) setAdmin(true);
+                    const user = res?.data.user;
+                    if (user.class === user.username) setAdmin(true);
                     setAuth(true);
+                    setAuthSites(user.sites);
                 })
                 .catch((err) => console.log("error in auth", err));
         } else {
@@ -73,7 +75,11 @@ function App() {
             <div className="display">
                 {auth && !adminToggle ? (
                     site ? (
-                        <SingleSite site={site} setSite={setSite} />
+                        <SingleSite
+                            authSites={authSites}
+                            site={site}
+                            setSite={setSite}
+                        />
                     ) : (
                         <AllSites setSite={setSite} reload={reload} />
                     )

@@ -85,17 +85,21 @@ function AllSites({ setSite, reload }) {
     };
     const sortedThumbnails = useMemo(() => {
         return [...thumbnails].sort(sortFunc);
-    }, [thumbnails, sorting, siteInformation]);
+    }, [thumbnails, sortFunc]);
 
     return (
         <>
-            <div className="sorting">
+            <div className="sorting-adjust">
+                {"| 정렬: "}
                 <button onClick={handleSorting}>
-                    {sorting ? "모듈번호 정렬" : "현장이름 정렬"}
+                    {sorting ? "현장이름" : "모듈번호"}
                 </button>
+                {" | "}
                 <WidthAdjuster />
+                {" |"}
             </div>
             <div className="thumbnails">
+                <div className="summary"></div>
                 {sortedThumbnails.map((thumbnail) => {
                     const siteInfo = siteInformation[thumbnail.site] || {};
                     const imageURL = staticURLs[thumbnail.site];
@@ -107,11 +111,6 @@ function AllSites({ setSite, reload }) {
                             className={`thumbnails-individual ${siteStatus}`}>
                             {imageURL && (
                                 <img
-                                    style={{
-                                        width: "100%",
-                                        height: "auto",
-                                        borderRadius: "5px",
-                                    }}
                                     src={imageURL}
                                     alt={thumbnail.site}
                                     loading="lazy"
@@ -124,15 +123,26 @@ function AllSites({ setSite, reload }) {
                                 <div className="site-information">
                                     <p>
                                         <br />
-                                        <span>현장:</span>
-                                        <span className="site-name">{` ${thumbnail.site} `}</span>
+                                        <span className="info-key">현장:</span>
+                                        <span
+                                            className="site-name"
+                                            onClick={() =>
+                                                handleThumbnailClick(
+                                                    thumbnail.site,
+                                                )
+                                            }>{` ${thumbnail.site.replaceAll(
+                                            "_",
+                                            " ",
+                                        )} `}</span>
                                         <br />
-                                        <span className="recent-photo">{`최근: ${formatRecentPhoto(
+                                        <span className="info-key">최근:</span>
+                                        <span className="recent-photo">{` ${formatRecentPhoto(
                                             siteInfo.recent_photo,
                                         )}`}</span>
                                         <br />
+                                        <span className="info-key">운영:</span>
                                         <span className="operation-time">
-                                            {`운영: ${formatTime(
+                                            {` ${formatTime(
                                                 siteInfo.time_start,
                                             )} ~ ${formatTime(
                                                 siteInfo.time_end,
@@ -141,28 +151,35 @@ function AllSites({ setSite, reload }) {
                                             }분)`}
                                         </span>
                                         <br />
+                                        <span className="info-key">촬영:</span>
                                         <span>
-                                            {`촬영: ${siteInfo.photos_count} `}
+                                            {` ${siteInfo.photos_count} `}
                                         </span>
+                                        <span>{"("}</span>
                                         <span
                                             className={getMissingPhotosClass(
                                                 siteInfo.photos_count,
                                                 siteInfo.shooting_count_till_now,
-                                            )}>{`(${
+                                            )}>{`${
                                             siteInfo.shooting_count_till_now -
                                             siteInfo.photos_count
-                                        }개 누락)`}</span>
+                                        }`}</span>
+                                        <span>{"개 누락)"}</span>
                                         <span className="today-total-photo">{` (오늘: ${siteInfo.shooting_count})`}</span>
                                         <br />
-                                        <span>원격:&nbsp;</span>
+                                        <span className="info-key">
+                                            원격:&nbsp;
+                                        </span>
                                         <span
                                             className={`remote-status ${
                                                 siteInfo.ssh
                                                     ? "remote-on"
                                                     : "remote-off"
-                                            } `}>{` ${
-                                            siteInfo.ssh ? "O" : "X"
-                                        } `}</span>
+                                            } `}>
+                                            &nbsp;
+                                            {`${siteInfo.ssh ? "O" : "X"}`}
+                                            &nbsp;
+                                        </span>
                                         <span className="device-number">
                                             (
                                             {`${formatDeviceNumber(
@@ -225,7 +242,6 @@ const getSiteStatus = (siteInfo) => {
 const getMissingPhotosClass = (photosCount, shootingCount) => {
     const missing = shootingCount - photosCount;
     if (missing >= 5) return "missing-high";
-    if (missing >= 1) return "missing-medium";
     return "";
 };
 export default AllSites;
