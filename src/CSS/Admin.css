@@ -1,4 +1,7 @@
-/* .admin-page 스타일링 */
+:root {
+    --permission-width: 150px;
+}
+
 .admin-page {
     width: 100%;
     max-width: 1290px;
@@ -6,7 +9,6 @@
     padding: 20px;
 }
 
-/* .user-approval 및 .user-permission 스타일링 */
 .user-approval,
 .user-permission {
     margin: 20px 0;
@@ -26,7 +28,14 @@
     background-color: #0056b3;
 }
 
+.pending-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 label {
+    margin-top: 10px;
     margin-right: 10px;
     margin-bottom: 10px;
     font-size: 25px;
@@ -77,19 +86,26 @@ label {
 }
 
 .permission-site {
-    cursor: pointer;
-    width: 200px;
-    height: 100%;
-    padding: 2px;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    font-size: 12px;
+
+    cursor: pointer;
+
+    width: var(--permission-width);
+    height: calc(var(--permission-width) / 2);
     border-radius: 5px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    padding: 15px;
+
+    font-size: calc(var(--permission-width) / 10);
+    font-weight: 400;
+
+    white-space: normal;
+    overflow-wrap: break-word;
     text-align: center;
-    line-height: 1.5;
+    line-height: 1.4;
+    letter-spacing: -1px;
 }
 
 .permission-admin {
@@ -120,20 +136,20 @@ label {
 
 .selected:hover,
 .permitted:hover {
-    background-color: #0056b3;
-    color: whitesmoke;
+    background-color: lightgrey;
+    color: #123456;
 }
 
 .non-selected,
 .non-permitted {
     background-color: lightgrey;
-    color: grey;
+    color: #123456;
 }
 
 .non-selected:hover,
 .non-permitted:hover {
-    background-color: darkgray;
-    color: grey;
+    background-color: #123456;
+    color: whitesmoke;
 }
 
 .example {
@@ -221,4 +237,5 @@ label {
 .modal-subject {
     margin-top: 10px;
     font-weight: 800;
+    font-size: 10px;
 }

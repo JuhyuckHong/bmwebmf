@@ -1,5 +1,5 @@
 import { API } from "../API";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 function Signup({ handleLoginToggle }) {
     const [id, setId] = useState("");

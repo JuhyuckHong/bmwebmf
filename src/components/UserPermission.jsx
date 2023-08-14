@@ -17,7 +17,7 @@ function UserPermission({ reload, setReload }) {
                 const resSites = await API.allSites({
                     Authorization: cookie.load("BM"),
                 });
-                setAllSites(resSites.data);
+                setAllSites(resSites.data.sort());
             } catch (error) {
                 console.error("Error fetching users:", error);
             }
@@ -33,6 +33,7 @@ function UserList({ users, setReload, allSites }) {
     const [selectedUser, setSelectedUser] = useState("");
     return (
         <div className="user-permission-container">
+            <hr />
             <form>
                 <label for="user-select">권한 설정:</label>
                 <select
@@ -58,8 +59,10 @@ function UserList({ users, setReload, allSites }) {
                             <div
                                 key={user.username}
                                 className="permission-admin">
-                                <div>{`user ${user.username} is ADMIN`}</div>
-                                <div>Access sites: All Sites</div>
+                                <div className="permission-userinfo">{`${user.username}은(는) 관리자입니다.`}</div>
+                                <div className="permission-userinfo">
+                                    관리계정은 전체 현장 조회 권한을 가집니다.
+                                </div>
                                 <hr />
                             </div>
                         );
@@ -200,7 +203,7 @@ function ModifySiteForm({ username, user, setReload, allSites }) {
                                     ? "selected"
                                     : "non-selected"
                             }`}>
-                            {site}
+                            {site.replaceAll("_", " ")}
                         </div>
                     );
                 })}

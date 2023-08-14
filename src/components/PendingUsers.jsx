@@ -48,27 +48,32 @@ function PendingUsers() {
     };
 
     return (
-        <div>
-            <label>가입 승인:</label>
-            <ul>
-                {pendingUsers.map((user) => (
-                    <li className="pending-user" key={user.username}>
-                        <div className="pending-userinfo">
-                            <strong>Username:</strong> {user.username}
-                        </div>
-                        <button onClick={() => handleApproval(user.username)}>
-                            Approve
-                        </button>
-                        <button onClick={() => handleDecline(user.username)}>
-                            Decline
-                        </button>
-                        <div className="pending-userinfo">
-                            <strong>Code:</strong> {user.code}
-                        </div>
-                    </li>
-                ))}
-            </ul>
-        </div>
+        <>
+            <hr />
+            <div className="pending-container">
+                <label>가입 승인:</label>
+                <ul>
+                    {pendingUsers.map((user) => (
+                        <li className="pending-user" key={user.username}>
+                            <div className="pending-userinfo">
+                                <strong>Username:</strong> {user.username}
+                            </div>
+                            <button
+                                onClick={() => handleApproval(user.username)}>
+                                Approve
+                            </button>
+                            <button
+                                onClick={() => handleDecline(user.username)}>
+                                Decline
+                            </button>
+                            <div className="pending-userinfo">
+                                <strong>Code:</strong> {user.code}
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </>
     );
 }
 
