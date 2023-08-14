@@ -49,17 +49,22 @@ function PendingUsers() {
 
     return (
         <div>
-            <h1>Pending Users</h1>
+            <label>가입 승인:</label>
             <ul>
                 {pendingUsers.map((user) => (
-                    <li key={user.username}>
-                        Username: {user.username}, Code: {user.code}
+                    <li className="pending-user" key={user.username}>
+                        <div className="pending-userinfo">
+                            <strong>Username:</strong> {user.username}
+                        </div>
                         <button onClick={() => handleApproval(user.username)}>
                             Approve
                         </button>
                         <button onClick={() => handleDecline(user.username)}>
                             Decline
                         </button>
+                        <div className="pending-userinfo">
+                            <strong>Code:</strong> {user.code}
+                        </div>
                     </li>
                 ))}
             </ul>

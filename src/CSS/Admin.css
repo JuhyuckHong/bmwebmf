@@ -1,0 +1,224 @@
+/* .admin-page 스타일링 */
+.admin-page {
+    width: 100%;
+    max-width: 1290px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+/* .user-approval 및 .user-permission 스타일링 */
+.user-approval,
+.user-permission {
+    margin: 20px 0;
+}
+
+.admin-page button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    margin: 0 5px;
+    cursor: pointer;
+    color: #fff;
+    transition: background-color 0.2s;
+}
+
+.admin-page button:hover {
+    background-color: #0056b3;
+}
+
+label {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.pending-user {
+    margin: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.pending-userinfo {
+    margin-left: 10px;
+    width: 200px;
+    text-align: left;
+}
+
+.pending-user button {
+    width: 100px;
+    background-color: #123456;
+}
+
+.pending-user strong {
+    font-weight: 800;
+}
+
+.user-permission select {
+    padding: 5px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    appearance: none;
+}
+
+.user-permission select:disabled {
+    background-color: #eee;
+}
+
+.permission-site-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.permission-site {
+    cursor: pointer;
+    width: 200px;
+    height: 100%;
+    padding: 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+    border-radius: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.permission-admin {
+    font-weight: 800;
+    color: #123456;
+}
+
+.permission-userinfo {
+    font-weight: 600;
+    font-size: clamp(15px, 1vw, 20px);
+    color: #123456;
+    margin-bottom: 10px;
+}
+
+.permission-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+}
+
+.selected,
+.permitted {
+    background-color: #123456;
+    color: whitesmoke;
+}
+
+.selected:hover,
+.permitted:hover {
+    background-color: #0056b3;
+    color: whitesmoke;
+}
+
+.non-selected,
+.non-permitted {
+    background-color: lightgrey;
+    color: grey;
+}
+
+.non-selected:hover,
+.non-permitted:hover {
+    background-color: darkgray;
+    color: grey;
+}
+
+.example {
+    cursor: default;
+    width: 100px;
+    height: 100%;
+    padding: 2px;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 15px;
+    border-radius: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.example-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    align-items: center;
+}
+
+.permission-submit {
+    background-color: darkgreen;
+}
+
+.permission-select-all {
+    background-color: darkolivegreen;
+}
+
+.permission-unselect-all {
+    background-color: darkgoldenrod;
+}
+
+.permission-initial {
+    background-color: darkcyan;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    margin: 10px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: blink 3.02s infinite;
+    animation-timing-function: ease-in-out;
+}
+
+@keyframes blink {
+    0% {
+        background-color: rgba(255, 255, 255, 0.5);
+        color: rgba(0, 0, 0, 0.5);
+    }
+    10% {
+        background-color: rgba(255, 255, 255, 0.9);
+        color: rgba(0, 0, 0, 1);
+    }
+    90% {
+        background-color: rgba(255, 255, 255, 0.9);
+        color: rgba(0, 0, 0, 1);
+    }
+    100% {
+        background-color: rgba(255, 255, 255, 0);
+        color: rgba(0, 0, 0, 0);
+    }
+}
+
+.modal-subject {
+    margin-top: 10px;
+    font-weight: 800;
+}

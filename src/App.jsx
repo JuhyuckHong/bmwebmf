@@ -6,6 +6,7 @@ import Logout from "./components/Logout";
 import AllSites from "./components/AllSites";
 import { API } from "./API";
 import "./App.css";
+import "./CSS/Admin.css";
 import SingleSite from "./components/SingleSite";
 import Signup from "./components/Signup";
 import PendingUsers from "./components/PendingUsers";
@@ -94,12 +95,16 @@ function App() {
                     ""
                 )}
             </div>
-            <div>{auth && adminToggle && <PendingUsers />}</div>
-            <div>
-                {auth && adminToggle && (
-                    <UserPermission reload={reload} setReload={setReload} />
-                )}
-            </div>
+            {auth && adminToggle && (
+                <div className="admin-page">
+                    <div className="user-approval">
+                        <PendingUsers />
+                    </div>
+                    <div className="user-permission">
+                        <UserPermission reload={reload} setReload={setReload} />
+                    </div>
+                </div>
+            )}
         </>
     );
 }

@@ -4,7 +4,7 @@ import cookie from "react-cookies";
 
 function UserPermission({ reload, setReload }) {
     const [users, setUsers] = useState([]);
-    const [allSites, setAllSites] = useState(["site1", "site2", "site3"]);
+    const [allSites, setAllSites] = useState([]);
 
     useEffect(() => {
         async function fetchData() {
@@ -26,57 +26,116 @@ function UserPermission({ reload, setReload }) {
         fetchData();
     }, [reload]);
 
-    return (
-        <div className="App">
-            <h1>User List</h1>
-            <UserList users={users} setReload={setReload} allSites={allSites} />
-        </div>
-    );
+    return <UserList users={users} setReload={setReload} allSites={allSites} />;
 }
 
 function UserList({ users, setReload, allSites }) {
+    const [selectedUser, setSelectedUser] = useState("");
     return (
-        <div>
-            {users.map((user) => (
-                <div key={user.username}>
-                    <hr style={{ border: "solid grey 2px" }} />
-                    <h2>User: {user.username}</h2>
-                    <span>Access sites: {user.sites?.join(", ")}</span>
-                    <ModifySiteForm
-                        username={user.username}
-                        user={user}
-                        setReload={setReload}
-                        allSites={allSites}
-                    />
-                </div>
-            ))}
+        <div className="user-permission-container">
+            <form>
+                <label for="user-select">권한 설정:</label>
+                <select
+                    id="user-select"
+                    value={selectedUser}
+                    onChange={(e) => setSelectedUser(e.target.value)}>
+                    <option value="" disabled>
+                        사용자를 선택하세요.
+                    </option>
+                    {users.map((user) => (
+                        <option key={user.username} value={user.username}>
+                            {user.username}
+                        </option>
+                    ))}
+                </select>
+            </form>
+
+            {users
+                .filter((user) => user.username === selectedUser)
+                .map((user) => {
+                    if (user.username === user.class)
+                        return (
+                            <div
+                                key={user.username}
+                                className="permission-admin">
+                                <div>{`user ${user.username} is ADMIN`}</div>
+                                <div>Access sites: All Sites</div>
+                                <hr />
+                            </div>
+                        );
+                    else {
+                        return (
+                            <>
+                                <div className="permission-userinfo">{`이름: ${user.username}`}</div>
+                                <div className="permission-userinfo">{`가입코드: ${user.code}`}</div>
+                                <ModifySiteForm
+                                    username={user.username}
+                                    user={user}
+                                    setReload={setReload}
+                                    allSites={allSites}
+                                />
+                            </>
+                        );
+                    }
+                })}
         </div>
     );
 }
 
 function ModifySiteForm({ username, user, setReload, allSites }) {
-    const [selectedSite, setSelectedSite] = useState("");
-    const [operation, setOperation] = useState("ADD"); // <--- 초기 operation 상태 설정
+    const [selectedSites, setSelectedSites] = useState([...user.sites]);
+    // 저장 결과를 보여주기 위한 modal
+    const [showModal, setShowModal] = useState(false);
+    const [modalContent, setModalContent] = useState({
+        added: [],
+        removed: [],
+    });
+    const showSuccessModal = () => {
+        const addedSites = selectedSites.filter(
+            (site) => !user.sites.includes(site),
+        );
+        const removedSites = user.sites.filter(
+            (site) => !selectedSites.includes(site),
+        );
 
-    const handleModifySites = async (e, all = false) => {
-        e.preventDefault();
+        setModalContent({
+            added: addedSites,
+            removed: removedSites,
+        });
 
-        console.log("handel:", selectedSite);
-        if (!selectedSite && !all) {
-            return;
-        }
+        setShowModal(true); // 모달 표시
 
-        let updatedSites;
-        if (all) {
-            updatedSites = operation === "ADD" ? allSites : [];
+        // 3초 후에 모달 숨기기
+        setTimeout(() => {
+            setShowModal(false);
+        }, 3000);
+    };
+
+    useEffect(() => {
+        setSelectedSites([...user.sites]);
+    }, [user]);
+
+    const handleSiteSelection = (site) => {
+        if (Array.isArray(site)) {
+            setSelectedSites(site);
+        } else if (selectedSites.includes(site)) {
+            setSelectedSites((prev) => prev.filter((s) => s !== site));
         } else {
-            if (operation === "ADD") {
-                updatedSites = [...user.sites, selectedSite];
-            } else if (operation === "REMOVE") {
-                updatedSites = user.sites.filter(
-                    (site) => site !== selectedSite,
-                );
-            }
+            setSelectedSites((prev) => [...prev, site]);
+        }
+    };
+
+    const handleModifySites = async (e) => {
+        e.preventDefault();
+        console.log("user permitted sites:", user.sites);
+        console.log("handle modify sites:", selectedSites);
+
+        // 변경 사항이 없는 경우 바로 return
+        const equals = (a, b) =>
+            a.length === b.length && a.every((v, i) => v === b[i]);
+        if (equals(user.sites, selectedSites)) {
+            showSuccessModal();
+            return;
         }
 
         try {
@@ -85,68 +144,109 @@ function ModifySiteForm({ username, user, setReload, allSites }) {
                     Authorization: cookie.load("BM"),
                 },
                 username,
-                { sites: updatedSites },
+                { sites: selectedSites },
             );
 
-            const action = operation === "ADD" ? "added" : "removed";
-            alert(
-                all
-                    ? `All sites ${action} successfully!`
-                    : `Site "${selectedSite}" ${action} successfully!`,
-            );
+            showSuccessModal();
 
-            setSelectedSite("");
             setReload((prev) => !prev);
         } catch (error) {
-            console.error(
-                `Error ${operation.toLowerCase()}ing user's sites:`,
-                error,
-            );
-            alert("Failed to modify site.");
+            console.error(`Error modifying user's sites:`, error);
+            showSuccessModal("Failed to modify site.");
         }
     };
 
     return (
         <>
             <hr />
-            <h3>Modify Sites: </h3>
-            <button
-                onClick={() =>
-                    setOperation((prev) => (prev === "ADD" ? "REMOVE" : "ADD"))
-                }>
-                Toggle to {operation === "ADD" ? "REMOVE" : "ADD"}
-            </button>
-            <select
-                value={selectedSite}
-                onChange={(e) => setSelectedSite(e.target.value)}
-                disabled={
-                    operation === "ADD" && user.sites.includes(selectedSite)
-                }>
-                <option value="" disabled>
-                    Select a site
-                </option>
-                {allSites
-                    .filter((site) => {
-                        if (operation === "ADD") {
-                            return !user.sites.includes(site); // ADD일 때는 권한이 없는 사이트만 필터링
-                        } else if (operation === "REMOVE") {
-                            return user.sites.includes(site); // REMOVE일 때는 권한이 있는 사이트만 필터링
-                        }
-                        return true; // 기본값
-                    })
-                    .map((site) => (
-                        <option key={site} value={site}>
+            <div className="permission-title">
+                <button
+                    className="permission-submit"
+                    onClick={(e) => handleModifySites(e)}>
+                    저장하기
+                </button>
+            </div>
+            <div className="example-container">
+                <div className="permission-title">표시:</div>
+                <div className="example permitted ">권한 있는 현장</div>
+                <span>&nbsp;</span>
+                <div className="example non-permitted">권한 없는 현장</div>
+            </div>
+            <div className="permission-title">
+                <button
+                    className="permission-select-all"
+                    onClick={() => handleSiteSelection(allSites)}>
+                    전체선택
+                </button>
+                <button
+                    className="permission-unselect-all"
+                    onClick={() => handleSiteSelection([])}>
+                    전체 해제
+                </button>
+                <button
+                    className="permission-initial"
+                    onClick={() => handleSiteSelection(user.sites)}>
+                    현재 권한 설정값으로 복귀
+                </button>
+            </div>
+            <div className="permission-site-container">
+                {allSites.map((site) => {
+                    return (
+                        <div
+                            key={site}
+                            onClick={() => handleSiteSelection(site)}
+                            className={`permission-site ${
+                                selectedSites.includes(site)
+                                    ? "selected"
+                                    : "non-selected"
+                            }`}>
                             {site}
-                        </option>
-                    ))}
-            </select>
-            <button onClick={(e) => handleModifySites(e)}>
-                {operation} Selected Site
-            </button>
-            <button onClick={(e) => handleModifySites(e, true)}>
-                {operation} All
-            </button>
+                        </div>
+                    );
+                })}
+            </div>
             <hr />
+            {showModal ? (
+                <div className={`modal ${showModal ? "show" : ""}`}>
+                    <div className="modal-content">
+                        <div>
+                            {modalContent.added.length
+                                ? "저장되었습니다."
+                                : modalContent.removed.length
+                                ? "저장되었습니다."
+                                : "변경사항 없음"}
+                        </div>
+                        <div>
+                            {modalContent.added.length ? (
+                                <>
+                                    <div className="modal-subject">추가:</div>
+                                    <ul>
+                                        {modalContent.added.map((site) => (
+                                            <li key={site}>{site}</li>
+                                        ))}
+                                    </ul>
+                                </>
+                            ) : (
+                                ""
+                            )}
+                        </div>
+                        <div>
+                            {modalContent.removed.length ? (
+                                <>
+                                    <div className="modal-subject">삭제:</div>
+                                    <ul>
+                                        {modalContent.removed.map((site) => (
+                                            <li key={site}>{site}</li>
+                                        ))}
+                                    </ul>
+                                </>
+                            ) : (
+                                ""
+                            )}
+                        </div>
+                    </div>
+                </div>
+            ) : null}
         </>
     );
 }
