@@ -136,8 +136,8 @@ label {
 
 .selected:hover,
 .permitted:hover {
-    background-color: lightgrey;
-    color: #123456;
+    background-color: #417ebb;
+    color: black;
 }
 
 .non-selected,
@@ -148,7 +148,7 @@ label {
 
 .non-selected:hover,
 .non-permitted:hover {
-    background-color: #123456;
+    background-color: grey;
     color: whitesmoke;
 }
 
