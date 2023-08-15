@@ -211,11 +211,11 @@ label {
     margin: 10px;
     border-radius: 15px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    animation: blink 3.02s infinite;
+    animation: blink-admin 3.02s infinite;
     animation-timing-function: ease-in-out;
 }
 
-@keyframes blink {
+@keyframes blink-admin {
     0% {
         background-color: rgba(255, 255, 255, 0.5);
         color: rgba(0, 0, 0, 0.5);
