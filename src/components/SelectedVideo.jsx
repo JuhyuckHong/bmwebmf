@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import cookie from "react-cookies";
 import { API } from "../API";
+import DateSelector from "./DateSelector";
 import "../CSS/LoadingSpinner.css";
 
 function SelectedVideo({ site }) {
@@ -33,12 +34,29 @@ function SelectedVideo({ site }) {
 
     // Debouncing
     const handleDateChange = (event) => setTempDateIndex(event.target.value);
+    const handleDateChangeFromCalendar = (event) =>
+        setTempDateIndex(dates.indexOf("daily_" + event + ".mp4"));
     useEffect(() => {
         const debounce = setTimeout(() => {
             setSelectedDateIndex(tempDateIndex);
         }, 500);
         return () => clearTimeout(debounce);
     }, [tempDateIndex]);
+
+    // 날짜 이동 컨트롤 버튼
+    const dateIndexControl = (value) => {
+        if (value > 0) {
+            setTempDateIndex((prevIndex) => {
+                if (prevIndex < dates.length - 1) return prevIndex + 1;
+                else return prevIndex;
+            });
+        } else if (value < 0) {
+            setTempDateIndex((prevIndex) => {
+                if (prevIndex > 0) return prevIndex - 1;
+                else return prevIndex;
+            });
+        }
+    };
 
     // 개별 영상 요청을 위한 상태
     const [videoURL, setVideoURL] = useState("");
@@ -82,38 +100,46 @@ function SelectedVideo({ site }) {
         <>
             <hr />
             <div className="selector-container">
-                <label>
-                    <span className="input-range-label">영상</span>
-                    <input
-                        className="input-range-video"
-                        name="video"
-                        type="range"
-                        min={0}
-                        max={dates.length - 1}
-                        value={tempDateIndex}
-                        step={1}
-                        onChange={handleDateChange}
-                        list="videoTicks"
-                    />
-                    <datalist id="videoTicks">
-                        {dates.map((_, index) => (
-                            <option value={index} key={index} />
-                        ))}
-                    </datalist>
-                    <span className="input-range-value">
-                        {dates[tempDateIndex]
-                            ?.split(".")[0]
-                            .split("_")[1]
-                            .replaceAll("-", "/")}
-                    </span>
-                </label>
+                <span className="input-range-label">영상</span>
+                <input
+                    className="input-range-video"
+                    name="video"
+                    type="range"
+                    min={0}
+                    max={dates.length - 1}
+                    value={tempDateIndex}
+                    step={1}
+                    onChange={handleDateChange}
+                    list="videoTicks"
+                />
+                <datalist id="videoTicks">
+                    {dates.map((_, index) => (
+                        <option value={index} key={index} />
+                    ))}
+                </datalist>
+                <span
+                    className="date-control-button"
+                    onClick={() => dateIndexControl(-1)}>
+                    {parseInt(tempDateIndex) === 0 ? "-" : "<"}
+                </span>
+                <DateSelector
+                    className="input-range-value"
+                    inputDates={dates}
+                    handleDateChangeFromCalendar={handleDateChangeFromCalendar}
+                    tempDateIndex={tempDateIndex}
+                />
+                <span
+                    className="date-control-button"
+                    onClick={() => dateIndexControl(1)}>
+                    {parseInt(tempDateIndex) === dates.length - 1 ? "-" : ">"}
+                </span>
             </div>
             <hr />
             <div className="video-container">
                 {loading ? (
                     <div className="spinner"></div>
                 ) : (
-                    <video controls autoplay muted ref={videoRef}>
+                    <video controls autoPlay muted ref={videoRef}>
                         <source src={videoURL} type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
