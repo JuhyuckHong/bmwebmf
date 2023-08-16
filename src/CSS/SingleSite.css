@@ -84,8 +84,12 @@ hr {
     size: 3;
 }
 
-.photo-container img {
+.photo-container {
     height: var(--image-video-height);
+}
+
+.photo-container img {
+    height: 100%;
     width: 100%;
     object-fit: contain;
 }
@@ -97,10 +101,14 @@ hr {
     justify-content: center;
 }
 
+.video-container {
+    height: var(--image-video-height);
+}
+
 .video-container video {
     box-sizing: border-box;
     width: 100%;
-    height: var(--image-video-height);
+    height: 100%;
     margin: 0;
     padding: 0;
 }

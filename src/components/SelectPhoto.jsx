@@ -64,6 +64,8 @@ const SelectPhoto = ({ site }) => {
 
     // 개별 사진 요청을 위한 상태
     const [imageURL, setImageURL] = useState("");
+    // 이미지 로등 상태
+    const [loading, setLoading] = useState(false);
 
     // 개별 사진을 선택한 경우 해당 사진을 요청
     useEffect(() => {
@@ -78,6 +80,8 @@ const SelectPhoto = ({ site }) => {
                     photos[selectedPhotoIndex].split("_")[0]
             ) {
                 try {
+                    // 로딩 시작
+                    setLoading(true);
                     const response = await API.getImage(
                         authHeader,
                         site,
@@ -85,6 +89,8 @@ const SelectPhoto = ({ site }) => {
                         photos[selectedPhotoIndex]?.split(".")[0],
                     );
                     setImageURL(URL.createObjectURL(response.data));
+                    // 로딩 완료
+                    setLoading(false);
                 } catch (err) {
                     console.error("Failed to get photos:", err);
                 }
@@ -153,7 +159,12 @@ const SelectPhoto = ({ site }) => {
             </div>
             <hr />
             <div className="photo-container">
-                {imageURL && <img src={imageURL} alt="Selected Photo" />}
+                {/* <div className="spinner"></div> */}
+                {loading ? (
+                    <div className="spinner"></div>
+                ) : (
+                    imageURL && <img src={imageURL} alt="Selected Photo" />
+                )}
             </div>
         </>
     );
