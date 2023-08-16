@@ -52,25 +52,33 @@ function AllSites({ admin, setSite, reload }) {
     useEffect(() => {
         const fetchStaticURLs = async () => {
             // get static url concurrently
-            const URLs = await Promise.all(
-                thumbnails.map(async (thumbnail) => {
-                    const url = await getStaticURL(thumbnail.url);
-                    return { site: thumbnail.site, url };
-                }),
-            );
-
+            // const URLs = await Promise.all(
+            //     thumbnails.map(async (thumbnail) => {
+            //         const url = await getStaticURL(thumbnail.url);
+            //         return { site: thumbnail.site, url };
+            //     }),
+            // );
             // to make {site: url} object
-            const urlsObj = URLs.reduce((acc, curr) => {
-                acc[curr.site] = curr.url;
-                return acc;
-            }, {});
+            // const urlsObj = URLs.reduce((acc, curr) => {
+            //     acc[curr.site] = curr.url;
+            //     return acc;
+            // }, {});
+
+            // get static url one by one
+            for (const thumbnail of thumbnails) {
+                const url = await getStaticURL(thumbnail.url);
+                setStaticURLs((prevUrls) => ({
+                    ...prevUrls,
+                    [thumbnail.site]: url,
+                }));
+            }
 
             if (admin) {
                 const URLmonitor = await getStaticURL("monitor.jpg");
                 setMonitorURL(URLmonitor);
             }
 
-            setStaticURLs(urlsObj);
+            // setStaticURLs(urlsObj);
         };
         fetchStaticURLs();
     }, [thumbnails]);
