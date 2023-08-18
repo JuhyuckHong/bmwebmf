@@ -81,7 +81,7 @@ function AllSites({ admin, setSite, reload }) {
             // setStaticURLs(urlsObj);
         };
         fetchStaticURLs();
-    }, [thumbnails]);
+    }, [thumbnails, admin]);
 
     // Sorting state and function, useMemo for optimization
     const [sorting, setSorting] = useState(true);
