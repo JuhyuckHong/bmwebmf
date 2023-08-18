@@ -98,7 +98,7 @@ function App() {
             {auth && adminToggle && (
                 <div className="admin-page">
                     <div className="user-approval">
-                        <PendingUsers />
+                        <PendingUsers setReload={setReload} />
                     </div>
                     <div className="user-permission">
                         <UserPermission reload={reload} setReload={setReload} />

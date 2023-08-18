@@ -15,10 +15,18 @@ export const API = {
     pendingUsers: (headers) => api.get("/users/pending", { headers }),
     // 회원 가입 승인
     approveUser: (headers, username) =>
-        api.put(`/approve/${username}`, { headers }),
+        api.put(`/approve/${username}`, "", { headers }),
     // 회원 가입 거절
     declineUser: (headers, username) =>
-        api.put(`/decline/${username}`, { headers }),
+        api.put(`/decline/${username}`, "", { headers }),
+    // 사용자 삭제
+    deleteUser: (headers, username) =>
+        api.delete(`/user/${username}`, { headers }),
+    // 사용자 활성화/비활성화
+    deactivateUser: (headers, username) =>
+        api.put(`/user/${username}/deactivate`, "", { headers }),
+    activateUser: (headers, username) =>
+        api.put(`/user/${username}/activate`, "", { headers }),
     // 로그인
     signIn: (body) => api.post("/login", body),
     // 사용자 토큰 확인

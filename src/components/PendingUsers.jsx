@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import cookie from "react-cookies";
 import { API } from "../API";
 
-function PendingUsers() {
+function PendingUsers({ setReload }) {
     const [pendingUsers, setPendingUsers] = useState([]);
 
     // componentDidMount 와 같은 역할을 하는 useEffect
@@ -29,6 +29,7 @@ function PendingUsers() {
             setPendingUsers((prevUsers) =>
                 prevUsers.filter((user) => user.username !== username),
             );
+            setReload((prev) => !prev);
         } catch (error) {
             console.error(`Error approving user ${username}:`, error);
         }
@@ -42,6 +43,7 @@ function PendingUsers() {
             setPendingUsers((prevUsers) =>
                 prevUsers.filter((user) => user.username !== username),
             );
+            setReload((prev) => !prev);
         } catch (error) {
             console.error(`Error declining user ${username}:`, error);
         }
@@ -51,7 +53,7 @@ function PendingUsers() {
         <>
             <hr />
             <div className="pending-container">
-                <label>가입 승인:</label>
+                <div className="label">가입 승인</div>
                 <ul>
                     {pendingUsers.map((user) => (
                         <li className="pending-user" key={user.username}>

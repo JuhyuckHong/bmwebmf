@@ -32,10 +32,10 @@ function UserPermission({ reload, setReload }) {
 function UserList({ users, setReload, allSites }) {
     const [selectedUser, setSelectedUser] = useState("");
     return (
-        <div className="user-permission-container">
-            <hr />
-            <form>
-                <label for="user-select">권한 설정:</label>
+        <>
+            <div className="user-permission-container">
+                <hr />
+                <div className="label">권한 설정</div>
                 <select
                     id="user-select"
                     value={selectedUser}
@@ -43,45 +43,145 @@ function UserList({ users, setReload, allSites }) {
                     <option value="" disabled>
                         사용자를 선택하세요.
                     </option>
-                    {users.map((user) => (
-                        <option key={user.username} value={user.username}>
-                            {user.username}
-                        </option>
-                    ))}
+                    {users
+                        .filter((user) => user.activate)
+                        .map((user) => (
+                            <option key={user.username} value={user.username}>
+                                {user.username}
+                            </option>
+                        ))}
                 </select>
-            </form>
 
-            {users
-                .filter((user) => user.username === selectedUser)
-                .map((user) => {
-                    if (user.username === user.class)
-                        return (
-                            <div
-                                key={user.username}
-                                className="permission-admin">
-                                <div className="permission-userinfo">{`${user.username}은(는) 관리자입니다.`}</div>
-                                <div className="permission-userinfo">
-                                    관리계정은 전체 현장 조회 권한을 가집니다.
+                {users
+                    .filter((user) => user.username === selectedUser)
+                    .map((user) => {
+                        if (user.username === user.class)
+                            return (
+                                <div
+                                    key={user.username}
+                                    className="permission-admin">
+                                    <div className="permission-userinfo">{`${user.username}은(는) 관리자입니다.`}</div>
+                                    <div className="permission-userinfo">
+                                        관리계정은 전체 현장 조회 권한을
+                                        가집니다.
+                                    </div>
+                                    <hr />
                                 </div>
-                                <hr />
+                            );
+                        else {
+                            return (
+                                <>
+                                    <div className="permission-userinfo">{`이름: ${user.username}`}</div>
+                                    <div className="permission-userinfo">{`가입코드: ${user.code}`}</div>
+                                    <ModifySiteForm
+                                        username={user.username}
+                                        user={user}
+                                        setReload={setReload}
+                                        allSites={allSites}
+                                    />
+                                </>
+                            );
+                        }
+                    })}
+            </div>
+            <div>
+                <UserDeactivateDelete users={users} setReload={setReload} />
+            </div>
+        </>
+    );
+}
+
+function UserDeactivateDelete({ users, setReload }) {
+    const handleDeactivateUser = async (username) => {
+        await API.deactivateUser(
+            {
+                Authorization: cookie.load("BM"),
+            },
+            username,
+        );
+        setReload((prev) => !prev);
+    };
+
+    const handleActivateUser = async (username) => {
+        await API.activateUser(
+            {
+                Authorization: cookie.load("BM"),
+            },
+            username,
+        );
+        setReload((prev) => !prev);
+    };
+
+    const handleDeleteUser = async (username) => {
+        const isConfirmed = window.confirm(
+            `사용자 ${username}을 삭제 하시겠습니까?`,
+        );
+        if (isConfirmed) {
+            await API.deleteUser(
+                {
+                    Authorization: cookie.load("BM"),
+                },
+                username,
+            );
+        }
+        setReload((prev) => !prev);
+    };
+
+    return (
+        <>
+            <hr />
+            <div className="label">사용자 설정</div>
+            <div className="user-state-container">
+                {users
+                    .filter((user) => user.username !== user.class)
+                    .map((user) => (
+                        <div
+                            key={user.username}
+                            className={`user-state ${
+                                user.activate ? "activated" : "deactivated"
+                            }`}>
+                            <div className="user-state-status">{`${
+                                user.activate
+                                    ? "[Activated User]"
+                                    : "[Deactivated User]"
+                            }`}</div>
+                            <div className="user-state-text">
+                                아이디: {user.username}
                             </div>
-                        );
-                    else {
-                        return (
-                            <>
-                                <div className="permission-userinfo">{`이름: ${user.username}`}</div>
-                                <div className="permission-userinfo">{`가입코드: ${user.code}`}</div>
-                                <ModifySiteForm
-                                    username={user.username}
-                                    user={user}
-                                    setReload={setReload}
-                                    allSites={allSites}
-                                />
-                            </>
-                        );
-                    }
-                })}
-        </div>
+                            <div className="user-state-text">
+                                가입코드: {user.code}
+                            </div>
+                            {user.activate ? (
+                                <div
+                                    className="deactivated-button"
+                                    onClick={() =>
+                                        handleDeactivateUser(user.username)
+                                    }>
+                                    비활성화
+                                </div>
+                            ) : (
+                                <div className="deactivated-user-container">
+                                    <div
+                                        className="activated-button"
+                                        onClick={() =>
+                                            handleActivateUser(user.username)
+                                        }>
+                                        활성화
+                                    </div>
+                                    <div
+                                        className="delete-button"
+                                        onClick={() =>
+                                            handleDeleteUser(user.username)
+                                        }>
+                                        삭제
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+            </div>
+            <hr />
+        </>
     );
 }
 
