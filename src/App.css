@@ -1,9 +1,14 @@
+/* web-font: noto sans korean */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;700&display=swap');
+
 /* Basic reset */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Nanum Gothic", sans-serif;
+    /* font-family: "Nanum Gothic", sans-serif; */
+    font-family: 'Noto Sans KR', sans-serif;
+    letter-spacing: -0.02em;
 }
 
 .ci-background {
