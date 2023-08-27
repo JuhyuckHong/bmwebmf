@@ -25,5 +25,6 @@ const theme = {
             50: "#e5e9ed"
         }
     },
-
 }
+
+export default theme
