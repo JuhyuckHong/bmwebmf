@@ -2,6 +2,8 @@ import { API } from "../API";
 import cookie from "react-cookies";
 import { useState } from "react";
 
+import { TitleBox, InputFormBox, BtnBox } from "../styled-components/auth";
+
 function Login({ setAuth, handleLoginToggle }) {
     const [id, setId] = useState("");
     const [pw, setPw] = useState("");
@@ -29,14 +31,12 @@ function Login({ setAuth, handleLoginToggle }) {
     return (
         <div className="LoginMain">
             <div className="LoginContent">
-                <h2 className="title">
-                    빌드모션 웹 모니터링
-                    <br />
-                    <h3 className="subtitle">로그인</h3>
-                    <br />
-                </h2>
+                <TitleBox>
+                    <div className="ci"></div>
+                    <h2>웹 모니터링 로그인</h2>
+                </TitleBox>
 
-                <form className="LoginBox" onSubmit={RequestLogin}>
+                <InputFormBox onSubmit={RequestLogin}>
                     <input
                         type="text"
                         placeholder="아이디"
@@ -52,7 +52,7 @@ function Login({ setAuth, handleLoginToggle }) {
                         onChange={pwEventHandler}
                         className="FormInput"
                     />
-                    <div className="button-container">
+                    <BtnBox>
                         <button
                             type="button"
                             className="login-toggle"
@@ -61,8 +61,8 @@ function Login({ setAuth, handleLoginToggle }) {
                             가입하기{" "}
                         </button>
                         <button className="Submit"> 로그인 </button>
-                    </div>
-                </form>
+                    </BtnBox>
+                </InputFormBox>
             </div>
         </div>
     );

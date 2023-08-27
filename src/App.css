@@ -1,9 +1,14 @@
+/* web-font: noto sans korean */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;700&display=swap');
+
 /* Basic reset */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Nanum Gothic", sans-serif;
+    /* font-family: "Nanum Gothic", sans-serif; */
+    font-family: 'Noto Sans KR', sans-serif;
+    letter-spacing: -0.02em;
 }
 
 .ci-background {
@@ -47,70 +52,6 @@
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-}
-
-.landing input {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 40vw;
-    height: 32px;
-    font-size: clamp(1rem, 2vw, 1.2rem);
-    border: 0px;
-    border-radius: 1ch;
-    padding-left: 1vw;
-    margin: 5vh 0px;
-    background-color: lightgrey;
-}
-
-.landing h2 {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 40vw;
-    height: 10vh;
-    font-size: clamp(1rem, 2vw, 1.2rem);
-    font-weight: 800;
-    margin-top: 5vh;
-    margin-bottom: 5vh;
-    padding: 1vh;
-    background-color: grey;
-    color: #123456;
-    border-radius: 1ch;
-}
-
-.landing h3 {
-    line-height: 3vh;
-    font-size: clamp(1rem, 2vw, 1.2rem);
-    font-weight: 400;
-    color: whitesmoke;
-}
-
-.button-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 40vw;
-}
-
-.landing button {
-    cursor: pointer;
-    padding: 10px 10px;
-    width: 50%;
-    border-radius: 1ch;
-    font-size: clamp(1rem, 2vw, 1.2rem);
-    border: none;
-    transition: background-color 0.3s;
-}
-
-.landing button:hover {
-    background-color: lightslategray;
-}
-
-.login-toggle {
-    margin-right: 10px;
-    color: green;
 }
 
 .SingleSite,
