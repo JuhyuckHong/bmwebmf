@@ -1,6 +1,84 @@
 import { API } from "../API";
 import cookie from "react-cookies";
 import { useState } from "react";
+import styled from "styled-components"
+
+const TitleBox = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40vw;
+    height: 20vh;
+    min-width: ${props => props.theme.box.width_min};
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    border-radius: ${props => props.theme.box.border_radius};
+    background-color: white;
+    /* box-shadow: ${props => props.theme.box.shadow}; */
+    margin: ${props => props.theme.layout.space.default};
+
+    > .ci {
+        width: 300px;
+        height: 250px;
+        background-image: url("/buildMotion_ci.jpeg");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+    > h2 {
+        font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+        color: ${props => props.theme.color.main[600]};
+        letter-spacing: ${props => props.theme.font.letter_space};
+    }
+`
+
+const LoginBox = styled.form`
+    min-width: ${props => props.theme.box.width_min};
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    margin: ${props => props.theme.layout.space.default};
+    gap: ${props => props.theme.layout.space.default};
+
+    > input {
+        height: 54px;
+        width: 90%;
+        font-size: clamp(1rem, 2vw, 1.2rem);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: ${props => props.theme.box.border_radius};
+        box-shadow: ${props => props.theme.box.shadow};
+        text-indent: ${props => props.theme.layout.space.xs};
+        &:focus {
+            border: none;
+            outline: 2px solid ${props => props.theme.color.main[100]};
+        }
+    }
+`
+
+const BtnBox = styled.div`
+    width: 90%;
+    display: flex;
+    align-items: center;
+    gap: ${props => props.theme.layout.space.sm};
+    margin-top: ${props => props.theme.layout.space.sm};
+
+    > button {
+        cursor: pointer;
+        height: 48px;
+        border: none;
+        border-radius: ${props => props.theme.box.border_radius};
+        flex: 1;
+        background-color: ${props => props.theme.color.main[400]};
+        color: white;
+        font-size: clamp(1rem, 2vw, 1.2rem);
+        transition: background-color 0.3s ease;
+        &:hover {
+            background-color: ${props => props.theme.color.main[200]};
+        }
+    }
+`
+
+
 
 function Login({ setAuth, handleLoginToggle }) {
     const [id, setId] = useState("");
@@ -29,14 +107,12 @@ function Login({ setAuth, handleLoginToggle }) {
     return (
         <div className="LoginMain">
             <div className="LoginContent">
-                <h2 className="title">
-                    빌드모션 웹 모니터링
-                    <br />
-                    <h3 className="subtitle">로그인</h3>
-                    <br />
-                </h2>
+                <TitleBox>
+                    <div className="ci"></div>
+                    <h2>웹 모니터링 로그인</h2>
+                </TitleBox>
 
-                <form className="LoginBox" onSubmit={RequestLogin}>
+                <LoginBox>
                     <input
                         type="text"
                         placeholder="아이디"
@@ -52,7 +128,7 @@ function Login({ setAuth, handleLoginToggle }) {
                         onChange={pwEventHandler}
                         className="FormInput"
                     />
-                    <div className="button-container">
+                    <BtnBox>
                         <button
                             type="button"
                             className="login-toggle"
@@ -61,8 +137,8 @@ function Login({ setAuth, handleLoginToggle }) {
                             가입하기{" "}
                         </button>
                         <button className="Submit"> 로그인 </button>
-                    </div>
-                </form>
+                    </BtnBox>
+                </LoginBox>
             </div>
         </div>
     );

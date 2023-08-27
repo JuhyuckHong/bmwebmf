@@ -1,4 +1,9 @@
 const theme = {
+    box: {
+        width_min: "320px",
+        shadow: "0px 8px 26px 1px rgba(34, 34, 34, 0.05);",
+        border_radius: "10px"
+    },
     color: {
         highlight: {
             900: "#f96e01",
@@ -25,6 +30,24 @@ const theme = {
             50: "#e5e9ed"
         }
     },
+    layout: {
+        space: {
+            xl: "40px",
+            lg: "32px",
+            default: "24px",
+            sm: "16px",
+            xs: "8px"
+        }
+    },
+    font: {
+        size: {
+            default: "16px",
+            xl: "32px",
+            lg: "24px",
+            sm: "12px"
+        },
+        letter_space: "-0.06em"
+    }
 }
 
 export default theme
