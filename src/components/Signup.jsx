@@ -1,6 +1,8 @@
 import { API } from "../API";
 import { useState } from "react";
 
+import { TitleBox } from '../styled-components/auth';
+
 function Signup({ handleLoginToggle }) {
     const [id, setId] = useState("");
     const [pw, setPw] = useState("");
@@ -39,12 +41,10 @@ function Signup({ handleLoginToggle }) {
     return (
         <div className="SignupMain">
             <div className="SignupContent">
-                <h2 className="title">
-                    빌드모션 웹 모니터링
-                    <br />
-                    <h3 className="subtitle">회원가입</h3>
-                    <br />
-                </h2>
+                <TitleBox>
+                    <div className="ci"></div>
+                    <h2>웹 모니터링 회원가입</h2>
+                </TitleBox>
 
                 <form className="SignupBox" onSubmit={RequestSignup}>
                     <input
