@@ -2,8 +2,7 @@ import { API } from "../API";
 import cookie from "react-cookies";
 import { useState } from "react";
 
-import { TitleBox, InputFormBox, BtnBox } from '../styled-components/auth';
-
+import { TitleBox, InputFormBox, BtnBox } from "../styled-components/auth";
 
 function Login({ setAuth, handleLoginToggle }) {
     const [id, setId] = useState("");
@@ -37,7 +36,7 @@ function Login({ setAuth, handleLoginToggle }) {
                     <h2>웹 모니터링 로그인</h2>
                 </TitleBox>
 
-                <InputFormBox>
+                <InputFormBox onSubmit={RequestLogin}>
                     <input
                         type="text"
                         placeholder="아이디"
