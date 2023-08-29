@@ -55,33 +55,18 @@ function UserList({ users, setReload, allSites }) {
                 {users
                     .filter((user) => user.username === selectedUser)
                     .map((user) => {
-                        if (user.username === user.class)
-                            return (
-                                <div
-                                    key={user.username}
-                                    className="permission-admin">
-                                    <div className="permission-userinfo">{`${user.username}은(는) 관리자입니다.`}</div>
-                                    <div className="permission-userinfo">
-                                        관리계정은 전체 현장 조회 권한을
-                                        가집니다.
-                                    </div>
-                                    <hr />
-                                </div>
-                            );
-                        else {
-                            return (
-                                <>
-                                    <div className="permission-userinfo">{`이름: ${user.username}`}</div>
-                                    <div className="permission-userinfo">{`가입코드: ${user.code}`}</div>
-                                    <ModifySiteForm
-                                        username={user.username}
-                                        user={user}
-                                        setReload={setReload}
-                                        allSites={allSites}
-                                    />
-                                </>
-                            );
-                        }
+                        return (
+                            <>
+                                <div className="permission-userinfo">{`이름: ${user.username}`}</div>
+                                <div className="permission-userinfo">{`가입코드: ${user.code}`}</div>
+                                <ModifySiteForm
+                                    username={user.username}
+                                    user={user}
+                                    setReload={setReload}
+                                    allSites={allSites}
+                                />
+                            </>
+                        );
                     })}
             </div>
             <div>
