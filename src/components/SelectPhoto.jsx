@@ -174,7 +174,7 @@ const SelectPhoto = ({ site }) => {
                     className="input-range-value"
                     inputDates={dates}
                     handleDateChangeFromCalendar={handleDateChangeFromCalendar}
-                    tempDateIndex={selectedDateIndex}
+                    tempDateIndex={tempDateIndex}
                 />
                 <span
                     className="date-control-button"
@@ -210,7 +210,7 @@ const SelectPhoto = ({ site }) => {
                     className="input-range-value"
                     inputTimes={photos}
                     handleTimeChangeFromCalendar={handleTimeChangeFromCalendar}
-                    tempPhotoIndex={selectedPhotoIndex}
+                    tempPhotoIndex={tempPhotoIndex}
                 />
                 <span
                     className="date-control-button"
