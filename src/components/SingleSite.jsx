@@ -36,28 +36,58 @@ function SingleSite({ site, setSite, authSites }) {
         return null;
     }
 
+    const viewModes = [
+        { type: "both", label: "모두" },
+        { type: "photo", label: "사진" },
+        { type: "video", label: "영상" },
+    ];
+
     return (
         <div className="single-site-container">
             <div className="single-site-control">
-                <button className="to-all-button" onClick={handleGoToMainPage}>
-                    전체 현장 보기
-                </button>
-                <button
-                    className={viewMode === "both" ? "active" : "inactive"}
-                    onClick={() => handleViewMode("both")}>
-                    사진&영상
-                </button>
-                <button
-                    className={viewMode === "photo" ? "active" : "inactive"}
-                    onClick={() => handleViewMode("photo")}>
-                    사진
-                </button>
-                <button
-                    className={viewMode === "video" ? "active" : "inactive"}
-                    onClick={() => handleViewMode("video")}>
-                    영상
-                </button>
+                <div
+                    className="prev-site"
+                    onClick={() =>
+                        setSite(authSites[authSites?.indexOf(site) - 1])
+                    }>
+                    <div className="arrows">
+                        {authSites[authSites?.indexOf(site) - 1] ? "⬅️ " : ""}
+                    </div>
+                    {authSites[authSites?.indexOf(site) - 1]?.replaceAll(
+                        "_",
+                        " ",
+                    ) || "-"}
+                </div>
+                <div className="to-all-button" onClick={handleGoToMainPage}>
+                    전체현장
+                </div>
+                <div
+                    className="next-site"
+                    onClick={() =>
+                        setSite(authSites[authSites?.indexOf(site) + 1])
+                    }>
+                    {authSites[authSites?.indexOf(site) + 1].replaceAll(
+                        "_",
+                        " ",
+                    ) || "-"}
+                    <div className="arrows">
+                        {authSites[authSites?.indexOf(site) + 1] ? " ➡️" : ""}
+                    </div>
+                </div>
+                <div className="spacer"></div>
+                {viewModes.map(
+                    (mode) =>
+                        viewMode !== mode.type && (
+                            <div
+                                key={mode.type}
+                                className="view-mode"
+                                onClick={() => handleViewMode(mode.type)}>
+                                {mode.label}
+                            </div>
+                        ),
+                )}
             </div>
+            <hr />
 
             <h2>{site}</h2>
 
