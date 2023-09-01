@@ -17,11 +17,11 @@
     font-size: clamp(0.5rem, 2.5vw, 1.2rem);
     font-weight: normal;
 }
-
+/* 
 .display button:hover {
     background-color: black;
     opacity: 0.8;
-}
+} */
 
 /* Sorting styles */
 .sorting-adjust {
