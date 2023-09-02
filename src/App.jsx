@@ -33,7 +33,7 @@ function App() {
                     const user = res?.data.user;
                     if (user.class === user.username) setAdmin(true);
                     setAuth(true);
-                    setAuthSites(user.sites);
+                    setAuthSites(user.sites.sort());
                 })
                 .catch((err) => console.log("error in auth", err));
         } else {

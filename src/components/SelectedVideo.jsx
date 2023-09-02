@@ -22,8 +22,9 @@ function SelectedVideo({ site }) {
                     authHeader,
                     site,
                 );
-                setDates(response.data);
-                setTempDateIndex(response.data.length - 1);
+                const mp4Only = response.data.filter((f) => !f.includes("gif"));
+                setDates(mp4Only);
+                setTempDateIndex(mp4Only.length - 1);
             } catch (err) {
                 console.error("Failed to get date:", err);
             }
