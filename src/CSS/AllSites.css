@@ -3,6 +3,10 @@
 }
 
 /* Common styles */
+.display {
+    padding: 24px;
+}
+
 .display button {
     height: 30px;
     cursor: pointer;

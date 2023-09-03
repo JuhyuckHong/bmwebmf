@@ -12,9 +12,9 @@
 }
 
 .ci-background {
-    position: absolute;
-    top: 5px;
-    left: 5px;
+    /* position: absolute; */
+    /* top: 5px;
+    left: 5px; */
     width: 84px;
     height: 48px;
     background-color: #123456;
@@ -26,25 +26,29 @@
 .user {
     display: flex;
     flex-wrap: wrap;
-    justify-content: right;
+    justify-content: space-between;
+    padding: 12px;
     align-items: center;
-    height: 55px;
-    background-color: #123456;
+    height: 75px;
+    background-color: #143756;
 }
 
 .user button {
     cursor: pointer;
-    padding: 2px 4px;
+    padding: 8px 12px;
     border-radius: 4px;
-    margin-right: 10px;
+    /* margin-right: 10px; */
     border: none;
-    background-color: darkolivegreen;
-    color: lightcyan;
-    transition: background-color 0.3s;
+    /* background-color: darkolivegreen; */
+    background-color: #fab104;
+    font-weight: 600;
+    color: #12273d;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
 .user button:hover {
-    background-color: lightslategray;
+    background-color: #fbd34f;
+    /* color: white; */
 }
 
 .landing {

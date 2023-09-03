@@ -50,10 +50,9 @@ function App() {
         <>
             {auth ? (
                 <>
-                    <div className="ci-background"></div>
                     <div className="user">
+                        <div className="ci-background"></div>
                         <Logout setAuth={setAuth} />
-                        <span>&nbsp;</span>
                         {admin && (
                             <button onClick={handleAdminToggle}>
                                 {adminToggle ? "User" : "Admin"}
