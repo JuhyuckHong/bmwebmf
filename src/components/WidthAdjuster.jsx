@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import styled from "styled-components"
 
 function WidthAdjuster() {
     // 초기값을 localStorage에서 가져오거나, 없으면 300px로 설정
@@ -28,12 +29,17 @@ function WidthAdjuster() {
     };
 
     return (
-        <>
-            사진 크기: {width}px
-            <button onClick={increaseWidth}>▲</button>
-            <button onClick={decreaseWidth}>▼</button>
-        </>
+        <div className="container-adjust">
+            <span className="func-title">사진 크기 </span>
+            <div className="adjust">
+                <button onClick={increaseWidth}>▲</button>
+                {`${width}px`}
+                <button onClick={decreaseWidth}>▼</button>
+            </div>
+        </div>
     );
 }
+
+
 
 export default WidthAdjuster;

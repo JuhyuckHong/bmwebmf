@@ -10,16 +10,24 @@
 .display button {
     height: 30px;
     cursor: pointer;
-    padding: 2px 4px;
+    padding: 8px 10px;
     border-radius: 4px;
     border: none;
     background-color: midnightblue;
     opacity: 0.8;
-    color: lightgoldenrodyellow;
-    transition: background-color 0.3s;
+    color: #fef8e1;
+    transition: background-color 0.3s, opacity 0.3s;
     margin: 0px 5px;
     font-size: clamp(0.5rem, 2.5vw, 1.2rem);
     font-weight: normal;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.display button:hover {
+    opacity: 0.6;
 }
 /* 
 .display button:hover {
@@ -32,10 +40,41 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 10px 0px;
+    margin: 10px 0px 20px 0;
     height: 30px;
     font-size: clamp(0.5rem, 2.5vw, 1.2rem);
     font-weight: normal;
+    gap: 20px;
+}
+
+.sorting {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    white-space: pre;
+}
+
+/* Adjuster container */
+.container-adjust {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    white-space: pre;
+}
+
+.func-title {
+    font-size: clamp(0.5rem, 2.5vw, 1.2rem);
+    font-weight: bold;
+}
+
+.adjust {
+    display: flex;
+    gap: 5px;
+}
+
+.adjust button {
+    font-size: clamp(0.3rem, 2.1vw, 1rem);
 }
 
 /* Thumbnails container */
