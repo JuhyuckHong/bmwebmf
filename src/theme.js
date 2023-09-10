@@ -1,4 +1,5 @@
 const theme = {
+    site_info_width: "200px",
     button: {
         border_radius: {
             sm: "4px",

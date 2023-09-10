@@ -3,7 +3,7 @@ import cookie from "react-cookies";
 import { API } from "../API";
 import "../CSS/AllSites.css";
 import WidthAdjuster from "./WidthAdjuster";
-import { SortingStyle } from '../styled-components/allsites';
+import { SortingStyle, ThumbnailStyle } from '../styled-components/allsites';
 
 function AllSites({ admin, setSite, reload }) {
     const [thumbnails, setThumbnails] = useState([]);
@@ -140,7 +140,7 @@ function AllSites({ admin, setSite, reload }) {
                     const siteStatus = getSiteStatus(siteInfo);
 
                     return (
-                        <div
+                        <ThumbnailStyle
                             key={thumbnail.site}
                             className={`thumbnails-individual ${siteStatus}`}>
                             {imageURL && (
@@ -236,7 +236,7 @@ function AllSites({ admin, setSite, reload }) {
                                     </p>
                                 </div>
                             )}
-                        </div>
+                        </ThumbnailStyle>
                     );
                 })}
             </div>
