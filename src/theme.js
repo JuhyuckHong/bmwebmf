@@ -1,4 +1,11 @@
 const theme = {
+    button: {
+        border_radius: {
+            sm: "4px",
+            md: "8px",
+            lg: "12px"
+        }
+    },
     box: {
         width_min: "320px",
         shadow: "0px 8px 26px 1px rgba(34, 34, 34, 0.05);",
@@ -28,7 +35,7 @@ const theme = {
             200: "#93a5b7",
             100: "#bdc9d4",
             50: "#e5e9ed"
-        }
+        },
     },
     layout: {
         space: {

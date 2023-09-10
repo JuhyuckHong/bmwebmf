@@ -7,7 +7,7 @@
     padding: 24px;
 }
 
-.display button {
+/* .display button {
     height: 30px;
     cursor: pointer;
     padding: 8px 10px;
@@ -28,7 +28,7 @@
 
 .display button:hover {
     opacity: 0.6;
-}
+} */
 /* 
 .display button:hover {
     background-color: black;
@@ -42,21 +42,21 @@
     align-items: center;
     margin: 10px 0px 20px 0;
     height: 30px;
-    font-size: clamp(0.5rem, 2.5vw, 1.2rem);
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem);
     font-weight: normal;
     gap: 20px;
 }
 
-.sorting {
+/* .sorting {
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: bold;
     white-space: pre;
-}
+} */
 
 /* Adjuster container */
-.container-adjust {
+/* .container-adjust {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -64,18 +64,19 @@
 }
 
 .func-title {
-    font-size: clamp(0.5rem, 2.5vw, 1.2rem);
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem);
     font-weight: bold;
 }
 
-.adjust {
+.adjuster {
     display: flex;
+    align-items: center;
     gap: 5px;
 }
 
 .adjust button {
     font-size: clamp(0.3rem, 2.1vw, 1rem);
-}
+} */
 
 /* Thumbnails container */
 .thumbnails {

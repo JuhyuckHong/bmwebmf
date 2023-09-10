@@ -3,6 +3,7 @@ import cookie from "react-cookies";
 import { API } from "../API";
 import "../CSS/AllSites.css";
 import WidthAdjuster from "./WidthAdjuster";
+import { SortingStyle } from '../styled-components/allsites';
 
 function AllSites({ admin, setSite, reload }) {
     const [thumbnails, setThumbnails] = useState([]);
@@ -108,12 +109,12 @@ function AllSites({ admin, setSite, reload }) {
     return (
         <>
             <div className="sorting-adjust">
-                <div className="sorting">
+                <SortingStyle>
                     {"정렬 "}
                     <button onClick={handleSorting}>
                         {sorting ? "현장이름" : "모듈번호"}
                     </button>
-                </div>
+                </SortingStyle>
                 <WidthAdjuster />
             </div>
             <div className="thumbnails">
