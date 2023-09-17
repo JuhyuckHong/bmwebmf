@@ -21,9 +21,27 @@ const ThumbnailStyle = styled.div`
         }
     }
 
-    /* > .site-information {
-        
-    } */
+    > .site-information {
+        max-width: var(--site-info-width);
+        margin-top: 5px;
+        margin-bottom: 5px;
+        display: flex;
+        flex-direction: column;
+        align-items: left;
+        border-radius: 0px 0px 10px 10px;
+    }
+
+    > .site-information p {
+        line-height: 1;
+        height: calc(var(--site-info-width) / 2);
+        display: grid;
+        grid-template-rows: repeat(5, 1fr);
+        width: var(--site-info-width);
+        font-size: calc(var(--site-info-width) / 21);
+        white-space: nowrap;
+        border-radius: 5px;
+        padding-left: 5px;
+    }
 `
 
 export default ThumbnailStyle

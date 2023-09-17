@@ -156,7 +156,7 @@
     border-radius: 10px 10px 0px 0px;
 } */
 
-.site-information {
+/* .site-information {
     max-width: var(--site-info-width);
     margin-top: 5px;
     margin-bottom: 5px;
@@ -164,9 +164,9 @@
     flex-direction: column;
     align-items: left;
     border-radius: 0px 0px 10px 10px;
-}
+} */
 
-.site-information p {
+/* .site-information p {
     line-height: 1;
     height: calc(var(--site-info-width) / 2);
     display: grid;
@@ -176,7 +176,7 @@
     white-space: nowrap;
     border-radius: 5px;
     padding-left: 5px;
-}
+} */
 
 .row {
     display: flex;
