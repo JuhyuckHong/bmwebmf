@@ -155,7 +155,7 @@ function AllSites({ admin, setSite, reload }) {
                             )}
                             {siteInfo && (
                                 <div className="site-information">
-                                    <p>
+                                    {/* <p> */}
                                         <div className="row">
                                             <span className="info-key">
                                                 현장:&nbsp;
@@ -233,7 +233,7 @@ function AllSites({ admin, setSite, reload }) {
                                                 )}번)`}
                                             </span>
                                         </div>
-                                    </p>
+                                    {/* </p> */}
                                 </div>
                             )}
                         </ThumbnailStyle>

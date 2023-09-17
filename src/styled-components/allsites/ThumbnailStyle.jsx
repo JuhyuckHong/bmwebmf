@@ -21,27 +21,46 @@ const ThumbnailStyle = styled.div`
         }
     }
 
-    > .site-information {
+    .site-information {
         max-width: var(--site-info-width);
         margin-top: 5px;
         margin-bottom: 5px;
-        display: flex;
+        /* display: flex;
         flex-direction: column;
-        align-items: left;
+        align-items: left; */
         border-radius: 0px 0px 10px 10px;
+
+        display: grid;
+        height: calc(var(--site-info-width) / 2);
+        grid-template-rows: repeat(5, 1fr);
+        font-size: calc(var(--site-info-width) / 21);
     }
 
-    > .site-information p {
-        line-height: 1;
-        height: calc(var(--site-info-width) / 2);
-        display: grid;
-        grid-template-rows: repeat(5, 1fr);
+    .row {
         width: var(--site-info-width);
-        font-size: calc(var(--site-info-width) / 21);
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
         white-space: nowrap;
         border-radius: 5px;
         padding-left: 5px;
     }
+
+    .site-name {
+        cursor: pointer;
+        font-weight: 800;
+        color: midnightblue;
+        border-radius: 4px;
+        padding: 0px 3px;
+        display: inline-block;
+        width: 80%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: center;
+        line-height: 1.5;
+    }
+
+
 `
 
 export default ThumbnailStyle
