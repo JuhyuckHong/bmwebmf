@@ -134,27 +134,27 @@
 }
 
 /* Individual thumbnail and its details */
-.thumbnails-individual {
+/* .thumbnails-individual {
     width: var(--site-info-width);
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     background-color: whitesmoke;
-}
+} */
 
-.thumbnails-individual img {
+/* .thumbnails-individual img {
     width: 100%;
     height: auto;
     border-radius: 10px 10px 0px 0px;
     transition: transform 0.1s ease-in-out;
     cursor: pointer;
-}
+} */
 
-.thumbnails-individual img:hover {
+/* .thumbnails-individual img:hover {
     transform: scaleX(1.015) scaleY(1.015);
     border-radius: 10px 10px 0px 0px;
-}
+} */
 
 .site-information {
     max-width: var(--site-info-width);
