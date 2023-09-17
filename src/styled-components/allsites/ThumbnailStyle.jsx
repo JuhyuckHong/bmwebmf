@@ -8,6 +8,14 @@ const ThumbnailStyle = styled.div`
     align-items: center;
     /* background-color: whitesmoke; */
 
+    > img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px 10px 0 0;
+        transition: transform 0.1s ease-in-out;
+        cursor: pointer;
+    }
+
     > .site-information {
         
     }
