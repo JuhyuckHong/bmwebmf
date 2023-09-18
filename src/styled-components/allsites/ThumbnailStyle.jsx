@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 
 const ThumbnailStyle = styled.div`
+    --site-info-width: 300px;
+
     width: var(--site-info-width);
     height: 100%;
     display: flex;
@@ -60,7 +62,54 @@ const ThumbnailStyle = styled.div`
         line-height: 1.5;
     }
 
+    .missing-high {
+        padding: 0 2px;
+        color: ${props => props.theme.color.warning};
+        font-weight: 800;
+    }
 
+    .ok {
+        padding: 0 2px;
+        color: ${props => props.theme.color.main[800]};
+        font-weight: 600;
+    }
+
+    .today-total-photo {
+        font-size: smaller;
+    }
+
+    .remote-status.remote-on {
+        color: ${props => props.theme.color.main[800]};
+        font-weight: 800;
+    }
+
+    .remote-status.remote-off {
+        color: ${props => props.theme.color.highlight[900]};
+        font-weight: 800;
+    }
+
+    .device-number {
+        font-weight: lighter;
+        margin-left: 0.5vw;
+    }
+
+    .thumbnails-individual.non-operational {
+        filter: grayscale(70%);
+        opacity: 0.7;
+    }
+
+    @keyframes blink {
+        0% {
+            box-shadow: 0px 0px 0px var(--shadow-size) var(--shadow-color);
+        }
+        50% {
+            box-shadow: 0px 0px 0px calc(var(--shadow-size) - 0.5px)
+                var(--shadow-color-change);
+        }
+        100% {
+            box-shadow: 0px 0px 0px var(--shadow-size) var(--shadow-color);
+        }
+    }
 `
 
 export default ThumbnailStyle

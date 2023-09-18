@@ -1,6 +1,6 @@
-:root {
+/* :root {
     --site-info-width: 200px;
-}
+} */
 
 /* Common styles */
 .display {
@@ -198,23 +198,23 @@
     line-height: 1.5;
 } */
 
-.missing-high {
+/* .missing-high {
     padding: 0 2px;
     color: red;
     font-weight: 800;
-}
+} */
 
-.ok {
+/* .ok {
     padding: 0 2px;
     color: green;
     font-weight: 600;
-}
+} */
 
-.today-total-photo {
+/* .today-total-photo {
     font-size: smaller;
-}
+} */
 
-.remote-status.remote-on {
+/* .remote-status.remote-on {
     color: green;
     font-weight: 800;
 }
@@ -222,19 +222,19 @@
 .remote-status.remote-off {
     color: orange;
     font-weight: 800;
-}
+} */
 
-.device-number {
+/* .device-number {
     font-weight: lighter;
     margin-left: 0.5vw;
-}
+} */
 
-.thumbnails-individual.non-operational {
+/* .thumbnails-individual.non-operational {
     filter: grayscale(70%);
     opacity: 0.7;
-}
+} */
 
-@keyframes blink {
+/* @keyframes blink {
     0% {
         box-shadow: 0px 0px 0px var(--shadow-size) var(--shadow-color);
     }
@@ -245,7 +245,7 @@
     100% {
         box-shadow: 0px 0px 0px var(--shadow-size) var(--shadow-color);
     }
-}
+} */
 
 .need-solution {
     --shadow-color: rgba(200, 0, 0, 0.4);

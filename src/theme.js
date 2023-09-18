@@ -13,6 +13,7 @@ const theme = {
         border_radius: "10px"
     },
     color: {
+        warning: "tomato",
         highlight: {
             900: "#f96e01",
             800: "#fa8d02",
