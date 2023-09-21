@@ -66,7 +66,7 @@ function SingleSite({ site, setSite, authSites }) {
                     onClick={() =>
                         setSite(authSites[authSites?.indexOf(site) + 1])
                     }>
-                    {authSites[authSites?.indexOf(site) + 1].replaceAll(
+                    {authSites[authSites?.indexOf(site) + 1]?.replaceAll(
                         "_",
                         " ",
                     ) || "-"}
