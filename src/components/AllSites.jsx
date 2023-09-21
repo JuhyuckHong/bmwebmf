@@ -192,46 +192,57 @@ function AllSites({ admin, setSite, reload }) {
                                                 }분)`}
                                             </span>
                                         </div>
-                                        <div className="row">
-                                            <span className="info-key">
-                                                촬영:&nbsp;
-                                            </span>
-                                            <span>
-                                                {`${siteInfo.photos_count}`}
-                                                &nbsp;
-                                            </span>
-                                            <span>{"("}</span>
-                                            <span
-                                                className={getMissingPhotosClass(
-                                                    siteInfo.photos_count,
-                                                    siteInfo.shooting_count_till_now,
-                                                )}>{`${
-                                                siteInfo.shooting_count_till_now -
-                                                siteInfo.photos_count
-                                            }`}</span>
-                                            <span>{"개 누락)"}&nbsp;</span>
-                                            <span className="today-total-photo">{`(오늘: ${siteInfo.shooting_count})`}</span>
-                                        </div>
-                                        <div className="row">
-                                            <span className="info-key">
-                                                원격:&nbsp;
-                                            </span>
-                                            <span
-                                                className={`remote-status ${
-                                                    siteInfo.ssh
-                                                        ? "remote-on"
-                                                        : "remote-off"
-                                                } `}>
-                                                &nbsp;
-                                                {`${siteInfo.ssh ? "O" : "X"}`}
-                                                &nbsp;
-                                            </span>
-                                            <span className="device-number">
-                                                {`(${formatDeviceNumber(
-                                                    siteInfo.device_number,
-                                                )}번)`}
-                                            </span>
-                                        </div>
+
+                                        {admin && (
+                                            <>
+                                                <div className="row">
+                                                    <span className="info-key">
+                                                        촬영:&nbsp;
+                                                    </span>
+                                                    <span>
+                                                        {`${siteInfo.photos_count}`}
+                                                        &nbsp;
+                                                    </span>
+                                                    <span>{"("}</span>
+                                                    <span
+                                                        className={getMissingPhotosClass(
+                                                            siteInfo.photos_count,
+                                                            siteInfo.shooting_count_till_now,
+                                                        )}>{`${
+                                                        siteInfo.shooting_count_till_now -
+                                                        siteInfo.photos_count
+                                                    }`}</span>
+                                                    <span>
+                                                        {"개 누락)"}&nbsp;
+                                                    </span>
+                                                    <span className="today-total-photo">{`(오늘: ${siteInfo.shooting_count})`}</span>
+                                                </div>
+                                                <div className="row">
+                                                    <span className="info-key">
+                                                        원격:&nbsp;
+                                                    </span>
+                                                    <span
+                                                        className={`remote-status ${
+                                                            siteInfo.ssh
+                                                                ? "remote-on"
+                                                                : "remote-off"
+                                                        } `}>
+                                                        &nbsp;
+                                                        {`${
+                                                            siteInfo.ssh
+                                                                ? "O"
+                                                                : "X"
+                                                        }`}
+                                                        &nbsp;
+                                                    </span>
+                                                    <span className="device-number">
+                                                        {`(${formatDeviceNumber(
+                                                            siteInfo.device_number,
+                                                        )}번)`}
+                                                    </span>
+                                                </div>
+                                            </>
+                                        )}
                                     </p>
                                 </div>
                             )}
