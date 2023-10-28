@@ -4,6 +4,7 @@ import cookie from "react-cookies";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
 import AllSites from "./components/AllSites";
+import GlobalStyle from './styled-components/GlobalStyle';
 import { API } from "./API";
 import "./App.css";
 import "./CSS/Admin.css";
@@ -48,6 +49,7 @@ function App() {
 
     return (
         <>
+            <GlobalStyle />
             {auth ? (
                 <>
                     <div className="user">

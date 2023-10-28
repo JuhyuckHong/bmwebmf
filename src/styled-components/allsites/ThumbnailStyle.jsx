@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 const ThumbnailStyle = styled.div`
-    --site-info-width: 300px;
 
     width: var(--site-info-width);
     height: 100%;
