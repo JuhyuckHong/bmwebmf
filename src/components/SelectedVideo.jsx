@@ -16,6 +16,9 @@ function SelectedVideo({ site }) {
     useEffect(() => {
         const authHeader = { Authorization: cookie.load("BM") };
 
+        setDates([]);
+        setTempDateIndex(0);
+
         const getAndSetDateInSite = async () => {
             try {
                 const response = await API.getSiteDailyVideoList(
