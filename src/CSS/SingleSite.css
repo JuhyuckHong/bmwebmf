@@ -11,11 +11,21 @@
 
 .single-site-control {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    /* flex-direction: row; */
     align-items: center;
     justify-content: center;
     margin: 5px 0px;
+    width: 100%;
+}
+
+.single-site-control-bar, .single-site-control-format {
     width: 90%;
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
+    align-items: center;
+    justify-content: center;
 }
 
 .to-all-button,
