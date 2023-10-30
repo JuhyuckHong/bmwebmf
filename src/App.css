@@ -33,6 +33,12 @@
     background-color: #143756;
 }
 
+.control-btns {
+    display: flex;
+    gap: 20px;
+    margin-right: 10px;
+}
+
 .user button {
     cursor: pointer;
     padding: 8px 12px;

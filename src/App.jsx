@@ -54,12 +54,14 @@ function App() {
                 <>
                     <div className="user">
                         <div className="ci-background"></div>
-                        <Logout setAuth={setAuth} />
-                        {admin && (
-                            <button onClick={handleAdminToggle}>
-                                {adminToggle ? "User" : "Admin"}
-                            </button>
-                        )}
+                        <div className="control-btns">
+                            {admin && (
+                                <button onClick={handleAdminToggle}>
+                                    {adminToggle ? "User" : "Admin"}
+                                </button>
+                            )}
+                            <Logout setAuth={setAuth} />
+                        </div>
                     </div>
                 </>
             ) : (
