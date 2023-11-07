@@ -98,7 +98,7 @@ function SelectedVideo({ site }) {
         };
 
         getAndSetVideo();
-    }, [dates[selectedDateIndex]]);
+    }, [dates, selectedDateIndex, site]);
 
     return (
         <>
