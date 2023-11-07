@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import cookie from "react-cookies";
 import { API } from "../API";
 import "../CSS/AllSites.css";
@@ -87,7 +87,7 @@ function AllSites({ admin, setSite, reload }) {
     // Sorting state and function, useMemo for optimization
     const [sorting, setSorting] = useState(true);
     const handleSorting = () => setSorting((prev) => !prev);
-    const sortFunc = (a, b) => {
+    const sortFunc = useCallback((a, b) => {
         if (sorting) {
             const nameA = a.site.toUpperCase();
             const nameB = b.site.toUpperCase();
@@ -97,7 +97,7 @@ function AllSites({ admin, setSite, reload }) {
             const nameB = siteInformation[b.site]?.device_number || "";
             return nameA.localeCompare(nameB);
         }
-    };
+    }, [sorting, siteInformation]);
     const sortedThumbnails = useMemo(() => {
         return [...thumbnails].sort(sortFunc);
     }, [thumbnails, sortFunc]);
