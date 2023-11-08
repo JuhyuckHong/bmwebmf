@@ -1,0 +1,30 @@
+
+.input-range-video {
+    -webkit-appearance: none;
+    appearance: none;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+    background-color:#eee;
+    height: 0.5rem;
+    border-radius: 0.3rem;
+}
+
+input[type="range"]::-moz-range-track {
+    background-color:#eee;
+    height: 0.5rem;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    margin-top: calc((0.5rem/2) - (1rem/2));
+    height: 1.2rem;
+    width: 0.6rem;
+    border-radius: 0.1rem;
+}
+
+input[type="range"]::-moz-range-thumb {
+    border: none;
+    border-radius: 0.1rem;
+    background-color: #fabe00;
+    height: 1.2rem;
+    width: 0.6rem;
+}

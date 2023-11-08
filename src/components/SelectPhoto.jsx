@@ -3,6 +3,7 @@ import { API } from "../API";
 import cookie from "react-cookies";
 import DateSelector from "./DateSelector";
 import TimeSelector from "./TimeSelector";
+import "../CSS/SelectPhoto.css";
 
 const SelectPhoto = ({ site }) => {
     const [selectedDateIndex, setSelectedDateIndex] = useState(0);
