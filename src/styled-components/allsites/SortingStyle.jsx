@@ -4,10 +4,21 @@ const SortingStyle = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: bold;
-    white-space: pre;
+    margin: 10px 0px 20px 0;
+    height: 30px;
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+    font-weight: normal;
+    gap: 20px;
 
-    > button {
+    .sorting {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        white-space: pre;
+    }
+
+    .sorting > button {
         display: flex;
         justify-content: center;
         align-items: center;

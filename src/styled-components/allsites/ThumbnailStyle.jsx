@@ -26,9 +26,6 @@ const ThumbnailStyle = styled.div`
         max-width: var(--site-info-width);
         margin-top: 5px;
         margin-bottom: 5px;
-        /* display: flex;
-        flex-direction: column;
-        align-items: left; */
         border-radius: 0px 0px 10px 10px;
 
         display: grid;
@@ -95,19 +92,6 @@ const ThumbnailStyle = styled.div`
     .thumbnails-individual.non-operational {
         filter: grayscale(70%);
         opacity: 0.7;
-    }
-
-    @keyframes blink {
-        0% {
-            box-shadow: 0px 0px 0px var(--shadow-size) var(--shadow-color);
-        }
-        50% {
-            box-shadow: 0px 0px 0px calc(var(--shadow-size) - 0.5px)
-                var(--shadow-color-change);
-        }
-        100% {
-            box-shadow: 0px 0px 0px var(--shadow-size) var(--shadow-color);
-        }
     }
 `
 

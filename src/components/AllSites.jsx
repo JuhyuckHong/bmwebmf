@@ -108,15 +108,15 @@ function AllSites({ admin, setSite, reload }) {
 
     return (
         <>
-            <div className="sorting-adjust">
-                <SortingStyle>
+            <SortingStyle>
+                <div className="sorting">
                     {"정렬 "}
                     <button onClick={handleSorting}>
                         {sorting ? "현장이름" : "모듈번호"}
                     </button>
-                </SortingStyle>
+                </div>
                 <WidthAdjuster />
-            </div>
+            </SortingStyle>
             <div className="thumbnails">
                 {admin && monitorURL && (
                     <div className="summary">
