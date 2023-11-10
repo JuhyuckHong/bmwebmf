@@ -3,6 +3,7 @@ import { API } from "../API";
 import cookie from "react-cookies";
 import DateSelector from "./DateSelector";
 import TimeSelector from "./TimeSelector";
+import "../CSS/SelectPhoto.css";
 
 const SelectPhoto = ({ site }) => {
     const [selectedDateIndex, setSelectedDateIndex] = useState(0);
@@ -80,7 +81,7 @@ const SelectPhoto = ({ site }) => {
         };
 
         getAndSetTimeInDate();
-    }, [dates[selectedDateIndex]]);
+    }, [dates, selectedDateIndex, site]);
 
     // Debouncing
     const handlePhotoChange = (event) => setTempPhotoIndex(event.target.value);
@@ -145,7 +146,7 @@ const SelectPhoto = ({ site }) => {
         };
 
         getAndSetImage();
-    }, [photos[selectedPhotoIndex]]);
+    }, [dates, photos, selectedDateIndex, selectedPhotoIndex, site]);
 
     return (
         <>
@@ -226,7 +227,7 @@ const SelectPhoto = ({ site }) => {
                 {loading ? (
                     <div className="spinner"></div>
                 ) : (
-                    imageURL && <img src={imageURL} alt="Selected Photo" />
+                    imageURL && <img src={imageURL} alt="Selected Site" />
                 )}
             </div>
         </>

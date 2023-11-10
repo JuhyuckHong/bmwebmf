@@ -4,6 +4,7 @@ import cookie from "react-cookies";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
 import AllSites from "./components/AllSites";
+import GlobalStyle from './styled-components/GlobalStyle';
 import { API } from "./API";
 import "./App.css";
 import "./CSS/Admin.css";
@@ -48,17 +49,19 @@ function App() {
 
     return (
         <>
+            <GlobalStyle />
             {auth ? (
                 <>
-                    <div className="ci-background"></div>
                     <div className="user">
-                        <Logout setAuth={setAuth} />
-                        <span>&nbsp;</span>
-                        {admin && (
-                            <button onClick={handleAdminToggle}>
-                                {adminToggle ? "User" : "Admin"}
-                            </button>
-                        )}
+                        <div className="ci-background"></div>
+                        <div className="control-btns">
+                            {admin && (
+                                <button onClick={handleAdminToggle}>
+                                    {adminToggle ? "User" : "Admin"}
+                                </button>
+                            )}
+                            <Logout setAuth={setAuth} />
+                        </div>
                     </div>
                 </>
             ) : (

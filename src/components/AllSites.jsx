@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import cookie from "react-cookies";
 import { API } from "../API";
 import "../CSS/AllSites.css";
 import WidthAdjuster from "./WidthAdjuster";
+import { SortingStyle, ThumbnailStyle } from '../styled-components/allsites';
 
 function AllSites({ admin, setSite, reload }) {
     const [thumbnails, setThumbnails] = useState([]);
@@ -86,7 +87,7 @@ function AllSites({ admin, setSite, reload }) {
     // Sorting state and function, useMemo for optimization
     const [sorting, setSorting] = useState(true);
     const handleSorting = () => setSorting((prev) => !prev);
-    const sortFunc = (a, b) => {
+    const sortFunc = useCallback((a, b) => {
         if (sorting) {
             const nameA = a.site.toUpperCase();
             const nameB = b.site.toUpperCase();
@@ -96,7 +97,7 @@ function AllSites({ admin, setSite, reload }) {
             const nameB = siteInformation[b.site]?.device_number || "";
             return nameA.localeCompare(nameB);
         }
-    };
+    }, [sorting, siteInformation]);
     const sortedThumbnails = useMemo(() => {
         return [...thumbnails].sort(sortFunc);
     }, [thumbnails, sortFunc]);
@@ -107,15 +108,15 @@ function AllSites({ admin, setSite, reload }) {
 
     return (
         <>
-            <div className="sorting-adjust">
-                {"| 정렬: "}
-                <button onClick={handleSorting}>
-                    {sorting ? "현장이름" : "모듈번호"}
-                </button>
-                {" | "}
+            <SortingStyle>
+                <div className="sorting">
+                    {"정렬 "}
+                    <button onClick={handleSorting}>
+                        {sorting ? "현장이름" : "모듈번호"}
+                    </button>
+                </div>
                 <WidthAdjuster />
-                {" |"}
-            </div>
+            </SortingStyle>
             <div className="thumbnails">
                 {admin && monitorURL && (
                     <div className="summary">
@@ -139,7 +140,7 @@ function AllSites({ admin, setSite, reload }) {
                     const siteStatus = getSiteStatus(siteInfo);
 
                     return (
-                        <div
+                        <ThumbnailStyle
                             key={thumbnail.site}
                             className={`thumbnails-individual ${siteStatus}`}>
                             {imageURL && (
@@ -154,7 +155,7 @@ function AllSites({ admin, setSite, reload }) {
                             )}
                             {siteInfo && (
                                 <div className="site-information">
-                                    <p>
+                                    {/* <p> */}
                                         <div className="row">
                                             <span className="info-key">
                                                 현장:&nbsp;
@@ -192,61 +193,50 @@ function AllSites({ admin, setSite, reload }) {
                                                 }분)`}
                                             </span>
                                         </div>
-
-                                        {admin && (
-                                            <>
-                                                <div className="row">
-                                                    <span className="info-key">
-                                                        촬영:&nbsp;
-                                                    </span>
-                                                    <span>
-                                                        {`${siteInfo.photos_count}`}
-                                                        &nbsp;
-                                                    </span>
-                                                    <span>{"("}</span>
-                                                    <span
-                                                        className={getMissingPhotosClass(
-                                                            siteInfo.photos_count,
-                                                            siteInfo.shooting_count_till_now,
-                                                        )}>{`${
-                                                        siteInfo.shooting_count_till_now -
-                                                        siteInfo.photos_count
-                                                    }`}</span>
-                                                    <span>
-                                                        {"개 누락)"}&nbsp;
-                                                    </span>
-                                                    <span className="today-total-photo">{`(오늘: ${siteInfo.shooting_count})`}</span>
-                                                </div>
-                                                <div className="row">
-                                                    <span className="info-key">
-                                                        원격:&nbsp;
-                                                    </span>
-                                                    <span
-                                                        className={`remote-status ${
-                                                            siteInfo.ssh
-                                                                ? "remote-on"
-                                                                : "remote-off"
-                                                        } `}>
-                                                        &nbsp;
-                                                        {`${
-                                                            siteInfo.ssh
-                                                                ? "O"
-                                                                : "X"
-                                                        }`}
-                                                        &nbsp;
-                                                    </span>
-                                                    <span className="device-number">
-                                                        {`(${formatDeviceNumber(
-                                                            siteInfo.device_number,
-                                                        )}번)`}
-                                                    </span>
-                                                </div>
-                                            </>
-                                        )}
-                                    </p>
+                                        <div className="row">
+                                            <span className="info-key">
+                                                촬영:&nbsp;
+                                            </span>
+                                            <span>
+                                                {`${siteInfo.photos_count}`}
+                                                &nbsp;
+                                            </span>
+                                            <span>{"("}</span>
+                                            <span
+                                                className={getMissingPhotosClass(
+                                                    siteInfo.photos_count,
+                                                    siteInfo.shooting_count_till_now,
+                                                )}>{`${
+                                                siteInfo.shooting_count_till_now -
+                                                siteInfo.photos_count
+                                            }`}</span>
+                                            <span>{"개 누락)"}&nbsp;</span>
+                                            <span className="today-total-photo">{`(오늘: ${siteInfo.shooting_count})`}</span>
+                                        </div>
+                                        <div className="row">
+                                            <span className="info-key">
+                                                원격:&nbsp;
+                                            </span>
+                                            <span
+                                                className={`remote-status ${
+                                                    siteInfo.ssh
+                                                        ? "remote-on"
+                                                        : "remote-off"
+                                                } `}>
+                                                &nbsp;
+                                                {`${siteInfo.ssh ? "O" : "X"}`}
+                                                &nbsp;
+                                            </span>
+                                            <span className="device-number">
+                                                {`(${formatDeviceNumber(
+                                                    siteInfo.device_number,
+                                                )}번)`}
+                                            </span>
+                                        </div>
+                                    {/* </p> */}
                                 </div>
                             )}
-                        </div>
+                        </ThumbnailStyle>
                     );
                 })}
             </div>

@@ -45,47 +45,51 @@ function SingleSite({ site, setSite, authSites }) {
     return (
         <div className="single-site-container">
             <div className="single-site-control">
-                <div
-                    className="prev-site"
-                    onClick={() =>
-                        setSite(authSites[authSites?.indexOf(site) - 1])
-                    }>
-                    <div className="arrows">
-                        {authSites[authSites?.indexOf(site) - 1] ? "⬅️ " : ""}
+                <div className="single-site-control-bar">
+                    <div
+                        className="prev-site"
+                        onClick={() =>
+                            setSite(authSites[authSites?.indexOf(site) - 1])
+                        }>
+                        <div className="arrows">
+                            {authSites[authSites?.indexOf(site) - 1] ? "⬅️ " : ""}
+                        </div>
+                        {authSites[authSites?.indexOf(site) - 1]?.replaceAll(
+                            "_",
+                            " ",
+                        ) || "-"}
                     </div>
-                    {authSites[authSites?.indexOf(site) - 1]?.replaceAll(
-                        "_",
-                        " ",
-                    ) || "-"}
-                </div>
-                <div className="to-all-button" onClick={handleGoToMainPage}>
-                    전체현장
-                </div>
-                <div
-                    className="next-site"
-                    onClick={() =>
-                        setSite(authSites[authSites?.indexOf(site) + 1])
-                    }>
-                    {authSites[authSites?.indexOf(site) + 1]?.replaceAll(
-                        "_",
-                        " ",
-                    ) || "-"}
-                    <div className="arrows">
-                        {authSites[authSites?.indexOf(site) + 1] ? " ➡️" : ""}
+                    <div className="to-all-button" onClick={handleGoToMainPage}>
+                        전체현장
+                    </div>
+                    <div
+                        className="next-site"
+                        onClick={() =>
+                            setSite(authSites[authSites?.indexOf(site) + 1])
+                        }>
+                        {authSites[authSites?.indexOf(site) + 1]?.replaceAll(
+                            "_",
+                            " ",
+                        ) || "-"}
+                        <div className="arrows">
+                            {authSites[authSites?.indexOf(site) + 1] ? " ➡️" : ""}
+                        </div>
                     </div>
                 </div>
-                <div className="spacer"></div>
-                {viewModes.map(
-                    (mode) =>
-                        viewMode !== mode.type && (
-                            <div
-                                key={mode.type}
-                                className="view-mode"
-                                onClick={() => handleViewMode(mode.type)}>
-                                {mode.label}
-                            </div>
-                        ),
-                )}
+                {/* <div className="spacer"></div> */}
+                <div className="single-site-control-format">
+                    {viewModes.map(
+                        (mode) =>
+                            viewMode !== mode.type && (
+                                <div
+                                    key={mode.type}
+                                    className="view-mode"
+                                    onClick={() => handleViewMode(mode.type)}>
+                                    {mode.label}
+                                </div>
+                            ),
+                    )}
+                </div>
             </div>
             <hr />
 
