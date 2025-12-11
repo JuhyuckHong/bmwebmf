@@ -1,5 +1,5 @@
 import { API } from "../API";
-import cookie from "react-cookies";
+import Cookies from "js-cookie";
 import { useState } from "react";
 
 import { TitleBox, InputFormBox, BtnBox } from "../styled-components/auth";
@@ -19,7 +19,7 @@ function Login({ setAuth, handleLoginToggle }) {
 
         API.signIn(data)
             .then((res) => {
-                cookie.save("BM", "Bearer " + res.data.access_token);
+                Cookies.set("BM", "Bearer " + res.data.access_token);
                 alert(res.data.message);
                 setAuth(true);
             })

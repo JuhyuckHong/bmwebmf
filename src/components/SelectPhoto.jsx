@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { API } from "../API";
-import cookie from "react-cookies";
+import Cookies from "js-cookie";
 import DateSelector from "./DateSelector";
 import TimeSelector from "./TimeSelector";
 import "../CSS/SelectPhoto.css";
@@ -12,7 +12,7 @@ const SelectPhoto = ({ site }) => {
 
     // site 선택한 경우(=thumbnail 선택) 해당 site에서 촬영된 날짜(=folder) 목록을 요청
     useEffect(() => {
-        const authHeader = { Authorization: cookie.load("BM") };
+        const authHeader = { Authorization: Cookies.get("BM") };
 
         setDates([]);
         setTempDateIndex(0);
@@ -62,7 +62,7 @@ const SelectPhoto = ({ site }) => {
 
     // 날짜를 선택한 경우 해당 날짜(=folder)에 있는 사진 목록을 요청
     useEffect(() => {
-        const authHeader = { Authorization: cookie.load("BM") };
+        const authHeader = { Authorization: Cookies.get("BM") };
 
         const getAndSetTimeInDate = async () => {
             if (site && dates[selectedDateIndex]) {
@@ -117,7 +117,7 @@ const SelectPhoto = ({ site }) => {
 
     // 개별 사진을 선택한 경우 해당 사진을 요청
     useEffect(() => {
-        const authHeader = { Authorization: cookie.load("BM") };
+        const authHeader = { Authorization: Cookies.get("BM") };
 
         const getAndSetImage = async () => {
             if (

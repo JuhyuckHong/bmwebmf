@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { decodeJwt } from "jose";
-import cookie from "react-cookies";
+import Cookies from "js-cookie";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
 import AllSites from "./components/AllSites";
@@ -23,10 +23,10 @@ function App() {
     const [authSites, setAuthSites] = useState([]);
 
     useEffect(() => {
-        const token = cookie.load("BM");
+        const token = Cookies.get("BM");
         if (token && decodeJwt(token).exp < parseInt(Date.now() / 1000)) {
             // delete token and
-            cookie.remove("BM");
+            Cookies.remove("BM");
         } else if (token) {
             // if token has not expired, try login
             API.auth({ Authorization: token })

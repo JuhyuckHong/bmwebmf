@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import cookie from "react-cookies";
+import Cookies from "js-cookie";
 import { API } from "../API";
 import "../CSS/AllSites.css";
 import WidthAdjuster from "./WidthAdjuster";
@@ -10,7 +10,7 @@ function AllSites({ admin, setSite, reload }) {
     const [siteInformation, setSiteInformation] = useState({});
 
     const fetchData = (fetchFunction, setStateFunction) => {
-        fetchFunction({ Authorization: cookie.load("BM") })
+        fetchFunction({ Authorization: Cookies.get("BM") })
             .then((res) => {
                 setStateFunction(res.data);
             })
@@ -39,7 +39,7 @@ function AllSites({ admin, setSite, reload }) {
     const getStaticURL = async (url) => {
         try {
             const response = await API.getStatic(
-                { Authorization: cookie.load("BM") },
+                { Authorization: Cookies.get("BM") },
                 url,
             );
 

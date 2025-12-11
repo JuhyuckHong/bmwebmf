@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import cookie from "react-cookies";
+import Cookies from "js-cookie";
 import { API } from "../API";
 import DateSelector from "./DateSelector";
 import "../CSS/LoadingSpinner.css";
@@ -14,7 +14,7 @@ function SelectedVideo({ site }) {
 
     // site 선택한 경우(=thumbnail 선택) 해당 site에서 촬영된 날짜(=folder) 목록을 요청
     useEffect(() => {
-        const authHeader = { Authorization: cookie.load("BM") };
+        const authHeader = { Authorization: Cookies.get("BM") };
 
         setDates([]);
         setTempDateIndex(0);
@@ -78,7 +78,7 @@ function SelectedVideo({ site }) {
         // 로딩 시작
         setLoading(true);
 
-        const authHeader = { Authorization: cookie.load("BM") };
+        const authHeader = { Authorization: Cookies.get("BM") };
 
         const getAndSetVideo = async () => {
             if (site && dates[selectedDateIndex]) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { API } from "../API";
-import cookie from "react-cookies";
+import Cookies from "js-cookie";
 
 function UserPermission({ reload, setReload }) {
     const [users, setUsers] = useState([]);
@@ -10,12 +10,12 @@ function UserPermission({ reload, setReload }) {
         async function fetchData() {
             try {
                 const resUsers = await API.allUsers({
-                    Authorization: cookie.load("BM"),
+                    Authorization: Cookies.get("BM"),
                 });
                 setUsers(resUsers.data);
 
                 const resSites = await API.allSites({
-                    Authorization: cookie.load("BM"),
+                    Authorization: Cookies.get("BM"),
                 });
                 setAllSites(resSites.data.sort());
             } catch (error) {
@@ -80,7 +80,7 @@ function UserDeactivateDelete({ users, setReload }) {
     const handleDeactivateUser = async (username) => {
         await API.deactivateUser(
             {
-                Authorization: cookie.load("BM"),
+                Authorization: Cookies.get("BM"),
             },
             username,
         );
@@ -90,7 +90,7 @@ function UserDeactivateDelete({ users, setReload }) {
     const handleActivateUser = async (username) => {
         await API.activateUser(
             {
-                Authorization: cookie.load("BM"),
+                Authorization: Cookies.get("BM"),
             },
             username,
         );
@@ -104,7 +104,7 @@ function UserDeactivateDelete({ users, setReload }) {
         if (isConfirmed) {
             await API.deleteUser(
                 {
-                    Authorization: cookie.load("BM"),
+                    Authorization: Cookies.get("BM"),
                 },
                 username,
             );
@@ -229,7 +229,7 @@ function ModifySiteForm({ username, user, setReload, allSites }) {
         try {
             await API.userSiteViewAuthSet(
                 {
-                    Authorization: cookie.load("BM"),
+                    Authorization: Cookies.get("BM"),
                 },
                 username,
                 { sites: selectedSites },

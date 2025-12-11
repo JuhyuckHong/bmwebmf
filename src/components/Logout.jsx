@@ -1,8 +1,8 @@
-import cookie from "react-cookies";
+import Cookies from "js-cookie";
 
 function Logout({ setAuth }) {
     const logout = () => {
-        cookie.remove("BM");
+        Cookies.remove("BM");
         setAuth(false);
     };
 

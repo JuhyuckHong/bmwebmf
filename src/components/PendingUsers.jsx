@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import cookie from "react-cookies";
+import Cookies from "js-cookie";
 import { API } from "../API";
 
 function PendingUsers({ setReload }) {
@@ -9,7 +9,7 @@ function PendingUsers({ setReload }) {
     useEffect(() => {
         async function fetchPendingUsers() {
             try {
-                const token = cookie.load("BM");
+                const token = Cookies.get("BM");
                 const response = await API.pendingUsers({
                     Authorization: token,
                 });
@@ -23,7 +23,7 @@ function PendingUsers({ setReload }) {
 
     const handleApproval = async (username) => {
         try {
-            const token = cookie.load("BM");
+            const token = Cookies.get("BM");
             await API.approveUser({ Authorization: token }, username);
             // After successful approval, remove user from the pending list in UI
             setPendingUsers((prevUsers) =>
@@ -37,7 +37,7 @@ function PendingUsers({ setReload }) {
 
     const handleDecline = async (username) => {
         try {
-            const token = cookie.load("BM");
+            const token = Cookies.get("BM");
             await API.declineUser({ Authorization: token }, username);
             // After successful approval, remove user from the pending list in UI
             setPendingUsers((prevUsers) =>
