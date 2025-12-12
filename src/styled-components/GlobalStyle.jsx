@@ -53,7 +53,7 @@ const GlobalStyle = createGlobalStyle`
         --shadow-strong: ${lightTheme.shadowStrong};
         --accent-glow: ${lightTheme.accentGlow};
         --color-scheme: light;
-        --card-bg: rgba(255, 255, 255, 0.72);
+        --card-bg: rgba(255, 255, 255, 0.16);
         --card-border: ${lightTheme.border};
         --input-bg: ${lightTheme.surface};
         --input-bg-focus: rgba(255, 255, 255, 0.98);
@@ -76,7 +76,7 @@ const GlobalStyle = createGlobalStyle`
         --shadow-strong: ${darkTheme.shadowStrong};
         --accent-glow: ${darkTheme.accentGlow};
         --color-scheme: dark;
-        --card-bg: rgba(255, 255, 255, 0.12);
+        --card-bg: rgba(15, 23, 42, 0.18);
         --card-border: rgba(255, 255, 255, 0.15);
         --input-bg: rgba(255, 255, 255, 0.08);
         --input-bg-focus: rgba(255, 255, 255, 0.15);

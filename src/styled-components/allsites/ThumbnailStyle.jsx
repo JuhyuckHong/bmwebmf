@@ -20,25 +20,27 @@ const ThumbnailStyle = styled.div`
         position: relative;
         width: 100%;
         min-height: 220px;
+        aspect-ratio: 16 / 9;
         background: linear-gradient(
             135deg,
             var(--surface-alt-color) 0%,
             var(--border-color) 100%
         );
-        border-radius: 10px 10px 0 0;
+        border-radius: 10px;
         overflow: hidden;
     }
 
     .thumb-wrapper img {
         width: 100%;
-        height: auto;
-        border-radius: 10px 10px 0 0;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        border-radius: inherit;
         transition: transform 0.1s ease-in-out;
         cursor: pointer;
 
         &:hover {
             transform: scaleX(1.015) scaleY(1.015);
-            border-radius: 10px 10px 0px 0px;
         }
     }
 

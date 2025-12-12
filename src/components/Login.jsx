@@ -94,13 +94,13 @@ const LoginCard = styled.div`
     background:
         linear-gradient(
             135deg,
-            rgba(255, 255, 255, 0.2),
-            rgba(255, 255, 255, 0.08) 35%,
-            rgba(255, 255, 255, 0.16) 70%
+            rgba(255, 255, 255, 0.1),
+            rgba(255, 255, 255, 0.04) 35%,
+            rgba(255, 255, 255, 0.08) 70%
         ),
         linear-gradient(
             120deg,
-            rgba(234, 73, 46, 0.14),
+            rgba(234, 73, 46, 0.08),
             rgba(234, 73, 46, 0)
         ),
         var(--card-bg);
