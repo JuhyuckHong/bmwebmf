@@ -50,32 +50,48 @@ function PendingUsers({ setReload }) {
     };
 
     return (
-        <>
-            <hr />
-            <div className="pending-container">
-                <div className="label">가입 승인</div>
-                <ul>
+        <div className="admin-card pending-card">
+            <div className="card-header">
+                <div className="card-title">가입 승인</div>
+                <p className="card-subtitle">
+                    대기 중인 사용자를 승인하거나 거절하세요.
+                </p>
+            </div>
+            {pendingUsers.length === 0 ? (
+                <div className="empty-state">대기 중인 사용자가 없습니다.</div>
+            ) : (
+                <ul className="pending-list">
                     {pendingUsers.map((user) => (
                         <li className="pending-user" key={user.username}>
-                            <div className="pending-userinfo">
-                                <strong>Username:</strong> {user.username}
+                            <div className="pending-user__info">
+                                <div className="pending-user__name">
+                                    {user.username}
+                                </div>
+                                <div className="pending-user__code">
+                                    가입코드 {user.code}
+                                </div>
                             </div>
-                            <button
-                                onClick={() => handleApproval(user.username)}>
-                                Approve
-                            </button>
-                            <button
-                                onClick={() => handleDecline(user.username)}>
-                                Decline
-                            </button>
-                            <div className="pending-userinfo">
-                                <strong>Code:</strong> {user.code}
+                            <div className="pending-user__actions">
+                                <button
+                                    className="admin-btn primary"
+                                    onClick={() =>
+                                        handleApproval(user.username)
+                                    }>
+                                    승인
+                                </button>
+                                <button
+                                    className="admin-btn ghost"
+                                    onClick={() =>
+                                        handleDecline(user.username)
+                                    }>
+                                    거절
+                                </button>
                             </div>
                         </li>
                     ))}
                 </ul>
-            </div>
-        </>
+            )}
+        </div>
     );
 }
 
