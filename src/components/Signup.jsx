@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { TitleBox, InputFormBox, BtnBox } from '../styled-components/auth';
 
-function Signup({ handleLoginToggle }) {
+function Signup({ onSwitchToLogin }) {
     const [id, setId] = useState("");
     const [pw, setPw] = useState("");
     const [pwConfirm, setPwConfirm] = useState("");
@@ -90,7 +90,7 @@ function Signup({ handleLoginToggle }) {
                         <button
                             type="button"
                             className="login-toggle"
-                            onClick={handleLoginToggle}>
+                            onClick={onSwitchToLogin}>
                             로그인
                         </button>
                         <button

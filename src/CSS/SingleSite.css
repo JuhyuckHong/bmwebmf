@@ -7,6 +7,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    color: var(--text-color);
 }
 
 .single-site-control {
@@ -42,15 +43,19 @@
 
 .to-all-button {
     width: 15%;
-    background-color: #fabe00;
+    background-color: var(--accent-color);
+    color: var(--accent-text-color);
+    border: 1px solid var(--border-color);
     margin: 0 1vw;
     font-size: clamp(0.5rem, 2.2vw, 1.2rem);
+    box-shadow: var(--shadow-soft);
 }
 
 .view-mode {
     width: 10%;
-    background-color: #123456;
-    color: whitesmoke;
+    background-color: var(--surface-alt-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
     margin: 0 1vw;
     font-size: clamp(0.5rem, 2.5vw, 1.2rem);
 }
@@ -61,7 +66,9 @@
     overflow: hidden;
     text-align: center;
     text-overflow: ellipsis;
-    background-color: whitesmoke;
+    background-color: var(--surface-alt-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
     width: 40%;
     font-size: clamp(0.3rem, 1.5vw, 1rem);
     line-height: 1.1;
@@ -93,15 +100,15 @@ input[type="range"] {
 }
 
 input[name="date"] {
-    accent-color: #fabe00;
+    accent-color: var(--accent-color);
 }
 
 input[name="photo"] {
-    accent-color: #fabe00;
+    accent-color: var(--accent-color);
 }
 
 input[name="video"] {
-    accent-color: #fabe00;
+    accent-color: var(--accent-color);
 }
 
 span {
@@ -126,7 +133,7 @@ span {
 
 hr {
     width: 100%;
-    color: grey;
+    color: var(--border-color);
     size: 3;
 }
 
@@ -170,7 +177,9 @@ hr {
     margin-right: 1vw;
     display: inline-block;
     border-radius: 5px;
-    background-color: #fabe00;
+    background-color: var(--accent-color);
+    color: var(--accent-text-color);
+    border: 1px solid var(--border-color);
     text-align: center;
     font-weight: 800;
     font-size: clamp(0.5rem, 0.8vw, 1rem);

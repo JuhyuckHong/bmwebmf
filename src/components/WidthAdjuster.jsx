@@ -2,10 +2,14 @@ import { useState, useEffect } from "react";
 import { WidthAdjusterStyle } from '../styled-components/allsites';
 
 function WidthAdjuster() {
-    // 초기값을 localStorage에서 가져오거나, 없으면 300px로 설정
-    const [width, setWidth] = useState(
-        () => Number(localStorage.getItem("site-info-width")) || 300,
-    );
+    const MIN_WIDTH = 350;
+    const [width, setWidth] = useState(() => {
+        const stored = Number(localStorage.getItem("site-info-width"));
+        if (Number.isFinite(stored)) {
+            return Math.max(stored, MIN_WIDTH);
+        }
+        return MIN_WIDTH;
+    });
 
     useEffect(() => {
         document.documentElement.style.setProperty(
@@ -17,14 +21,14 @@ function WidthAdjuster() {
     }, [width]);
 
     const increaseWidth = () => {
-        if (width < 500) {
-            setWidth((prevWidth) => prevWidth + 25);
+        if (width < 850) {
+            setWidth((prevWidth) => Math.min(prevWidth + 25, 850));
         }
     };
 
     const decreaseWidth = () => {
-        if (width > 150) {
-            setWidth((prevWidth) => prevWidth - 25);
+        if (width > MIN_WIDTH) {
+            setWidth((prevWidth) => Math.max(prevWidth - 25, MIN_WIDTH));
         }
     };
 

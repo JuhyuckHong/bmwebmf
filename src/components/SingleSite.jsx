@@ -1,10 +1,23 @@
 import { useState, useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import SelectPhoto from "./SelectPhoto";
 import SelectedVideo from "./SelectedVideo";
 import "../CSS/SingleSite.css";
 
-function SingleSite({ site, setSite, authSites }) {
+function SingleSite({ authSites }) {
     const [viewMode, setViewMode] = useState("both"); // both, photo, video
+    const navigate = useNavigate();
+    const { siteId } = useParams();
+    const site = siteId;
+    const siteIndex = authSites ? authSites.indexOf(site) : -1;
+    const prevSite =
+        siteIndex > 0 && authSites ? authSites[siteIndex - 1] : null;
+    const nextSite =
+        siteIndex >= 0 &&
+        authSites &&
+        siteIndex < authSites.length - 1
+            ? authSites[siteIndex + 1]
+            : null;
 
     useEffect(() => {
         const rootStyle = document.documentElement.style;
@@ -27,14 +40,28 @@ function SingleSite({ site, setSite, authSites }) {
         }
     }, [viewMode]);
 
-    const handleGoToMainPage = () => setSite(null);
+    const handleGoToMainPage = () => navigate("/all");
     const handleViewMode = (mode) => setViewMode(mode);
 
-    // authSites 배열 안에 site가 없는 경우 alert & site 초기화
-    if (!authSites.includes(site)) {
-        setSite(null);
+    useEffect(() => {
+        if (!authSites) return;
+        if (!authSites.includes(site)) {
+            navigate("/", { replace: true });
+        }
+    }, [authSites, site, navigate]);
+
+    if (!authSites) {
         return null;
     }
+
+    const goToSiteByIndex = (offset) => {
+        if (!authSites) return;
+        const currentIndex = authSites.indexOf(site);
+        const targetSite = authSites[currentIndex + offset];
+        if (targetSite) {
+            navigate(`/site/${encodeURIComponent(targetSite)}`);
+        }
+    };
 
     const viewModes = [
         { type: "both", label: "모두" },
@@ -46,35 +73,29 @@ function SingleSite({ site, setSite, authSites }) {
         <div className="single-site-container">
             <div className="single-site-control">
                 <div className="single-site-control-bar">
-                    <div
+                    <Link
                         className="prev-site"
-                        onClick={() =>
-                            setSite(authSites[authSites?.indexOf(site) - 1])
-                        }>
-                        <div className="arrows">
-                            {authSites[authSites?.indexOf(site) - 1] ? "⬅️ " : ""}
-                        </div>
-                        {authSites[authSites?.indexOf(site) - 1]?.replaceAll(
-                            "_",
-                            " ",
-                        ) || "-"}
-                    </div>
-                    <div className="to-all-button" onClick={handleGoToMainPage}>
+                        to={prevSite ? `/site/${encodeURIComponent(prevSite)}` : "#"}
+                        onClick={(e) => {
+                            if (!prevSite) e.preventDefault();
+                            else goToSiteByIndex(-1);
+                        }}>
+                        <div className="arrows">{prevSite ? "⬅️ " : ""}</div>
+                        {prevSite?.replaceAll("_", " ") || "-"}
+                    </Link>
+                    <Link className="to-all-button" to="/all" onClick={handleGoToMainPage}>
                         전체현장
-                    </div>
-                    <div
+                    </Link>
+                    <Link
                         className="next-site"
-                        onClick={() =>
-                            setSite(authSites[authSites?.indexOf(site) + 1])
-                        }>
-                        {authSites[authSites?.indexOf(site) + 1]?.replaceAll(
-                            "_",
-                            " ",
-                        ) || "-"}
-                        <div className="arrows">
-                            {authSites[authSites?.indexOf(site) + 1] ? " ➡️" : ""}
-                        </div>
-                    </div>
+                        to={nextSite ? `/site/${encodeURIComponent(nextSite)}` : "#"}
+                        onClick={(e) => {
+                            if (!nextSite) e.preventDefault();
+                            else goToSiteByIndex(1);
+                        }}>
+                        {nextSite?.replaceAll("_", " ") || "-"}
+                        <div className="arrows">{nextSite ? " ➡️" : ""}</div>
+                    </Link>
                 </div>
                 {/* <div className="spacer"></div> */}
                 <div className="single-site-control-format">

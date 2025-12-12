@@ -6,6 +6,7 @@
     gap: 20px;
     justify-content: center;
     padding: 10px;
+    --card-height: calc(var(--site-info-width) * (2 / 3 + 0.5) + 10px);
 }
 
 .summary {
@@ -13,13 +14,42 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: calc(var(--site-info-width) * (2 / 3 + 0.5) + 10px);
+    height: var(--card-height);
+    min-height: var(--card-height);
+    max-height: var(--card-height);
     --shadow-color: rgba(0, 50, 0, 0.3);
     --shadow-color-change: rgba(0, 50, 0, 0.5);
     --shadow-size: 1px;
     border-radius: 5px;
     animation: blink 2s infinite;
     animation-timing-function: ease-in-out;
+}
+
+.monitor-table-card {
+    cursor: pointer;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: var(--shadow-soft);
+    padding: 10px;
+    width: calc(var(--site-info-width) * 2 + 20px);
+    min-width: var(--site-info-width);
+    max-width: 95vw;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    overflow: hidden;
+    height: var(--dynamic-card-height, var(--card-height));
+    min-height: var(--dynamic-card-height, var(--card-height));
+    max-height: var(--dynamic-card-height, var(--card-height));
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: relative;
+}
+
+.monitor-table-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-strong);
 }
 
 .summary img {
@@ -52,6 +82,257 @@
 .modal img {
     max-width: 90%;
     max-height: 90%;
+}
+
+.monitor-modal-content {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    max-height: 90vh;
+    max-width: 95vw;
+    width: auto;
+    display: inline-block;
+    box-shadow: var(--shadow-strong);
+    overflow: hidden;
+}
+
+.monitor-table {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: var(--text-color);
+    font-family: 'Noto Sans KR', monospace;
+}
+
+.monitor-table-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 0.95rem;
+}
+
+.monitor-table-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted-text-color);
+    font-size: 0.85rem;
+}
+
+.monitor-table-wrapper {
+    flex: 1 1 auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-alt-color);
+    overflow: auto;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    padding: 6px 6px 40px 6px;
+    box-sizing: border-box;
+}
+
+.monitor-view-all-btn {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.45) 100%);
+    color: #fff;
+    border: none;
+    border-radius: 0 0 10px 10px;
+    padding: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    backdrop-filter: blur(2px);
+    cursor: pointer;
+    z-index: 2;
+    transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.monitor-view-all-btn:hover {
+    background: rgba(0, 0, 0, 0.55);
+    transform: translateY(-1px);
+}
+
+.monitor-view-all-btn:active {
+    transform: translateY(0);
+}
+
+.monitor-table.compact .monitor-table-wrapper {
+    max-height: calc(var(--site-info-width) * 1.2);
+}
+
+.monitor-table-columns {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.monitor-table-columns.single {
+    display: block;
+}
+
+.monitor-table-section {
+    flex: 1;
+    min-width: max-content;
+}
+
+.monitor-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.65rem;
+    font-weight: 700;
+    min-width: max-content;
+}
+
+.monitor-table th,
+.monitor-table td {
+    padding: 2px 6px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.monitor-table th {
+    position: sticky;
+    top: 0;
+    background: var(--surface-color);
+    z-index: 1;
+}
+
+.monitor-table tbody tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.monitor-table tbody tr.status-red td {
+    background: rgba(239, 68, 68, 0.18);
+}
+
+.monitor-table tbody tr.status-orange td {
+    background: rgba(245, 158, 11, 0.2);
+}
+
+.monitor-table tbody tr.status-green td {
+    background: rgba(34, 197, 94, 0.12);
+}
+
+.monitor-table tbody tr.status-gray td {
+    background: rgba(148, 163, 184, 0.12);
+}
+
+.monitor-table .site-name {
+    text-align: left;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.monitor-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--muted-text-color);
+}
+
+.status-light {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+    aspect-ratio: 1 / 1;
+}
+
+.status-light.status-red {
+    background: #ef4444;
+}
+
+.status-light.status-orange {
+    background: #f59e0b;
+}
+
+.status-light.status-green {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    background-image: url("data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2048%2048%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20d%3D%22M8%2018C16%2010%2032%2010%2040%2018%22%20stroke%3D%22%2322c55e%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M12%2023C18%2017%2030%2017%2036%2023%22%20stroke%3D%22%2322c55e%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M16%2028C20%2024%2028%2024%2032%2028%22%20stroke%3D%22%2322c55e%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22/%3E%0A%3Ccircle%20cx%3D%2224%22%20cy%3D%2234%22%20r%3D%223%22%20fill%3D%22%2322c55e%22/%3E%0A%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+.status-light.status-gray {
+    background: #94a3b8;
+}
+
+.status-light.status-unplugged {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    width: 18px;
+    height: 18px;
+    font-size: 15px;
+    line-height: 1;
+    color: #ef4444;
+    background-image: url("data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2048%2048%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20d%3D%22M8%2018C16%2010%2032%2010%2040%2018%22%20stroke%3D%22%23ef4444%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M12%2023C18%2017%2030%2017%2036%2023%22%20stroke%3D%22%23ef4444%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22/%3E%0A%3Cpath%20d%3D%22M16%2028C20%2024%2028%2024%2032%2028%22%20stroke%3D%22%23ef4444%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22/%3E%0A%3Ccircle%20cx%3D%2224%22%20cy%3D%2234%22%20r%3D%223%22%20fill%3D%22%23ef4444%22/%3E%0A%3Cpath%20d%3D%22M30%2026l12%2012M42%2026l-12%2012%22%20stroke%3D%22%23ef4444%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22/%3E%0A%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+.remote-pill-table {
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+}
+
+.remote-pill-table.remote-on {
+    background: rgba(34, 197, 94, 0.12);
+    color: #15803d;
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.remote-pill-table.remote-off {
+    background: rgba(239, 68, 68, 0.12);
+    color: #b91c1c;
+    border-color: rgba(239, 68, 68, 0.35);
+}
+
+.remote-pill-table.remote-unknown {
+    background: rgba(148, 163, 184, 0.14);
+    color: #475569;
+    border-color: rgba(148, 163, 184, 0.3);
+}
+
+@media (max-width: 750px) {
+    .thumbnails {
+        justify-content: center;
+    }
+
+    .summary,
+    .monitor-table-card {
+        width: 95%;
+        max-width: 95%;
+        min-width: min(350px, 95%);
+    }
 }
 
 

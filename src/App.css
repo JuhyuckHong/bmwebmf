@@ -11,50 +11,161 @@
     letter-spacing: -0.02em;
 }
 
+.app-shell {
+    min-height: 100vh;
+    background: var(--bg-color);
+    color: var(--text-color);
+    transition: background 0.25s ease, color 0.25s ease;
+}
+
+.pill-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    height: 44px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-alt-color);
+    color: var(--text-color);
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.2s ease, box-shadow 0.3s ease,
+        border-color 0.2s ease, background-color 0.25s ease;
+}
+
+.pill-button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-strong);
+    border-color: var(--accent-color);
+}
+
+.pill-button:active {
+    transform: translateY(0);
+}
+
+.theme-toggle {
+    position: static;
+    justify-content: flex-start;
+    text-align: left;
+    background: var(--surface-color);
+}
+
+.mode-indicator {
+    width: auto;
+    height: auto;
+    background: transparent;
+    box-shadow: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+.mode-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+
+.mode-label {
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.mode-hint {
+    font-size: 0.78rem;
+    color: var(--muted-text-color);
+}
+
 .ci-background {
     /* position: absolute; */
     /* top: 5px;
     left: 5px; */
     width: 84px;
     height: 48px;
-    background-color: #123456;
+    background-color: var(--header-bg);
     background-image: url("../public/CI.png");
     background-repeat: no-repeat;
     background-size: 84px 48px;
+    border: none;
+    cursor: pointer;
 }
 
 .user {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    padding: 12px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    height: 75px;
-    background-color: #143756;
+    padding: 12px;
+    min-height: 75px;
+    background-color: var(--header-bg);
+    color: var(--header-text);
+    box-shadow: var(--shadow-soft);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    column-gap: 16px;
+}
+
+.header-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 44px;
 }
 
 .control-btns {
     display: flex;
-    gap: 20px;
+    gap: 12px;
     margin-right: 10px;
+    justify-self: end;
 }
 
-.user button {
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: 4px;
-    /* margin-right: 10px; */
-    border: none;
-    /* background-color: darkolivegreen; */
-    background-color: #fab104;
-    font-weight: 600;
-    color: #12273d;
-    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+.control-btns .pill-button {
+    background: var(--surface-alt-color);
+    color: var(--text-color);
 }
 
-.user button:hover {
-    background-color: #fbd34f;
-    /* color: white; */
+.control-btns .pill-button:hover {
+    background: var(--surface-color);
+}
+
+.btn-icon {
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+.btn-label {
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+.admin-toggle,
+.logout-btn {
+    padding: 10px 18px;
+}
+
+.sort-icon-btn {
+    display: none;
+    width: 44px;
+    padding: 10px;
+    justify-content: center;
+}
+
+.sort-icon {
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+.admin-toggle {
+    width: 140px; /* keep width stable for Monitor/Setting labels */
+    flex-shrink: 0;
+    justify-content: center;
 }
 
 .landing {
@@ -68,13 +179,118 @@
 .AllSites {
     width: 100%;
     width: 90vw;
-    height: 90vh;
+    height: 100%;
     margin-top: 10px;
-    background-color: #fff;
-    border-radius: 5px;
+    background-color: var(--surface-color);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-soft);
+    color: var(--text-color);
 }
 
 .display {
     padding: 24px;
+    color: var(--text-color);
+    height: calc(100vh - 75px);
+    overflow: auto;
 }
 
+.app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--background-color);
+}
+
+.main-content {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+@media (max-width: 1100px) {
+    .header-center {
+        align-items: center;
+    }
+
+    .header-center .header-controls {
+        flex-direction: column;
+        height: auto;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .control-btns {
+        gap: 8px;
+    }
+
+    .control-btns .mode-copy,
+    .control-btns .btn-label {
+        display: none;
+    }
+
+    .theme-toggle {
+        width: 44px;
+        padding: 10px;
+        justify-content: center;
+    }
+
+    .admin-toggle,
+    .logout-btn {
+        width: 44px;
+        padding: 10px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 750px) {
+    .header-center .header-controls {
+        display: none;
+    }
+
+    .sort-icon-btn {
+        display: inline-flex;
+    }
+}
+
+@media (max-width: 350px) {
+    .control-btns {
+        gap: 6px;
+    }
+
+    .control-btns .pill-button {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 6px;
+        width: auto;
+        height: auto;
+        min-width: 0;
+    }
+
+    .control-btns .pill-button:hover {
+        background: transparent;
+    }
+
+    .control-btns .btn-icon,
+    .sort-icon {
+        font-size: 1rem;
+    }
+
+    .sort-icon-btn {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 6px;
+        width: auto;
+        height: auto;
+        min-width: 0;
+    }
+
+    .pill-button.sort-icon-btn {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+    }
+}
