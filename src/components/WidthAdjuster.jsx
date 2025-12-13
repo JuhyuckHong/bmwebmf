@@ -33,8 +33,8 @@ function WidthAdjuster() {
     };
 
     return (
-        <WidthAdjusterStyle className="container-adjust">
-            <span className="title">사진 크기 </span>
+        <WidthAdjusterStyle>
+            <span className="sorting">사진 크기 </span>
             <div className="adjuster">
                 <button onClick={increaseWidth}>▲</button>
                 {`${width}px`}

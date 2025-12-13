@@ -69,7 +69,7 @@ function TimelineSelector({
             {/* Date Track */}
             <div className="timeline-track">
                 <label className="track-label" htmlFor={`date-track-${type}`}>
-                    {type === "video" ? "영상" : "날짜"}
+                    날짜
                 </label>
 
                 <div className="track-content">
