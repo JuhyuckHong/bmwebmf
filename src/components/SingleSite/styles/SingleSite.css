@@ -8,18 +8,34 @@
 .single-site-page {
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);     /* Reduced gap */
-    padding: var(--space-sm); /* Reduced padding */
-    max-width: 1400px;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    max-width: 1600px;
     margin: 0 auto;
-    min-height: auto; /* Changed from calc(100vh - 100px) to prevent overflow */
-    position: relative; /* Context for absolute positioning if needed */
+    min-height: auto;
+    position: relative;
+}
+
+.main-layout {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-md);
+    align-items: flex-start;
+}
+
+.sidebar {
+    flex: 0 0 200px;
+    position: sticky;
+    top: var(--space-sm);
+    max-height: 60vh;
+    margin-right: 15px;
 }
 
 /* Media Content Grid */
 .media-content {
+    flex: 1;
     display: grid;
-    gap: var(--space-sm);     /* Reduced gap */
+    gap: var(--space-sm);
 }
 
 /* Desktop (750px+): 가로 병렬 배치 */
@@ -155,11 +171,24 @@
 }
 
 
+/* Tablet & Mobile (900px 이하): 사이드바를 상단으로 */
+@media (max-width: 900px) {
+    .main-layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        flex: none;
+        position: static;
+        width: 100%;
+    }
+}
+
 /* Tablet & Mobile (750px 이하): 세로 배치 */
 @media (max-width: 750px) {
     .media-content[data-mode="both"] {
         grid-template-columns: 1fr;
-        grid-template-rows: auto auto; /* Shrink to fit content */
+        grid-template-rows: auto auto;
         --image-video-height: var(--image-video-height-both-vertical);
     }
 }

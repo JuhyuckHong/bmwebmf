@@ -1,33 +1,32 @@
 .photo-viewer {
     position: relative;
     width: 100%;
-    max-width: 100%; /* Allow full width */
-    height: auto;
-    aspect-ratio: 16 / 9; /* Modern aspect ratio */
-    max-height: 80vh; /* Limit height to viewport */
-    margin: 0 auto;    /* Center the viewer */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
     background: var(--surface-alt-color);
     border-radius: var(--radius-md);
-    overflow: hidden;
 }
 
 .photo-viewer.loading {
     pointer-events: none;
-    /* Re-add flexbox for loading state if needed */
+    min-height: 200px;
+}
+
+.photo-image-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
 }
 
 .photo-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    max-width: 100%;
+    max-height: 60vh;
     object-fit: contain;
     transition: opacity 0.3s ease;
-    border-radius: var(--radius-md) !important; /* Apply border-radius directly with !important */
+    border-radius: 12px;
 }
 
 .viewer-loading {

@@ -40,8 +40,13 @@ const CustomDatePickerHeader = ({
     increaseMonth,
     prevMonthButtonDisabled,
     nextMonthButtonDisabled,
-    availableDates, // Receive availableDates
+    availableDates,
+    customHeaderCount,
+    isVideoMode,
 }) => {
+    // In video mode: index 0 = previous month, index 1 = current month
+    const isPrevMonth = isVideoMode && customHeaderCount === 0;
+    const isCurrentMonth = isVideoMode && customHeaderCount === 1;
     // Filter available years from availableDates
     const years = useMemo(() => {
         const uniqueYears = [...new Set(availableDates.map((d) => getYear(d)))].sort((a, b) => a - b);
@@ -76,12 +81,16 @@ const CustomDatePickerHeader = ({
                 className="custom-nav-btn prev"
                 onClick={decreaseMonth}
                 disabled={prevMonthButtonDisabled}
+                style={isCurrentMonth ? { visibility: 'hidden' } : undefined}
             >
                 {"<"}
             </button>
-            
-            {/* Dropdowns for selection (Default visible) */}
-            <div className="month-year-selects header-dropdowns">
+
+            <div
+                className="month-year-selects header-dropdowns"
+                style={isPrevMonth ? { visibility: 'hidden' } : undefined}
+            >
+                <span className="header-label">날짜</span>
                 <select
                     value={getYear(date)}
                     onChange={({ target: { value } }) => changeYear(parseInt(value, 10))}
@@ -102,15 +111,11 @@ const CustomDatePickerHeader = ({
                 </select>
             </div>
 
-            {/* Text only display (For secondary months, default hidden via CSS) */}
-            <div className="header-text">
-                {getYear(date)}년 {getMonth(date) + 1}월
-            </div>
-
             <button
                 className="custom-nav-btn next"
                 onClick={increaseMonth}
                 disabled={nextMonthButtonDisabled}
+                style={isPrevMonth ? { visibility: 'hidden' } : undefined}
             >
                 {">"}
             </button>
@@ -195,7 +200,7 @@ function TimelineSelector({
         <div className={`timeline-selector ${loading ? "loading" : ""}`}>
             <div className="selector-layout">
                 {/* Inline Calendar & Date Nav */}
-                <div className="calendar-section">
+                <div className={`calendar-section ${type === "video" ? "video-mode" : ""}`}>
                     <DatePicker
                         selected={selectedDate}
                         onChange={handleDateSelect}
@@ -204,10 +209,11 @@ function TimelineSelector({
                         inline
                         disabled={!hasData}
                         monthsShown={type === "video" ? 2 : 1}
-                        month={type === "video" && selectedDate ? new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1, 1) : selectedDate}
-                        locale="ko" // Apply Korean locale
+                        showPreviousMonths={type === "video"}
+                        fixedHeight
+                        locale="ko"
                         renderCustomHeader={(props) => (
-                            <CustomDatePickerHeader {...props} availableDates={availableDates} />
+                            <CustomDatePickerHeader {...props} availableDates={availableDates} isVideoMode={type === "video"} />
                         )}
                     />
                 </div>
@@ -219,7 +225,11 @@ function TimelineSelector({
                             <div className="time-lists-container">
                                 {/* Hour Grid */}
                                 <div className="time-grid-wrapper">
-                                    <span className="grid-label">시 (Hour)</span>
+                                    <span className="grid-label">
+                                        {selectedDate
+                                            ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')} 일자의 시각 선택`
+                                            : '시각 선택'}
+                                    </span>
                                     <div className="time-grid">
                                         {availableHours.map((h) => (
                                             <button
@@ -241,7 +251,9 @@ function TimelineSelector({
 
                                 {/* Minute Grid */}
                                 <div className="time-grid-wrapper">
-                                    <span className="grid-label">분 (Minute)</span>
+                                    <span className="grid-label">
+                                        {currentHour ? `${currentHour}시의 분 선택` : '분 선택'}
+                                    </span>
                                     <div className="time-grid minutes">
                                         {availableMinutes.map((item) => (
                                             <button
@@ -258,18 +270,6 @@ function TimelineSelector({
                             </div>
                         </div>
                     </div>
-                )}
-            </div>
-            
-            {/* Simple count summary */}
-            <div className="selection-summary">
-                {hasData ? (
-                     <span className="summary-count">
-                        📅 {selectedDateIndex + 1}/{dates.length}
-                        {type === "photo" && hasTimes && ` 📸 ${selectedTimeIndex + 1}/${times.length}`}
-                    </span>
-                ) : (
-                    <span className="summary-empty">데이터 없음</span>
                 )}
             </div>
         </div>

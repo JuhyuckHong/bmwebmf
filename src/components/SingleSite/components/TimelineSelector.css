@@ -22,23 +22,28 @@
 
 .react-datepicker {
     font-family: inherit !important;
-    border: none !important; /* Removed border */
+    border: none !important;
     background-color: var(--surface-color) !important;
     color: var(--text-color) !important;
     border-radius: var(--radius-md) !important;
-    box-shadow: none !important; /* Removed box-shadow */
-    display: block !important; /* Ensure block display for inline */
-    padding: 0 !important; /* Removed padding */
-    margin: 0 auto !important; /* Changed from 0 to 0 auto */
+    box-shadow: none !important;
+    display: flex !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    gap: 8px;
+}
+
+.react-datepicker__month-container {
+    float: none !important;
 }
 
 .react-datepicker__header {
     background-color: var(--surface-alt-color) !important;
-    border-bottom: none !important; /* Removed border-bottom */
+    border-bottom: none !important;
     border-top-left-radius: var(--radius-md) !important;
     border-top-right-radius: var(--radius-md) !important;
-    padding-bottom: 8px;
-    position: relative; /* Ensure positioning context for navigation */
+    padding: 6px 4px 2px 4px !important;
+    position: relative;
 }
 
 .react-datepicker__current-month {
@@ -119,6 +124,45 @@
     color: var(--accent-text-color) !important;
 }
 
+.react-datepicker__day-names {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.react-datepicker__day-name {
+    width: 26px !important;
+    height: 22px !important;
+    line-height: 22px !important;
+    margin: 1px !important;
+    padding: 0 !important;
+    font-size: 0.75rem !important;
+    color: var(--muted-text-color) !important;
+}
+
+.react-datepicker__day,
+.react-datepicker__month-text,
+.react-datepicker__quarter-text,
+.react-datepicker__year-text {
+    width: 26px !important;
+    height: 26px !important;
+    line-height: 26px !important;
+    margin: 1px !important;
+    padding: 0 !important;
+    font-size: 0.8rem !important;
+    border-radius: var(--radius-sm) !important;
+}
+
+.react-datepicker__week {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 28px !important;
+    display: flex !important;
+}
+
+.react-datepicker__month {
+    margin: 0 !important;
+    padding: 4px !important;
+}
 
 .react-datepicker__day {
     color: var(--text-color) !important;
@@ -143,8 +187,8 @@
 .timeline-selector {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    padding: 16px;
+    gap: 12px;
+    padding: 12px;
     background: var(--surface-alt-color);
     border-radius: var(--radius-md);
     transition: opacity 0.2s ease;
@@ -157,60 +201,54 @@
 
 .selector-layout {
     display: flex;
-    flex-direction: row; /* Changed to row */
-    gap: 20px;
-    align-items: flex-start; /* Align items to the top */
-    justify-content: center; /* Center the entire layout horizontally */
-    flex-wrap: wrap; /* Allow wrapping on small screens */
+    flex-direction: row;
+    gap: 16px;
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 /* Calendar Section */
 .calendar-section {
-    /* width: 100%; Removed, let it take natural width */
     display: flex;
-    flex-direction: column; /* Stack calendar and nav */
-    align-items: center; /* Center them */
+    flex-direction: column;
+    align-items: center;
     justify-content: flex-start;
-    flex-shrink: 0; /* Prevent calendar from shrinking */
-    gap: 12px;
+    flex-shrink: 0;
 }
 
 /* Custom Header Styling */
 .custom-datepicker-header {
-    margin: 10px;
     display: flex;
-    justify-content: center; /* Center the controls */
+    justify-content: center;
     align-items: center;
-    padding: 0 5px;
-    gap: 16px; /* Add spacing between buttons and dropdowns */
+    padding: 0;
+    margin: 0;
+    gap: 8px;
 }
 
-/* Header Text (Default Hidden) */
+/* Header Text (Default Hidden, shown in video mode second month) */
 .header-text {
     display: none;
-    font-weight: 700;
-    font-size: 1rem;
+    font-weight: 600;
+    font-size: 0.85rem;
     color: var(--text-color);
+    white-space: nowrap;
 }
 
 .header-dropdowns {
     display: flex;
 }
 
-/* Video Mode Specific Header Logic */
-/* Hide the entire header for the second month in video mode */
-.media-content[data-mode="video"] .react-datepicker__month-container:nth-child(2) .custom-datepicker-header {
-    display: none !important;
-}
-
 .custom-nav-btn {
     background: transparent;
     border: none;
     cursor: pointer;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     color: var(--text-color);
-    padding: 5px;
+    padding: 2px 4px;
     transition: color 0.2s ease;
+    line-height: 1;
 }
 
 .custom-nav-btn:hover:not(:disabled) {
@@ -224,7 +262,16 @@
 
 .month-year-selects {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    gap: 6px;
+}
+
+.header-label,
+.grid-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color);
+    white-space: nowrap;
 }
 
 .custom-header-select {
@@ -232,18 +279,10 @@
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     color: var(--text-color);
-    font-size: 0.95rem;
-    padding: 5px 24px 5px 8px; /* Increased right padding for arrow */
+    font-size: 0.85rem;
+    padding: 4px 6px;
     cursor: pointer;
-    appearance: none; /* Hide default select arrow */
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat;
-    background-position: right 8px top 50%;
-    background-size: 8px auto;
-}
-
-[data-theme="dark"] .custom-header-select {
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23cbd5e1%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    appearance: none;
 }
 
 
@@ -281,11 +320,6 @@
     gap: 4px;
 }
 
-.grid-label {
-    font-size: 1rem; /* Matched to assumed default calendar header size */
-    font-weight: 700; /* Matched to assumed default calendar header weight */
-    color: var(--text-color); /* Matched to assumed default calendar header color */
-}
 
 .time-grid {
     display: grid;

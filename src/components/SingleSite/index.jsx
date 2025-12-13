@@ -23,11 +23,28 @@ function SingleSite({ authSites }) {
     };
 
     const siteIndex = authSites ? authSites.indexOf(site) : -1;
-    const prevSite = siteIndex > 0 && authSites ? authSites[siteIndex - 1] : null;
-    const nextSite =
-        siteIndex >= 0 && authSites && siteIndex < authSites.length - 1
-            ? authSites[siteIndex + 1]
-            : null;
+
+    // Get surrounding sites for sidebar display (total ~10 items, balanced)
+    const totalNearby = 10;
+    const availablePrev = siteIndex;
+    const availableNext = authSites ? authSites.length - siteIndex - 1 : 0;
+
+    // Calculate how many to show from each side
+    let prevCount = Math.min(availablePrev, Math.floor(totalNearby / 2));
+    let nextCount = Math.min(availableNext, Math.floor(totalNearby / 2));
+
+    // Fill remaining space with the other side
+    if (prevCount < Math.floor(totalNearby / 2)) {
+        nextCount = Math.min(availableNext, totalNearby - prevCount);
+    } else if (nextCount < Math.floor(totalNearby / 2)) {
+        prevCount = Math.min(availablePrev, totalNearby - nextCount);
+    }
+
+    const prevSites = authSites ? authSites.slice(siteIndex - prevCount, siteIndex) : [];
+    const nextSites = authSites ? authSites.slice(siteIndex + 1, siteIndex + 1 + nextCount) : [];
+
+    const prevSite = prevSites.length > 0 ? prevSites[0] : null;
+    const nextSite = nextSites.length > 0 ? nextSites[0] : null;
 
     // Photo data hook
     const {
@@ -95,39 +112,21 @@ function SingleSite({ authSites }) {
                 <span className="back-icon">↩</span>
             </button>
 
-            {prevSite && (
-                <button
-                    className="floating-site-nav prev"
-                    onClick={() => goToSiteByIndex(-1)}
-                    aria-label={`이전 현장: ${prevSite}`}
-                    title={`이전 현장: ${prevSite}`}
-                >
-                    <div className="nav-triangle left" />
-                </button>
-            )}
-            {nextSite && (
-                <button
-                    className="floating-site-nav next"
-                    onClick={() => goToSiteByIndex(1)}
-                    aria-label={`다음 현장: ${nextSite}`}
-                    title={`다음 현장: ${nextSite}`}
-                >
-                    <div className="nav-triangle right" />
-                </button>
-            )}
+            <div className="main-layout">
+                <aside className="sidebar">
+                    <SiteHeader
+                        siteName={site}
+                        currentIndex={siteIndex}
+                        totalSites={authSites.length}
+                        viewMode={viewMode}
+                        onViewModeChange={handleViewModeChange}
+                        prevSites={prevSites}
+                        nextSites={nextSites}
+                        onSiteClick={(targetSite) => navigate(`/site/${encodeURIComponent(targetSite)}`)}
+                    />
+                </aside>
 
-            <SiteHeader
-                siteName={site}
-                prevSite={prevSite}
-                nextSite={nextSite}
-                currentIndex={siteIndex}
-                totalSites={authSites.length}
-                onNavigate={goToSiteByIndex}
-                viewMode={viewMode}
-                onViewModeChange={handleViewModeChange}
-            />
-
-            <div className="media-content" data-mode={viewMode}>
+                <div className="media-content" data-mode={viewMode}>
                 {(viewMode === "both" || viewMode === "photo") && (
                     <MediaCard title="사진" type="photo" loading={photoLoading} headerInfo={photoInfo}>
                         <TimelineSelector
@@ -163,6 +162,7 @@ function SingleSite({ authSites }) {
                         />
                     </MediaCard>
                 )}
+                </div>
             </div>
         </div>
     );

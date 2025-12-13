@@ -1,36 +1,61 @@
-import { Link } from "react-router-dom";
 import "./SiteHeader.css";
 
 const VIEW_MODES = [
-    { type: "both", label: "모두", icon: "all" },
-    { type: "photo", label: "사진", icon: "photo" },
-    { type: "video", label: "영상", icon: "video" },
+    { type: "both", label: "모두 보기", icon: "all" },
+    { type: "photo", label: "사진만 보기", icon: "photo" },
+    { type: "video", label: "영상만 보기", icon: "video" },
 ];
 
 function SiteHeader({
     siteName,
-    prevSite,
-    nextSite,
     currentIndex,
     totalSites,
-    onNavigate,
     viewMode,
     onViewModeChange,
+    prevSites = [],
+    nextSites = [],
+    onSiteClick,
 }) {
     return (
-        <header className="site-header-card">
-            {/* 상단: 네비게이션 */}
-            <div className="header-top">
-                <div className="site-title-area">
-                    <h1 className="site-name">{siteName?.replaceAll("_", " ")}</h1>
-                    <span className="site-position">
-                        {currentIndex + 1} / {totalSites}
-                    </span>
-                </div>
+        <div className="site-header-card">
+            {/* 이전 현장들 (위로 갈수록 연하게) */}
+            <div className="nearby-sites prev-sites">
+                {prevSites.map((site, index) => (
+                    <button
+                        key={site}
+                        className="nearby-site-btn"
+                        style={{ opacity: 0.3 + (index / prevSites.length) * 0.4 }}
+                        onClick={() => onSiteClick(site)}
+                    >
+                        {site?.replaceAll("_", " ")}
+                    </button>
+                ))}
             </div>
 
-            {/* 하단: 전체현장 링크 + 뷰모드 */}
-            <div className="header-bottom">
+            {/* 현재 현장 */}
+            <div className="current-site">
+                <h1 className="site-name">{siteName?.replaceAll("_", " ")}</h1>
+                <span className="site-position">
+                    {currentIndex + 1} / {totalSites}
+                </span>
+            </div>
+
+            {/* 다음 현장들 (아래로 갈수록 연하게) */}
+            <div className="nearby-sites next-sites">
+                {nextSites.map((site, index) => (
+                    <button
+                        key={site}
+                        className="nearby-site-btn"
+                        style={{ opacity: 0.7 - (index / nextSites.length) * 0.4 }}
+                        onClick={() => onSiteClick(site)}
+                    >
+                        {site?.replaceAll("_", " ")}
+                    </button>
+                ))}
+            </div>
+
+            {/* 뷰모드 선택 */}
+            <div className="view-mode-section">
                 <div className="view-mode-segment" role="tablist">
                     {VIEW_MODES.map((option) => (
                         <button
@@ -44,18 +69,9 @@ function SiteHeader({
                             <span className="segment-label">{option.label}</span>
                         </button>
                     ))}
-                    <div
-                        className="segment-indicator"
-                        style={{
-                            transform: `translateX(${VIEW_MODES.findIndex((m) => m.type === viewMode) * 100}%)`,
-                        }}
-                        aria-hidden="true"
-                    />
                 </div>
-
-                <div className="header-spacer" />
             </div>
-        </header>
+        </div>
     );
 }
 
