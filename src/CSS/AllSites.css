@@ -6,7 +6,7 @@
     gap: 20px;
     justify-content: center;
     padding: 10px;
-    --card-height: calc(var(--site-info-width) * (2 / 3 + 0.5) + 10px);
+    --card-height: max(calc(var(--site-info-width) * 9 / 16), 220px);
 }
 
 .summary {
@@ -105,6 +105,9 @@
     gap: 8px;
     color: var(--text-color);
     font-family: 'Noto Sans KR', monospace;
+    --monitor-title-size: 1rem;
+    --monitor-meta-size: 1rem;
+    --monitor-cell-size: 0.8rem;
 }
 
 .monitor-table-title {
@@ -113,7 +116,7 @@
     justify-content: space-between;
     gap: 8px;
     font-weight: 800;
-    font-size: 0.95rem;
+    font-size: var(--monitor-title-size);
 }
 
 .monitor-table-meta {
@@ -121,7 +124,7 @@
     align-items: center;
     gap: 6px;
     color: var(--muted-text-color);
-    font-size: 0.85rem;
+    font-size: var(--monitor-meta-size);
 }
 
 .monitor-table-wrapper {
@@ -190,7 +193,7 @@
 .monitor-table table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.65rem;
+    font-size: var(--monitor-cell-size);
     font-weight: 700;
     min-width: max-content;
 }
@@ -228,6 +231,18 @@
 
 .monitor-table tbody tr.status-gray td {
     background: rgba(148, 163, 184, 0.12);
+}
+
+.monitor-table-card .monitor-table {
+    --monitor-title-size: clamp(14px, calc(var(--site-info-width) / 30), 30px);
+    --monitor-meta-size: clamp(13px, calc(var(--site-info-width) / 35), 25px);
+    --monitor-cell-size: clamp(12px, calc(var(--site-info-width) / 40), 20px);
+}
+
+.monitor-modal-content .monitor-table {
+    --monitor-title-size: 1.1rem;
+    --monitor-meta-size: 1.05rem;
+    --monitor-cell-size: 0.9rem;
 }
 
 .monitor-table .site-name {
@@ -347,43 +362,6 @@
     100% {
         box-shadow: 0px 0px 0px var(--shadow-size) var(--shadow-color);
     }
-}
-
-/* ThumbnailStyle - variable로 인해 css를 유지 */
-.need-solution {
-    --shadow-color: rgba(200, 0, 0, 0.4);
-    --shadow-color-change: rgba(200, 0, 0, 0.5);
-    --shadow-size: calc(var(--site-info-width) / 100);
-    border-radius: 10px;
-    animation: blink 2s infinite;
-    animation-timing-function: ease-in-out;
-}
-
-.need-check {
-    --shadow-color: rgba(255, 166, 0, 0.3);
-    --shadow-color-change: rgba(255, 166, 0, 0.5);
-    --shadow-size: calc(var(--site-info-width) / 120);
-    border-radius: 10px;
-    animation: blink 2s infinite;
-    animation-timing-function: ease-in-out;
-}
-
-.remote-issue {
-    --shadow-color: rgba(255, 217, 0, 0.3);
-    --shadow-color-change: rgba(255, 217, 0, 0.5);
-    --shadow-size: calc(var(--site-info-width) / 150);
-    border-radius: 10px;
-    animation: blink 2s infinite;
-    animation-timing-function: ease-in-out;
-}
-
-.operational {
-    --shadow-color: rgba(0, 50, 0, 0.3);
-    --shadow-color-change: rgba(0, 50, 0, 0.5);
-    --shadow-size: calc(var(--site-info-width) / 150);
-    border-radius: 10px;
-    animation: blink 2s infinite;
-    animation-timing-function: ease-in-out;
 }
 
 .not-operational-time {

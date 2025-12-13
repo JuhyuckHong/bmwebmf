@@ -13,6 +13,10 @@ function AllSites({
 }) {
     const navigate = useNavigate();
     const thumbnailsRef = useRef(null);
+    const lastHeightRef = useRef(null);
+    const dynamicHeightSetRef = useRef(false);
+    const [imageLoadState, setImageLoadState] = useState({});
+    const [displayedURLs, setDisplayedURLs] = useState({});
 
     const handleThumbnailClick = (imageName) => {
         const safeName = encodeURIComponent(imageName);
@@ -50,25 +54,77 @@ function AllSites({
         [monitorRows],
     );
 
+    // Preload thumbnails and only swap the displayed URL after the new image is ready.
+    useEffect(() => {
+        if (!thumbnails.length) {
+            setDisplayedURLs({});
+            setImageLoadState({});
+            return;
+        }
+
+        thumbnails.forEach((thumbnail) => {
+            const siteKey = thumbnail.site;
+            const nextURL = staticURLs[siteKey];
+            if (!nextURL) return;
+
+            const currentURL = displayedURLs[siteKey];
+            if (currentURL === nextURL) return;
+
+            const img = new Image();
+            const applyReady = () => {
+                setDisplayedURLs((prev) => ({
+                    ...prev,
+                    [siteKey]: nextURL,
+                }));
+                setImageLoadState((prev) => ({
+                    ...prev,
+                    [siteKey]: { loaded: true, url: nextURL },
+                }));
+            };
+
+            img.onload = () => {
+                if (img.decode) {
+                    img.decode().then(applyReady).catch(applyReady);
+                } else {
+                    applyReady();
+                }
+            };
+            img.onerror = () => {
+                setImageLoadState((prev) => ({
+                    ...prev,
+                    [siteKey]: { loaded: false, url: nextURL },
+                }));
+            };
+            img.src = nextURL;
+        });
+    }, [thumbnails, staticURLs, displayedURLs]);
+
+    // Keep summary card height in sync with thumbnail aspect ratio and width changes.
     useEffect(() => {
         if (!thumbnailsRef.current) return;
         const firstThumb =
             thumbnailsRef.current.querySelector(".thumbnails-individual");
         if (!firstThumb) return;
 
-        const setHeight = (height) =>
-            thumbnailsRef.current?.style.setProperty(
+        const MIN_HEIGHT = 120;
+        const applyHeight = (height) => {
+            if (!Number.isFinite(height) || height < MIN_HEIGHT) return;
+            const last = lastHeightRef.current;
+            if (last && Math.abs(height - last) < 1) return;
+            thumbnailsRef.current.style.setProperty(
                 "--dynamic-card-height",
                 `${height}px`,
             );
+            lastHeightRef.current = height;
+            dynamicHeightSetRef.current = true;
+        };
 
-        const measured = firstThumb.getBoundingClientRect().height;
-        if (measured) setHeight(measured);
+        applyHeight(firstThumb.getBoundingClientRect().height);
 
         const observer = new ResizeObserver((entries) => {
             const entry = entries[0];
             if (!entry) return;
-            setHeight(entry.contentRect.height);
+            applyHeight(entry.contentRect.height);
         });
         observer.observe(firstThumb);
 
@@ -118,6 +174,8 @@ function AllSites({
                 {sortedThumbnails.map((thumbnail) => {
                     const siteInfo = siteInformation[thumbnail.site] || {};
                     const imageURL = staticURLs[thumbnail.site];
+                    const displayURL =
+                        displayedURLs[thumbnail.site] || imageURL;
                     const plannedShots =
                         computePlanShots(siteInfo) ??
                         (Number(siteInfo.shooting_count) ||
@@ -158,6 +216,11 @@ function AllSites({
                         expectedWithGrace - uploaded,
                         0,
                     );
+                    const missingCountLabel = Number.isFinite(
+                        missingAgainstGrace,
+                    )
+                        ? missingAgainstGrace
+                        : "-";
                     const missingPercentGrace =
                         (expectedWithGrace || plannedShots) > 0
                             ? Math.round(
@@ -174,17 +237,43 @@ function AllSites({
                         siteInfo,
                         missingAgainstGrace,
                     );
+                    const isLoaded =
+                        imageLoadState[thumbnail.site]?.loaded &&
+                        imageLoadState[thumbnail.site]?.url === displayURL;
 
                     return (
                         <ThumbnailStyle
                             key={thumbnail.site}
                             className={`thumbnails-individual ${siteStatus}`}>
-                            <div className="thumb-wrapper">
-                                {imageURL && (
+                        <div
+                            className={`thumb-wrapper ${isLoaded ? "loaded" : "loading"}`}>
+                                <div
+                                    className={`thumb-placeholder ${isLoaded ? "is-hidden" : ""}`}
+                                    aria-hidden="true"
+                                />
+                                {displayURL && (
                                     <img
-                                        src={imageURL}
+                                        src={displayURL}
                                         alt={thumbnail.site}
                                         loading="lazy"
+                                        onLoad={() =>
+                                            setImageLoadState((prev) => ({
+                                                ...prev,
+                                                [thumbnail.site]: {
+                                                    loaded: true,
+                                                    url: displayURL,
+                                                },
+                                            }))
+                                        }
+                                        onError={() =>
+                                            setImageLoadState((prev) => ({
+                                                ...prev,
+                                                [thumbnail.site]: {
+                                                    loaded: false,
+                                                    url: displayURL,
+                                                },
+                                            }))
+                                        }
                                         onClick={() =>
                                             handleThumbnailClick(thumbnail.site)
                                         }
@@ -208,7 +297,6 @@ function AllSites({
                                                 {formatTime(siteInfo.time_end) ||
                                                     "--:--"}
                                             </span>
-                                            <span className="chip-divider">|</span>
                                             <span className="chip-text">
                                                 {siteInfo.time_interval
                                                     ? `${siteInfo.time_interval}분`
@@ -221,10 +309,13 @@ function AllSites({
                                                     siteInfo.recent_photo,
                                                 ) || "최근 기록 없음"}
                                             </span>
-                                            <span className="chip-divider">|</span>
                                             <span
                                                 className={`chip-text chip-missing ${missingClass}`}>
                                                 {uploaded} / {plannedShots || "-"}
+                                            </span>
+                                            <span
+                                                className={`chip-text chip-missing ${missingClass}`}>
+                                                누락 {missingCountLabel}
                                             </span>
                                         </div>
                                     </div>

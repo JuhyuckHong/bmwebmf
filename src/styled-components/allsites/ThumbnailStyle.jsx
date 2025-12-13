@@ -9,23 +9,40 @@ const ThumbnailStyle = styled.div`
     flex-direction: column;
     align-items: center;
     background-color: var(--surface-alt-color);
-    border: 1px solid var(--border-color);
     border-radius: 10px;
     color: var(--text-color);
     box-shadow: var(--shadow-soft);
-    transition: background-color 0.25s ease, border-color 0.25s ease,
-        box-shadow 0.25s ease;
+    transition: background-color 0.25s ease, box-shadow 0.25s ease;
+    --overlay-top-strong: rgba(0, 0, 0, 0.65);
+    --overlay-top-fade: rgba(0, 0, 0, 0);
+    --overlay-bottom-strong: rgba(0, 0, 0, 0.65);
+    --overlay-bottom-fade: rgba(0, 0, 0, 0);
+    --overlay-chip-bg: rgba(0, 0, 0, 0.35);
+    --overlay-site-bg: rgba(0, 0, 0, 0.4);
+
+    &.need-solution {
+        --overlay-site-bg: rgba(239, 68, 68, 0.42);
+    }
+
+    &.need-check,
+    &.remote-issue {
+        --overlay-site-bg: rgba(245, 158, 11, 0.42);
+    }
+
+    &.operational {
+        --overlay-site-bg: rgba(22, 163, 74, 0.38);
+    }
+
+    &.not-operational-time {
+        --overlay-site-bg: rgba(15, 23, 42, 0.55);
+    }
 
     .thumb-wrapper {
         position: relative;
         width: 100%;
         min-height: 220px;
         aspect-ratio: 16 / 9;
-        background: linear-gradient(
-            135deg,
-            var(--surface-alt-color) 0%,
-            var(--border-color) 100%
-        );
+        background: var(--surface-alt-color);
         border-radius: 10px;
         overflow: hidden;
     }
@@ -36,12 +53,47 @@ const ThumbnailStyle = styled.div`
         display: block;
         object-fit: cover;
         border-radius: inherit;
-        transition: transform 0.1s ease-in-out;
+        transition: opacity 0.2s ease-in-out, transform 0.1s ease-in-out;
         cursor: pointer;
 
         &:hover {
             transform: scaleX(1.015) scaleY(1.015);
         }
+    }
+
+    .thumb-wrapper.loading img {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .thumb-wrapper.loaded img {
+        opacity: 1;
+    }
+
+    .thumb-placeholder {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+                110deg,
+                rgba(255, 255, 255, 0.05) 8%,
+                rgba(255, 255, 255, 0.15) 18%,
+                rgba(255, 255, 255, 0.05) 33%
+            ),
+            linear-gradient(
+                180deg,
+                rgba(0, 0, 0, 0.2) 0%,
+                rgba(0, 0, 0, 0.5) 100%
+            );
+        background-size: 200% 100%, 100% 100%;
+        border-radius: inherit;
+        animation: thumb-shimmer 1.3s ease-in-out infinite;
+        transition: opacity 0.25s ease;
+        opacity: 1;
+    }
+
+    .thumb-wrapper.loaded .thumb-placeholder {
+        opacity: 0;
+        pointer-events: none;
     }
 
     .thumb-overlay {
@@ -56,8 +108,8 @@ const ThumbnailStyle = styled.div`
         color: #fff;
         background: linear-gradient(
             180deg,
-            rgba(0, 0, 0, 0) 0%,
-            rgba(0, 0, 0, 0.6) 100%
+            var(--overlay-top-fade) 0%,
+            var(--overlay-bottom-strong) 100%
         );
         border-radius: 0 0 10px 10px;
         pointer-events: none;
@@ -70,6 +122,10 @@ const ThumbnailStyle = styled.div`
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        background: var(--overlay-site-bg);
+        padding: 6px 10px;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
     }
 
     .overlay-device {
@@ -96,8 +152,8 @@ const ThumbnailStyle = styled.div`
         color: #fff;
         background: linear-gradient(
             180deg,
-            rgba(0, 0, 0, 0.65) 0%,
-            rgba(0, 0, 0, 0.0) 100%
+            var(--overlay-top-strong) 0%,
+            var(--overlay-top-fade) 100%
         );
         border-radius: 10px 10px 0 0;
         pointer-events: none;
@@ -115,8 +171,8 @@ const ThumbnailStyle = styled.div`
         color: #fff;
         background: linear-gradient(
             0deg,
-            rgba(0, 0, 0, 0.65) 0%,
-            rgba(0, 0, 0, 0.0) 100%
+            var(--overlay-bottom-strong) 0%,
+            var(--overlay-bottom-fade) 100%
         );
         border-radius: 0 0 10px 10px;
         gap: 12px;
@@ -173,7 +229,6 @@ const ThumbnailStyle = styled.div`
         font-weight: 800;
         padding: 6px 10px;
         border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
         background: rgba(0, 0, 0, 0.2);
         white-space: nowrap;
         font-size: calc(0.7rem + 0.5rem * var(--thumb-scale-clamped));
@@ -186,7 +241,6 @@ const ThumbnailStyle = styled.div`
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border: 2px solid rgba(255, 255, 255, 0.35);
         box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.18);
         background: transparent;
         font-size: 12px;
@@ -196,7 +250,6 @@ const ThumbnailStyle = styled.div`
 
     .remote-dot.on {
         background: transparent;
-        border-color: transparent;
         box-shadow: none;
         width: 22px;
         height: 22px;
@@ -208,7 +261,6 @@ const ThumbnailStyle = styled.div`
 
     .remote-dot.off {
         background: transparent;
-        border-color: transparent;
         box-shadow: none;
         font-size: 16px;
         width: 22px;
@@ -238,7 +290,6 @@ const ThumbnailStyle = styled.div`
         margin-bottom: 5px;
         border-radius: 0px 0px 10px 10px;
         background-color: var(--surface-color);
-        border-top: 1px solid var(--border-color);
         padding: 12px;
         display: flex;
         flex-direction: column;
@@ -272,7 +323,6 @@ const ThumbnailStyle = styled.div`
 
     .stat-card {
         background: var(--surface-alt-color);
-        border: 1px solid var(--border-color);
         border-radius: 8px;
         padding: 8px;
         display: flex;
@@ -298,7 +348,6 @@ const ThumbnailStyle = styled.div`
         padding: 8px 10px;
         border-radius: 10px;
         background: var(--surface-alt-color);
-        border: 1px solid var(--border-color);
         font-weight: 700;
         color: var(--text-color);
         white-space: nowrap;
@@ -321,7 +370,7 @@ const ThumbnailStyle = styled.div`
     }
 
     .overlay-bottom .chip-text:not(.chip-missing) {
-        background: rgba(0, 0, 0, 0.35);
+        background: var(--overlay-chip-bg);
         padding: 4px 8px;
         border-radius: 8px;
         color: #f8fafc;
@@ -361,6 +410,15 @@ const ThumbnailStyle = styled.div`
     .thumbnails-individual.non-operational {
         filter: grayscale(70%);
         opacity: 0.7;
+    }
+
+    @keyframes thumb-shimmer {
+        0% {
+            background-position: 200% 0, 0 0;
+        }
+        100% {
+            background-position: -200% 0, 0 0;
+        }
     }
 
     @media (max-width: 750px) {

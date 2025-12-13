@@ -200,19 +200,13 @@ function App() {
             }
         });
 
-        setStaticURLs(
-            Object.fromEntries(
-                Object.entries(staticCacheRef.current).map(
-                    ([site, entry]) => [site, entry.objectURL],
-                ),
-            ),
-        );
-
         const fetchStaticURLs = async () => {
             const headers = { Authorization: Cookies.get("BM") };
+            const nextCache = { ...staticCacheRef.current };
+            const updates = {};
 
             for (const thumbnail of thumbnails) {
-                const cached = staticCacheRef.current[thumbnail.site];
+                const cached = nextCache[thumbnail.site];
                 if (cached && cached.source === thumbnail.url) continue;
 
                 try {
@@ -224,36 +218,63 @@ function App() {
 
                     if (
                         cached?.objectURL &&
-                        cached.objectURL.startsWith("blob:")
+                        cached.objectURL.startsWith("blob:") &&
+                        cached.objectURL !== objectURL
                     ) {
                         URL.revokeObjectURL(cached.objectURL);
                     }
 
-                    staticCacheRef.current[thumbnail.site] = {
+                    nextCache[thumbnail.site] = {
                         source: thumbnail.url,
                         objectURL,
                     };
 
-                    setStaticURLs((prev) => ({
-                        ...prev,
-                        [thumbnail.site]: objectURL,
-                    }));
+                    updates[thumbnail.site] = objectURL;
                 } catch (err) {
                     const fallback =
                         process.env.REACT_APP_API_URL +
                         "/static/no_image_today.jpg";
 
-                    staticCacheRef.current[thumbnail.site] = {
+                    nextCache[thumbnail.site] = {
                         source: thumbnail.url,
                         objectURL: fallback,
                     };
 
-                    setStaticURLs((prev) => ({
-                        ...prev,
-                        [thumbnail.site]: fallback,
-                    }));
+                    updates[thumbnail.site] = fallback;
                 }
             }
+
+            staticCacheRef.current = nextCache;
+            if (Object.keys(updates).length) {
+                setStaticURLs((prev) => {
+                    const merged = { ...prev, ...updates };
+                    const prevKeys = Object.keys(prev);
+                    const mergedKeys = Object.keys(merged);
+                    if (
+                        prevKeys.length === mergedKeys.length &&
+                        prevKeys.every((k) => merged[k] === prev[k])
+                    ) {
+                        return prev; // no actual change
+                    }
+                    return merged;
+                });
+            }
+            // ensure we propagate existing cache for sites without updates
+            setStaticURLs((prev) => {
+                const full = {};
+                Object.entries(nextCache).forEach(([site, entry]) => {
+                    full[site] = entry.objectURL;
+                });
+                const prevKeys = Object.keys(prev);
+                const fullKeys = Object.keys(full);
+                if (
+                    prevKeys.length === fullKeys.length &&
+                    prevKeys.every((k) => full[k] === prev[k])
+                ) {
+                    return prev;
+                }
+                return full;
+            });
         };
 
         fetchStaticURLs();
