@@ -170,12 +170,15 @@ function App() {
 
         fetchAllSitesData();
 
+        // Only refresh periodically when on the all sites page
+        if (!isAllPage) return;
+
         const intervalMs =
             Number(process.env.REACT_APP_THUMBNAIL_INTERVAL) || 60000;
         const intervalId = setInterval(fetchAllSitesData, intervalMs);
 
         return () => clearInterval(intervalId);
-    }, [auth, reload, fetchAllSitesData, clearStaticCache]);
+    }, [auth, reload, fetchAllSitesData, clearStaticCache, isAllPage]);
 
     // Keep static thumbnails cached across navigation and update only when the source url changes.
     useEffect(() => {
