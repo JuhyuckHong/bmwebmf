@@ -20,6 +20,7 @@
 .env.production.local
 .vscode
 /.claude
+/temp
 
 npm-debug.log*
 yarn-debug.log*

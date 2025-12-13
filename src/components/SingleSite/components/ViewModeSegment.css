@@ -1,0 +1,113 @@
+.view-mode-segment {
+    display: flex;
+    position: relative;
+    background: var(--surface-alt-color);
+    border-radius: var(--radius-lg);
+    padding: 4px;
+    border: 1px solid var(--border-color);
+    width: fit-content;
+    margin: 0 auto;
+    box-shadow: var(--shadow-soft);
+}
+
+.segment-btn {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: transparent;
+    border: none;
+    color: var(--muted-text-color);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    min-width: 90px;
+}
+
+.segment-btn.active {
+    color: var(--accent-text-color);
+}
+
+.segment-btn:hover:not(.active) {
+    color: var(--text-color);
+}
+
+.segment-btn:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+    border-radius: var(--radius-md);
+}
+
+.segment-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+}
+
+.segment-icon.icon-all::before {
+    content: "all";
+    font-size: 0;
+}
+
+.segment-icon.icon-photo::before {
+    content: "photo";
+    font-size: 0;
+}
+
+.segment-icon.icon-video::before {
+    content: "video";
+    font-size: 0;
+}
+
+.segment-label {
+    font-size: inherit;
+}
+
+.segment-indicator {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc(33.333% - 2.67px);
+    background: var(--accent-color);
+    border-radius: calc(var(--radius-lg) - 2px);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(250, 190, 12, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .view-mode-segment {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .segment-btn {
+        flex: 1;
+        padding: 10px 16px;
+        min-width: auto;
+    }
+
+    .segment-indicator {
+        width: calc(33.333% - 2.67px);
+    }
+}
+
+@media (max-width: 480px) {
+    .segment-btn {
+        padding: 10px 12px;
+        gap: 6px;
+    }
+
+    .segment-icon {
+        display: none;
+    }
+
+    .segment-label {
+        font-size: 0.9rem;
+    }
+}

@@ -1,0 +1,282 @@
+.site-header-card {
+    background: var(--surface-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* 상단: 이전/현장명/다음 */
+.header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.site-title-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.site-name {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    font-weight: 800;
+    color: var(--text-color);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.site-position {
+    font-size: 0.75rem;
+    color: var(--muted-text-color);
+    font-weight: 600;
+    background: var(--surface-alt-color);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+}
+
+/* 네비게이션 버튼 */
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    background: var(--surface-alt-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 0;
+    flex-shrink: 0;
+    height: 32px;
+}
+
+.nav-btn:hover:not(:disabled) {
+    background: var(--accent-color);
+    color: var(--accent-text-color);
+    border-color: var(--accent-color);
+}
+
+.nav-btn:disabled,
+.nav-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.nav-btn.next {
+    flex-direction: row-reverse;
+}
+
+.nav-arrow {
+    font-size: 1rem;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.nav-label {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* 하단: 전체현장 + 뷰모드 */
+.header-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 4px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 2px;
+}
+
+.to-all-link {
+    font-size: 0.8rem;
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    height: 32px;
+}
+
+.to-all-link:hover {
+    background: var(--accent-color);
+    color: var(--accent-text-color);
+}
+
+.header-spacer {
+    width: 80px;
+}
+
+/* 뷰모드 세그먼트 (헤더 내장) */
+.view-mode-segment {
+    display: flex;
+    position: relative;
+    background: var(--surface-alt-color);
+    border-radius: var(--radius-md);
+    padding: 2px;
+    border: 1px solid var(--border-color);
+    height: 32px;
+    box-sizing: border-box;
+}
+
+.segment-btn {
+    position: relative;
+    z-index: 1;
+    padding: 0 12px;
+    background: transparent;
+    border: none;
+    color: var(--muted-text-color);
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+}
+
+.segment-btn.active {
+    color: var(--accent-text-color);
+}
+
+.segment-btn:hover:not(.active) {
+    color: var(--text-color);
+}
+
+.segment-indicator {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    width: calc(33.333% - 1.33px);
+    background: var(--accent-color);
+    border-radius: calc(var(--radius-md) - 2px);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.segment-icon {
+    font-style: normal;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.segment-icon.icon-all::before {
+    content: "▣";
+}
+
+.segment-icon.icon-photo::before {
+    content: "📷";
+}
+
+.segment-icon.icon-video::before {
+    content: "🎥";
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .site-header-card {
+        padding: 8px 10px;
+        gap: 4px;
+    }
+
+    .header-top {
+        gap: 6px;
+    }
+
+    .nav-btn {
+        padding: 0 8px;
+    }
+
+    .nav-label {
+        max-width: 60px;
+        font-size: 0.75rem;
+    }
+
+    .site-name {
+        font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+    }
+
+    .header-bottom {
+        padding-top: 4px;
+    }
+
+    .header-spacer {
+        display: none;
+    }
+
+    .to-all-link {
+        font-size: 0.75rem;
+        padding: 0 6px;
+    }
+
+    .segment-btn {
+        padding: 0 10px;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 500px) {
+    .nav-label {
+        display: none;
+    }
+
+    .nav-arrow {
+        font-size: 1.1rem;
+    }
+
+    .nav-btn {
+        padding: 0 8px;
+    }
+
+    /* 모바일에서 높이 더 줄이기 위해 타이틀 영역 조정 */
+    .site-title-area {
+        flex-direction: row;
+        gap: 6px;
+    }
+    
+    .site-position {
+        font-size: 0.7rem;
+        padding: 1px 6px;
+    }
+
+    .header-bottom {
+        justify-content: space-between;
+    }
+    
+    .segment-label {
+        display: none;
+    }
+    
+    .segment-btn {
+        padding: 0 12px;
+    }
+    
+    .segment-icon {
+        margin: 0;
+    }
+}

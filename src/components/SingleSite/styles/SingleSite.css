@@ -1,0 +1,61 @@
+:root {
+    --image-video-height: 35vh;
+    --image-video-height-single: calc(65vh - 80px);
+    --image-video-height-both-horizontal: calc(60vh - 80px);
+    --image-video-height-both-vertical: calc(32vh - 40px);
+}
+
+.single-site-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-default);
+    padding: var(--space-default);
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: calc(100vh - 100px);
+}
+
+/* Media Content Grid */
+.media-content {
+    display: grid;
+    gap: var(--space-default);
+    flex: 1;
+}
+
+/* Desktop (750px+): 가로 병렬 배치 */
+.media-content[data-mode="both"] {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+    --image-video-height: var(--image-video-height-both-horizontal);
+}
+
+.media-content[data-mode="photo"],
+.media-content[data-mode="video"] {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    --image-video-height: var(--image-video-height-single);
+}
+
+/* Tablet & Mobile (750px 이하): 세로 배치 */
+@media (max-width: 750px) {
+    .media-content[data-mode="both"] {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+        --image-video-height: var(--image-video-height-both-vertical);
+    }
+}
+
+/* Responsive padding */
+@media (max-width: 768px) {
+    .single-site-page {
+        padding: var(--space-sm);
+        gap: var(--space-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    .single-site-page {
+        padding: var(--space-xs);
+        gap: var(--space-xs);
+    }
+}

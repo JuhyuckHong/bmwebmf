@@ -588,7 +588,7 @@ function MonitorTable({ rows, compact = false }) {
                                                 className={row.statusClass}
                                                 title={row.statusLabel}>
                                                 <td>{row.index}</td>
-                                                <td className="site-name">{row.siteLabel}</td>
+                                                <td>{row.siteLabel}</td>
                                                 <td>{row.device}</td>
                                                 <td>{row.recent}</td>
                                                 <td>{row.shots}</td>
