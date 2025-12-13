@@ -8,39 +8,158 @@
 .single-site-page {
     display: flex;
     flex-direction: column;
-    gap: var(--space-default);
-    padding: var(--space-default);
+    gap: var(--space-sm);     /* Reduced gap */
+    padding: var(--space-sm); /* Reduced padding */
     max-width: 1400px;
     margin: 0 auto;
-    min-height: calc(100vh - 100px);
+    min-height: auto; /* Changed from calc(100vh - 100px) to prevent overflow */
+    position: relative; /* Context for absolute positioning if needed */
 }
 
 /* Media Content Grid */
 .media-content {
     display: grid;
-    gap: var(--space-default);
-    flex: 1;
+    gap: var(--space-sm);     /* Reduced gap */
 }
 
 /* Desktop (750px+): 가로 병렬 배치 */
 .media-content[data-mode="both"] {
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr;
+    /* align-items: start; Removed to allow stretching */
     --image-video-height: var(--image-video-height-both-horizontal);
 }
 
 .media-content[data-mode="photo"],
 .media-content[data-mode="video"] {
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
+    /* align-items: start; Removed to allow stretching */
     --image-video-height: var(--image-video-height-single);
 }
+
+/* Single View Layout: Side-by-Side */
+.media-content[data-mode="photo"] .media-card-body,
+.media-content[data-mode="video"] .media-card-body {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.media-content[data-mode="photo"] .timeline-selector,
+.media-content[data-mode="video"] .timeline-selector {
+    /* width: 360px; Removed fixed width */
+    flex: 0 0 auto; /* Allow width to be content-based */
+    max-width: fit-content; /* Ensure it doesn't go too wide */
+}
+
+/* Force vertical stack for controls in single view */
+.media-content[data-mode="photo"] .selector-layout,
+.media-content[data-mode="video"] .selector-layout {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.media-content[data-mode="photo"] .time-dropdowns,
+.media-content[data-mode="video"] .time-dropdowns {
+    flex-direction: column; /* Ensure time drops stack */
+}
+
+/* Video: Stack 2 months vertically */
+.media-content[data-mode="video"] .react-datepicker__month-container {
+    float: none !important;
+    display: block !important;
+    width: 100% !important;
+    margin-bottom: 16px;
+}
+
+.media-content[data-mode="video"] .react-datepicker {
+    width: 100% !important; /* Ensure container fits width */
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Floating Navigation Buttons */
+.floating-site-nav {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 60px;
+    height: 100px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.3; /* Semi-transparent default */
+    transition: opacity 0.3s ease, transform 0.2s ease;
+    padding: 0;
+}
+
+.floating-site-nav:hover {
+    opacity: 0.9; /* More visible on hover */
+    transform: translateY(-50%) scale(1.1);
+}
+
+.floating-site-nav.prev {
+    left: 20px;
+}
+
+.floating-site-nav.next {
+    right: 20px;
+}
+
+/* Triangle shape using borders */
+.nav-triangle {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); /* Slight shadow for visibility */
+}
+
+.nav-triangle.left {
+    border-width: 15px 20px 15px 0;
+    border-color: transparent var(--text-color) transparent transparent;
+}
+
+.nav-triangle.right {
+    border-width: 15px 0 15px 20px;
+    border-color: transparent transparent transparent var(--text-color);
+}
+
+/* Floating Back Button */
+.floating-back-btn {
+    position: fixed;
+    top: 90px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 100;
+    font-size: 2rem;
+    color: var(--text-color);
+    opacity: 0.4;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.floating-back-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
 
 /* Tablet & Mobile (750px 이하): 세로 배치 */
 @media (max-width: 750px) {
     .media-content[data-mode="both"] {
         grid-template-columns: 1fr;
-        grid-template-rows: 1fr 1fr;
+        grid-template-rows: auto auto; /* Shrink to fit content */
         --image-video-height: var(--image-video-height-both-vertical);
     }
 }
@@ -50,6 +169,29 @@
     .single-site-page {
         padding: var(--space-sm);
         gap: var(--space-sm);
+    }
+
+    /* Adjust floating nav for mobile */
+    .floating-site-nav {
+        width: 40px;
+        height: 60px;
+        opacity: 0.5; /* More visible by default on touch */
+    }
+
+    .floating-site-nav.prev {
+        left: 5px;
+    }
+
+    .floating-site-nav.next {
+        right: 5px;
+    }
+
+    .nav-triangle.left {
+        border-width: 8px 13px 8px 0; /* Reduced by 50% for mobile */
+    }
+
+    .nav-triangle.right {
+        border-width: 8px 0 8px 13px; /* Reduced by 50% for mobile */
     }
 }
 

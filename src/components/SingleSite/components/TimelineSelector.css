@@ -1,7 +1,149 @@
+/* React Datepicker overrides for Inline */
+.react-datepicker__triangle,
+.react-datepicker-popper__triangle,
+[class*="react-datepicker__triangle"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    border: none !important;
+    position: absolute !important;
+    top: -9999px !important;
+    left: -9999px !important;
+}
+
+.react-datepicker::before,
+.react-datepicker::after {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+}
+
+.react-datepicker {
+    font-family: inherit !important;
+    border: none !important; /* Removed border */
+    background-color: var(--surface-color) !important;
+    color: var(--text-color) !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: none !important; /* Removed box-shadow */
+    display: block !important; /* Ensure block display for inline */
+    padding: 0 !important; /* Removed padding */
+    margin: 0 auto !important; /* Changed from 0 to 0 auto */
+}
+
+.react-datepicker__header {
+    background-color: var(--surface-alt-color) !important;
+    border-bottom: none !important; /* Removed border-bottom */
+    border-top-left-radius: var(--radius-md) !important;
+    border-top-right-radius: var(--radius-md) !important;
+    padding-bottom: 8px;
+    position: relative; /* Ensure positioning context for navigation */
+}
+
+.react-datepicker__current-month {
+    /* Styles are now handled by custom-datepicker-header and custom-header-select */
+}
+
+/* Navigation buttons for react-datepicker */
+.react-datepicker__navigation {
+    top: 10px !important; /* Adjust position */
+    line-height: 1.7rem !important; /* Adjust line height for icon */
+    border: none !important;
+    background: transparent !important;
+    font-size: 1.7rem !important;
+}
+
+.react-datepicker__navigation--previous {
+    left: 10px !important;
+}
+
+.react-datepicker__navigation--next {
+    right: 10px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+    border-color: var(--text-color) !important;
+    border-width: 1px 1px 0 0 !important;
+    top: 0 !important; /* Reset position */
+    height: 10px !important;
+    width: 10px !important;
+}
+
+.react-datepicker__navigation--previous .react-datepicker__navigation-icon::before {
+    transform: rotate(225deg) !important;
+}
+
+.react-datepicker__navigation--next .react-datepicker__navigation-icon::before {
+    transform: rotate(45deg) !important;
+}
+
+/* Month and Year Selectors */
+/* These are now custom select elements, so default styles below might be overridden or redundant */
+.react-datepicker__month-dropdown-container,
+.react-datepicker__year-dropdown-container {
+    display: inline-block;
+}
+
+.react-datepicker__month-read-view,
+.react-datepicker__year-read-view {
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.react-datepicker__month-read-view--selected,
+.react-datepicker__year-read-view--selected {
+    color: var(--text-color) !important;
+}
+
+.react-datepicker__month-dropdown,
+.react-datepicker__year-dropdown {
+    border-color: var(--border-color) !important;
+    background-color: var(--surface-color) !important;
+    color: var(--text-color) !important;
+    box-shadow: var(--shadow-soft);
+}
+
+.react-datepicker__month-option,
+.react-datepicker__year-option {
+    color: var(--text-color) !important;
+}
+
+.react-datepicker__month-option:hover,
+.react-datepicker__year-option:hover {
+    background-color: var(--surface-alt-color) !important;
+}
+
+.react-datepicker__month-option--selected_month {
+    background-color: var(--accent-color) !important;
+    color: var(--accent-text-color) !important;
+}
+
+
+.react-datepicker__day {
+    color: var(--text-color) !important;
+}
+
+.react-datepicker__day:hover {
+    background-color: var(--surface-alt-color) !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+    background-color: var(--accent-color) !important;
+    color: var(--accent-text-color) !important;
+}
+
+.react-datepicker__day--disabled {
+    color: var(--muted-text-color) !important;
+    opacity: 0.3;
+}
+
+
 .timeline-selector {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
     padding: 16px;
     background: var(--surface-alt-color);
     border-radius: var(--radius-md);
@@ -13,249 +155,202 @@
     pointer-events: none;
 }
 
-/* Timeline Track */
-.timeline-track {
+.selector-layout {
     display: flex;
-    align-items: center;
+    flex-direction: row; /* Changed to row */
+    gap: 20px;
+    align-items: flex-start; /* Align items to the top */
+    justify-content: center; /* Center the entire layout horizontally */
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+}
+
+/* Calendar Section */
+.calendar-section {
+    /* width: 100%; Removed, let it take natural width */
+    display: flex;
+    flex-direction: column; /* Stack calendar and nav */
+    align-items: center; /* Center them */
+    justify-content: flex-start;
+    flex-shrink: 0; /* Prevent calendar from shrinking */
     gap: 12px;
 }
 
-.track-label {
-    width: 50px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--muted-text-color);
-    flex-shrink: 0;
-    text-align: right;
-}
-
-.track-content {
-    flex: 1;
-    position: relative;
-    height: 40px;
+/* Custom Header Styling */
+.custom-datepicker-header {
+    margin: 10px;
     display: flex;
+    justify-content: center; /* Center the controls */
     align-items: center;
+    padding: 0 5px;
+    gap: 16px; /* Add spacing between buttons and dropdowns */
 }
 
-/* Custom Range Slider */
-.track-slider {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 8px;
-    background: var(--surface-color);
-    border-radius: 4px;
-    border: 1px solid var(--border-color);
-    outline: none;
+/* Header Text (Default Hidden) */
+.header-text {
+    display: none;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+.header-dropdowns {
+    display: flex;
+}
+
+/* Video Mode Specific Header Logic */
+/* Hide the entire header for the second month in video mode */
+.media-content[data-mode="video"] .react-datepicker__month-container:nth-child(2) .custom-datepicker-header {
+    display: none !important;
+}
+
+.custom-nav-btn {
+    background: transparent;
+    border: none;
     cursor: pointer;
-    position: relative;
-    z-index: 2;
+    font-size: 1.5rem;
+    color: var(--text-color);
+    padding: 5px;
+    transition: color 0.2s ease;
 }
 
-.track-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: var(--accent-color);
-    border-radius: 50%;
-    cursor: grab;
-    border: 2px solid var(--surface-color);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+.custom-nav-btn:hover:not(:disabled) {
+    color: var(--accent-color);
 }
 
-.track-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-}
-
-.track-slider::-webkit-slider-thumb:active {
-    cursor: grabbing;
-    transform: scale(1.15);
-}
-
-.track-slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    background: var(--accent-color);
-    border-radius: 50%;
-    cursor: grab;
-    border: 2px solid var(--surface-color);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.track-slider:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.track-slider:disabled::-webkit-slider-thumb {
-    cursor: not-allowed;
-}
-
-/* Progress Bar */
-.track-progress {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 8px;
-    background: var(--accent-color);
-    border-radius: 4px 0 0 4px;
-    pointer-events: none;
-    z-index: 1;
+.custom-nav-btn:disabled {
     opacity: 0.3;
+    cursor: not-allowed;
 }
 
-/* Scrubber Value */
-.scrubber-value {
-    position: absolute;
-    bottom: 100%;
-    transform: translateX(-50%);
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    padding: 4px 10px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    white-space: nowrap;
-    box-shadow: var(--shadow-soft);
-    margin-bottom: 8px;
-    pointer-events: none;
-    z-index: 10;
-}
-
-.scrubber-value::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 5px solid transparent;
-    border-top-color: var(--border-color);
-}
-
-/* Track Controls */
-.track-controls {
+.month-year-selects {
     display: flex;
-    gap: 6px;
-    flex-shrink: 0;
+    gap: 8px;
 }
 
-.track-controls .nav-btn {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.custom-header-select {
     background: var(--surface-color);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     color: var(--text-color);
+    font-size: 0.95rem;
+    padding: 5px 24px 5px 8px; /* Increased right padding for arrow */
     cursor: pointer;
-    font-size: 0.8rem;
-    transition: all 0.15s ease;
+    appearance: none; /* Hide default select arrow */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px top 50%;
+    background-size: 8px auto;
 }
 
-.track-controls .nav-btn:hover:not(:disabled) {
-    background: var(--accent-color);
-    color: var(--accent-text-color);
+[data-theme="dark"] .custom-header-select {
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23cbd5e1%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+}
+
+
+/* Controls Section */
+.controls-section {
+    flex: 1; /* Allow it to take remaining space */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.time-selection-group,
+.nav-controls {
+    width: 100%; /* Ensure these fill the width of controls-section */
+}
+
+.time-selection-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1; /* Fill available height */
+}
+
+/* Time Lists Container */
+.time-lists-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Scrollable Time Grid */
+.time-grid-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.grid-label {
+    font-size: 1rem; /* Matched to assumed default calendar header size */
+    font-weight: 700; /* Matched to assumed default calendar header weight */
+    color: var(--text-color); /* Matched to assumed default calendar header color */
+}
+
+.time-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)); /* Reduced min width */
+    gap: 4px; /* Reduced gap */
+    max-height: 91px; /* Adjusted to show exactly 3 rows */
+    overflow-y: auto;
+    padding: 4px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.time-grid.minutes {
+    grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)); /* Reduced to match hours */
+    max-height: 91px; /* Adjusted to show exactly 3 rows */
+}
+
+.time-grid-item {
+    padding: 4px 2px; /* Reduced padding */
+    font-size: 0.75rem; /* Reduced font size */
+    background: var(--surface-alt-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.time-grid-item:hover {
+    background: var(--surface-color);
     border-color: var(--accent-color);
 }
 
-.track-controls .nav-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
+.time-grid-item.selected {
+    background: var(--accent-color);
+    color: var(--accent-text-color);
+    border-color: var(--accent-color);
+    font-weight: 700;
 }
 
-/* Selection Summary */
+/* Summary */
 .selection-summary {
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 12px;
-    padding: 8px;
-    font-size: 0.9rem;
-    color: var(--text-color);
+    font-size: 0.8rem;
+    padding-top: 8px;
     border-top: 1px solid var(--border-color);
-    margin-top: 4px;
-    padding-top: 12px;
-}
-
-.summary-date,
-.summary-time {
-    font-weight: 700;
-    background: var(--surface-color);
-    padding: 6px 14px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-color);
 }
 
 .summary-count {
     color: var(--muted-text-color);
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-.summary-empty {
-    color: var(--muted-text-color);
-    font-style: italic;
-}
-
-/* Time Track Variation */
-.timeline-track.time-track .track-progress {
-    background: var(--color-highlight-600);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .timeline-selector {
-        padding: 12px;
-        gap: 10px;
+    .selector-layout {
+        flex-direction: column; /* Stack on smaller screens */
+        align-items: center;
+        gap: 16px;
     }
-
-    .timeline-track {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .track-label {
+    
+    .time-selection-group {
         width: 100%;
-        text-align: left;
-        margin-bottom: 4px;
-    }
-
-    .track-content {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .track-controls {
-        width: auto;
-    }
-
-    .scrubber-value {
-        font-size: 0.7rem;
-        padding: 3px 8px;
-    }
-}
-
-@media (max-width: 480px) {
-    .track-controls .nav-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-    }
-
-    .selection-summary {
-        flex-wrap: wrap;
-        gap: 8px;
-        font-size: 0.85rem;
-    }
-
-    .summary-date,
-    .summary-time {
-        padding: 4px 10px;
     }
 }

@@ -21,6 +21,8 @@
 .vscode
 /.claude
 /temp
+GEMINI.md
+AGENTS.md
 
 npm-debug.log*
 yarn-debug.log*

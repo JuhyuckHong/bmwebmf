@@ -10,10 +10,17 @@ import { useVideoData } from "./hooks/useMediaData";
 import "./styles/SingleSite.css";
 
 function SingleSite({ authSites }) {
-    const [viewMode, setViewMode] = useState("both");
+    const [viewMode, setViewMode] = useState(() => {
+        return localStorage.getItem("bm-view-mode") || "both";
+    });
     const navigate = useNavigate();
     const { siteId } = useParams();
     const site = siteId;
+
+    const handleViewModeChange = (mode) => {
+        setViewMode(mode);
+        localStorage.setItem("bm-view-mode", mode);
+    };
 
     const siteIndex = authSites ? authSites.indexOf(site) : -1;
     const prevSite = siteIndex > 0 && authSites ? authSites[siteIndex - 1] : null;
@@ -68,8 +75,47 @@ function SingleSite({ authSites }) {
         }
     };
 
+    const photoInfo = photoDates.length > 0
+        ? `📅 ${photoDateIndex + 1}/${photoDates.length}${photoTimes.length > 0 ? `  📸 ${photoTimeIndex + 1}/${photoTimes.length}` : ''}`
+        : '';
+
+    const videoInfo = videoDates.length > 0
+        ? `📅 ${videoDateIndex + 1}/${videoDates.length}`
+        : '';
+
     return (
         <div className="single-site-page">
+            {/* Floating Navigation Buttons */}
+            <button
+                className="floating-back-btn"
+                onClick={() => navigate("/all")}
+                aria-label="전체 현장으로 돌아가기"
+                title="전체 현장으로 돌아가기"
+            >
+                <span className="back-icon">↩</span>
+            </button>
+
+            {prevSite && (
+                <button
+                    className="floating-site-nav prev"
+                    onClick={() => goToSiteByIndex(-1)}
+                    aria-label={`이전 현장: ${prevSite}`}
+                    title={`이전 현장: ${prevSite}`}
+                >
+                    <div className="nav-triangle left" />
+                </button>
+            )}
+            {nextSite && (
+                <button
+                    className="floating-site-nav next"
+                    onClick={() => goToSiteByIndex(1)}
+                    aria-label={`다음 현장: ${nextSite}`}
+                    title={`다음 현장: ${nextSite}`}
+                >
+                    <div className="nav-triangle right" />
+                </button>
+            )}
+
             <SiteHeader
                 siteName={site}
                 prevSite={prevSite}
@@ -78,12 +124,12 @@ function SingleSite({ authSites }) {
                 totalSites={authSites.length}
                 onNavigate={goToSiteByIndex}
                 viewMode={viewMode}
-                onViewModeChange={setViewMode}
+                onViewModeChange={handleViewModeChange}
             />
 
             <div className="media-content" data-mode={viewMode}>
                 {(viewMode === "both" || viewMode === "photo") && (
-                    <MediaCard title="사진" type="photo" loading={photoLoading}>
+                    <MediaCard title="사진" type="photo" loading={photoLoading} headerInfo={photoInfo}>
                         <TimelineSelector
                             type="photo"
                             dates={photoDates}
@@ -101,7 +147,7 @@ function SingleSite({ authSites }) {
                 )}
 
                 {(viewMode === "both" || viewMode === "video") && (
-                    <MediaCard title="영상" type="video" loading={videoLoading}>
+                    <MediaCard title="영상" type="video" loading={videoLoading} headerInfo={videoInfo}>
                         <TimelineSelector
                             type="video"
                             dates={videoDates}
