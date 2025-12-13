@@ -178,7 +178,7 @@
 .SingleSite,
 .AllSites {
     width: 100%;
-    width: 90vw;
+    /* width: 90vw; Removed legacy width */
     height: 100%;
     margin-top: 10px;
     background-color: var(--surface-color);
@@ -189,9 +189,9 @@
 }
 
 .display {
-    padding: 24px;
+    padding: 0; /* Removed padding to avoid double padding with children */
     color: var(--text-color);
-    height: calc(100vh - 75px);
+    height: 100%; /* Fill the main-content container */
     overflow: auto;
 }
 
