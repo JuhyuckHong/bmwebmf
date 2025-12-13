@@ -325,7 +325,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)); /* Reduced min width */
     gap: 4px; /* Reduced gap */
-    max-height: 91px; /* Adjusted to show exactly 3 rows */
+    max-height: 100px; /* Adjusted to show exactly 3 rows */
     overflow-y: auto;
     padding: 4px;
     background: var(--surface-color);
