@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { WidthAdjusterStyle } from '../styled-components/allsites';
 
 function WidthAdjuster() {
     const MIN_WIDTH = 350;
@@ -16,7 +15,6 @@ function WidthAdjuster() {
             "--site-info-width",
             `${width}px`,
         );
-        // width 값이 변경될 때마다 localStorage에 저장
         localStorage.setItem("site-info-width", width);
     }, [width]);
 
@@ -33,14 +31,14 @@ function WidthAdjuster() {
     };
 
     return (
-        <WidthAdjusterStyle>
-            <span className="sorting">사진 크기 </span>
-            <div className="adjuster">
-                <button onClick={increaseWidth}>▲</button>
-                {`${width}px`}
-                <button onClick={decreaseWidth}>▼</button>
+        <div className="control-group">
+            <span className="control-label">사진 크기</span>
+            <div className="control-value">
+                <button className="control-btn small" onClick={increaseWidth}>▲</button>
+                <span className="size-display">{width}px</span>
+                <button className="control-btn small" onClick={decreaseWidth}>▼</button>
             </div>
-        </WidthAdjusterStyle>
+        </div>
     );
 }
 

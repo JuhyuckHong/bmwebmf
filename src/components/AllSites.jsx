@@ -6,7 +6,7 @@ import { ThumbnailStyle } from '../styled-components/allsites';
 function AllSites({
     admin,
     onSelectSite,
-    sortByName = true,
+    sortType = 'name', // 'name' | 'device' | 'status'
     thumbnails = [],
     siteInformation = {},
     staticURLs = {},
@@ -25,18 +25,39 @@ function AllSites({
     };
 
     // Sorting state and function, useMemo for optimization
-    const sorting = sortByName;
+    // Status priority for sorting (lower = more urgent)
+    const statusPriority = {
+        'need-solution': 0,
+        'need-check': 1,
+        'remote-issue': 2,
+        'operational': 3,
+        'not-operational-time': 4,
+        '': 5,
+    };
     const sortFunc = useCallback((a, b) => {
-        if (sorting) {
+        if (sortType === 'name') {
             const nameA = a.site.toUpperCase();
             const nameB = b.site.toUpperCase();
             return nameA.localeCompare(nameB);
-        } else {
+        } else if (sortType === 'device') {
             const nameA = siteInformation[a.site]?.device_number || "";
             const nameB = siteInformation[b.site]?.device_number || "";
             return nameA.localeCompare(nameB);
+        } else {
+            // Sort by status
+            const infoA = siteInformation[a.site] || {};
+            const infoB = siteInformation[b.site] || {};
+            const missingA = computeMissingAgainstGrace(infoA);
+            const missingB = computeMissingAgainstGrace(infoB);
+            const statusA = getSiteStatus(infoA, missingA);
+            const statusB = getSiteStatus(infoB, missingB);
+            const priorityA = statusPriority[statusA] ?? 5;
+            const priorityB = statusPriority[statusB] ?? 5;
+            if (priorityA !== priorityB) return priorityA - priorityB;
+            // Secondary sort by name for stability
+            return a.site.toUpperCase().localeCompare(b.site.toUpperCase());
         }
-    }, [sorting, siteInformation]);
+    }, [sortType, siteInformation]);
     const sortedThumbnails = useMemo(() => {
         return [...thumbnails].sort(sortFunc);
     }, [thumbnails, sortFunc]);
@@ -477,6 +498,18 @@ const computeExpectedShots = (siteInfo) => {
     const expected = Math.floor(elapsed / interval);
 
     return Math.min(expected, planned);
+};
+
+const computeMissingAgainstGrace = (siteInfo) => {
+    const expectedByNow =
+        computeExpectedShots(siteInfo) ??
+        (Number(siteInfo.shooting_count_till_now) ||
+            computePlanShots(siteInfo) ||
+            Number(siteInfo.shooting_count) ||
+            0);
+    const uploaded = Number(siteInfo.photos_count) || 0;
+    const expectedWithGrace = Math.max(expectedByNow - 2, 0);
+    return Math.max(expectedWithGrace - uploaded, 0);
 };
 
 const buildMonitorRows = (thumbnails, siteInformation) =>

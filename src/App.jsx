@@ -67,7 +67,7 @@ function App() {
     const [reload, setReload] = useState(false);
     const [authSites, setAuthSites] = useState(null);
     const [authChecked, setAuthChecked] = useState(false);
-    const [sortByName, setSortByName] = useState(true);
+    const [sortType, setSortType] = useState('name'); // 'name' | 'device' | 'status'
     const [thumbnails, setThumbnails] = useState([]);
     const [siteInformation, setSiteInformation] = useState({});
     const [staticURLs, setStaticURLs] = useState({});
@@ -328,10 +328,14 @@ function App() {
                     <div className="header-center">
                         {isAllPage && (
                             <SortingStyle className="header-controls">
-                                <div className="sorting">
-                                    {"정렬 "}
-                                    <button onClick={() => setSortByName((prev) => !prev)}>
-                                        {sortByName ? "🏗️ 현장이름" : "# 모듈번호"}
+                                <div className="control-group">
+                                    <span className="control-label">정렬</span>
+                                    <button
+                                        className="control-btn"
+                                        onClick={() => setSortType((prev) =>
+                                            prev === 'name' ? 'device' : prev === 'device' ? 'status' : 'name'
+                                        )}>
+                                        {sortType === 'name' ? "🏗️ 현장이름" : sortType === 'device' ? "# 모듈번호" : "🚦 현장상태"}
                                     </button>
                                 </div>
                                 <WidthAdjuster />
@@ -343,19 +347,19 @@ function App() {
                             <button
                                 type="button"
                                 className="pill-button sort-icon-btn"
-                                onClick={() => setSortByName((prev) => !prev)}
+                                onClick={() => setSortType((prev) =>
+                                    prev === 'name' ? 'device' : prev === 'device' ? 'status' : 'name'
+                                )}
                                 aria-label={
-                                    sortByName
-                                        ? "모듈번호 순으로 정렬"
-                                        : "현장이름 순으로 정렬"
+                                    sortType === 'name' ? "모듈번호 순으로 정렬" :
+                                    sortType === 'device' ? "현장상태 순으로 정렬" : "현장이름 순으로 정렬"
                                 }
                                 title={
-                                    sortByName
-                                        ? "모듈번호 순으로 정렬"
-                                        : "현장이름 순으로 정렬"
+                                    sortType === 'name' ? "모듈번호 순으로 정렬" :
+                                    sortType === 'device' ? "현장상태 순으로 정렬" : "현장이름 순으로 정렬"
                                 }>
                                 <span className="sort-icon" aria-hidden="true">
-                                    {sortByName ? "🏗️" : "#"}
+                                    {sortType === 'name' ? "🏗️" : sortType === 'device' ? "#" : "🚦"}
                                 </span>
                             </button>
                         )}
@@ -469,7 +473,7 @@ function App() {
                                 <div className="display">
                                     <AllSites
                                         admin={admin}
-                                        sortByName={sortByName}
+                                        sortType={sortType}
                                         thumbnails={thumbnails}
                                         siteInformation={siteInformation}
                                         staticURLs={staticURLs}

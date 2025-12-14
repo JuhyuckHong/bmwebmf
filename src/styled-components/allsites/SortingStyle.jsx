@@ -4,41 +4,74 @@ const SortingStyle = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0;
-    height: 44px;
-    font-size: clamp(0.9rem, 2.5vw, 1.2rem);
-    font-weight: normal;
-    gap: 20px;
+    gap: 24px;
 
-    .sorting {
+    .control-group {
         display: flex;
-        justify-content: center;
         align-items: center;
-        font-weight: bold;
-        white-space: pre;
+        gap: 8px;
+        background: var(--surface-alt-color);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md, 8px);
+        padding: 6px 12px;
+        height: 40px;
     }
 
-    .sorting > button {
+    .control-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--muted-text-color);
+        white-space: nowrap;
+    }
+
+    .control-value {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .control-btn {
         display: flex;
         justify-content: center;
         align-items: center;
-
-        height: 30px;
-        cursor: pointer;
-        padding: 8px 10px;
-        margin: 0 5px;
+        height: 28px;
+        min-width: 28px;
+        padding: 4px 10px;
         border: none;
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius-sm, 4px);
         background-color: var(--color-main-800);
         color: var(--color-highlight-50);
-        font-size: clamp(0.8rem, 2.1vw, 1.0rem);
-        font-weight: bold;
-
-        transition: background-color 0.3s;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
 
         &:hover {
-            background-color: var(--color-main-500);
+            background-color: var(--color-main-600);
         }
+
+        &:active {
+            transform: scale(0.96);
+        }
+    }
+
+    .control-btn.small {
+        min-width: 24px;
+        padding: 4px 6px;
+        font-size: 0.75rem;
+    }
+
+    .size-display {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-color);
+        min-width: 50px;
+        text-align: center;
+    }
+
+    @media (max-width: 1100px) {
+        flex-direction: column;
+        gap: 8px;
     }
 `
 
