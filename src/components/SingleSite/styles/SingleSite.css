@@ -191,6 +191,19 @@
         grid-template-rows: auto auto;
         --image-video-height: var(--image-video-height-both-vertical);
     }
+
+    /* Single View: 날짜/시간 선택을 상단으로 (세로 배치) */
+    .media-content[data-mode="photo"] .media-card-body,
+    .media-content[data-mode="video"] .media-card-body {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .media-content[data-mode="photo"] .timeline-selector,
+    .media-content[data-mode="video"] .timeline-selector {
+        max-width: 100%;
+        width: 100%;
+    }
 }
 
 /* Responsive padding */

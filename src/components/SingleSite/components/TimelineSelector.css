@@ -383,8 +383,34 @@
         align-items: center;
         gap: 16px;
     }
-    
+
     .time-selection-group {
         width: 100%;
+    }
+}
+
+/* 750px 이하: 사진 모드에서 달력과 시간 선택을 한 줄로 */
+@media (max-width: 750px) {
+    .selector-layout {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .calendar-section {
+        flex: 0 0 auto;
+    }
+
+    .controls-section {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .time-lists-container {
+        gap: 8px;
+    }
+
+    .grid-label {
+        font-size: 0.8rem;
     }
 }
