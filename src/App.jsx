@@ -21,6 +21,7 @@ import PendingUsers from "./components/PendingUsers";
 import UserPermission from "./components/UserPermission";
 import WidthAdjuster from "./components/WidthAdjuster";
 import { SortingStyle } from "./styled-components/allsites";
+import { KeyboardNavigationProvider } from "./context";
 
 const getInitialTheme = () => {
     if (typeof window === "undefined") return "light";
@@ -55,7 +56,7 @@ const ThemeToggleButton = () => {
                 {themeMode === "dark" ? "🌙" : "☀️"}
             </span>
             <div className="mode-copy">
-                <span className="mode-label">Theme</span>
+                <span className="mode-label">테마</span>
             </div>
         </button>
     );
@@ -68,6 +69,7 @@ function App() {
     const [authSites, setAuthSites] = useState(null);
     const [authChecked, setAuthChecked] = useState(false);
     const [sortType, setSortType] = useState('name'); // 'name' | 'device' | 'status'
+    const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
     const [thumbnails, setThumbnails] = useState([]);
     const [siteInformation, setSiteInformation] = useState({});
     const [staticURLs, setStaticURLs] = useState({});
@@ -315,6 +317,7 @@ function App() {
         navigate(`/site/${encodeURIComponent(siteName)}`);
 
     return (
+        <KeyboardNavigationProvider>
         <div className="app-shell">
             <GlobalStyle />
             {auth && (
@@ -335,7 +338,7 @@ function App() {
                                         onClick={() => setSortType((prev) =>
                                             prev === 'name' ? 'device' : prev === 'device' ? 'status' : 'name'
                                         )}>
-                                        {sortType === 'name' ? "🏗️ 현장이름" : sortType === 'device' ? "# 모듈번호" : "🚦 현장상태"}
+                                        {sortType === 'name' ? "🏗️ 현장이름" : sortType === 'device' ? "🔢 모듈번호" : "🚥 현장상태"}
                                     </button>
                                 </div>
                                 <WidthAdjuster />
@@ -364,6 +367,14 @@ function App() {
                             </button>
                         )}
                         <ThemeToggleButton />
+                        <button
+                            type="button"
+                            className="pill-button shortcut-btn"
+                            onClick={() => setShowKeyboardHelp(true)}
+                            aria-label="키보드 단축키">
+                            <span className="btn-icon" aria-hidden="true">⌨️</span>
+                            <span className="btn-label">단축키</span>
+                        </button>
                         {admin && (
                             <button
                                 className="pill-button admin-toggle"
@@ -373,19 +384,47 @@ function App() {
                                     {isAdminPage ? "🖥️" : "⚙️"}
                                 </span>
                                 <span className="btn-label">
-                                    {isAdminPage ? "Monitor" : "Setting"}
+                                    {isAdminPage ? "모니터" : "세팅"}
                                 </span>
                             </button>
                         )}
                             <Logout
                                 className="pill-button logout-btn"
                                 icon="👋"
+                                label="로그아웃"
                                 ariaLabel="로그아웃"
                                 setAuth={setAuth}
                             />
                         </div>
                     </div>
                 )}
+
+            {showKeyboardHelp && (
+                <div className="keyboard-help-overlay" onClick={() => setShowKeyboardHelp(false)}>
+                    <div className="keyboard-help-modal" onClick={e => e.stopPropagation()}>
+                        <h3>키보드 단축키</h3>
+                        <div className="shortcut-group">
+                            <h4>All (전체 현장)</h4>
+                            <div className="shortcut-row"><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd><span>썸네일 탐색</span></div>
+                            <div className="shortcut-row"><kbd>Enter</kbd><span>선택한 현장 열기</span></div>
+                            {admin && <div className="shortcut-row"><kbd>M</kbd><span>요약보기 열기</span></div>}
+                        </div>
+                        <div className="shortcut-group">
+                            <h4>Single (개별 현장)</h4>
+                            <div className="shortcut-row"><kbd>←</kbd><kbd>→</kbd><span>이전/다음 시간</span></div>
+                            <div className="shortcut-row"><kbd>↑</kbd><kbd>↓</kbd><span>이전/다음 날짜</span></div>
+                            <div className="shortcut-row"><kbd>[</kbd><kbd>]</kbd><span>이전/다음 현장</span></div>
+                            <div className="shortcut-row"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><span>뷰 모드 전환</span></div>
+                        </div>
+                        <div className="shortcut-group">
+                            <h4>전역</h4>
+                            <div className="shortcut-row"><kbd>H</kbd><span>전체 현장으로 이동</span></div>
+                            <div className="shortcut-row"><kbd>ESC</kbd><span>뒤로가기 / 닫기</span></div>
+                        </div>
+                        <button className="close-help-btn" onClick={() => setShowKeyboardHelp(false)}>닫기</button>
+                    </div>
+                </div>
+            )}
 
             <div className="main-content">
                 <Routes>
@@ -492,6 +531,7 @@ function App() {
                 </Routes>
             </div>
         </div>
+        </KeyboardNavigationProvider>
     );
 }
 

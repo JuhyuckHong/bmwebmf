@@ -2,6 +2,18 @@ import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../CSS/AllSites.css";
 import { ThumbnailStyle } from '../styled-components/allsites';
+import { useGridNavigation, useKeyboardNavigation } from '../hooks';
+import { useKeyboardContext } from '../context';
+
+// Status priority for sorting (lower = more urgent)
+const STATUS_PRIORITY = {
+    'need-solution': 0,
+    'need-check': 1,
+    'remote-issue': 2,
+    'operational': 3,
+    'not-operational-time': 4,
+    '': 5,
+};
 
 function AllSites({
     admin,
@@ -17,6 +29,7 @@ function AllSites({
     const dynamicHeightSetRef = useRef(false);
     const [imageLoadState, setImageLoadState] = useState({});
     const [displayedURLs, setDisplayedURLs] = useState({});
+    const { pushModal } = useKeyboardContext();
 
     const handleThumbnailClick = (imageName) => {
         const safeName = encodeURIComponent(imageName);
@@ -25,15 +38,6 @@ function AllSites({
     };
 
     // Sorting state and function, useMemo for optimization
-    // Status priority for sorting (lower = more urgent)
-    const statusPriority = {
-        'need-solution': 0,
-        'need-check': 1,
-        'remote-issue': 2,
-        'operational': 3,
-        'not-operational-time': 4,
-        '': 5,
-    };
     const sortFunc = useCallback((a, b) => {
         if (sortType === 'name') {
             const nameA = a.site.toUpperCase();
@@ -51,8 +55,8 @@ function AllSites({
             const missingB = computeMissingAgainstGrace(infoB);
             const statusA = getSiteStatus(infoA, missingA);
             const statusB = getSiteStatus(infoB, missingB);
-            const priorityA = statusPriority[statusA] ?? 5;
-            const priorityB = statusPriority[statusB] ?? 5;
+            const priorityA = STATUS_PRIORITY[statusA] ?? 5;
+            const priorityB = STATUS_PRIORITY[statusB] ?? 5;
             if (priorityA !== priorityB) return priorityA - priorityB;
             // Secondary sort by name for stability
             return a.site.toUpperCase().localeCompare(b.site.toUpperCase());
@@ -62,9 +66,37 @@ function AllSites({
         return [...thumbnails].sort(sortFunc);
     }, [thumbnails, sortFunc]);
 
+    // 키보드 그리드 탐색
+    const { focusedIndex } = useGridNavigation(sortedThumbnails, {
+        enabled: true,
+        gridContainerRef: thumbnailsRef,
+        itemSelector: '.thumbnails-individual',
+        onSelect: (thumbnail) => handleThumbnailClick(thumbnail.site),
+    });
+
     // Monitor image show
     const [showMonitorLarge, setShowMonitorLarge] = useState(false);
-    const handleMonitorClick = () => setShowMonitorLarge(true);
+    const handleMonitorClick = () => {
+        setShowMonitorLarge(true);
+        pushModal('monitor-large');
+    };
+
+    // ESC 키로 모달 닫기
+    useEffect(() => {
+        const handleCloseModal = (e) => {
+            if (e.detail?.modalId === 'monitor-large') {
+                setShowMonitorLarge(false);
+            }
+        };
+        window.addEventListener('closeModal', handleCloseModal);
+        return () => window.removeEventListener('closeModal', handleCloseModal);
+    }, []);
+
+    // M 키로 요약보기 토글 (admin만)
+    useKeyboardNavigation({
+        'm': () => admin && handleMonitorClick(),
+        'M': () => admin && handleMonitorClick(),
+    }, { enabled: admin && !showMonitorLarge });
 
     const monitorRows = useMemo(
         () => buildMonitorRows(sortedThumbnails, siteInformation),
@@ -192,7 +224,7 @@ function AllSites({
                         </div>
                     </div>
                 )}
-                {sortedThumbnails.map((thumbnail) => {
+                {sortedThumbnails.map((thumbnail, idx) => {
                     const siteInfo = siteInformation[thumbnail.site] || {};
                     const imageURL = staticURLs[thumbnail.site];
                     const displayURL =
@@ -265,7 +297,8 @@ function AllSites({
                     return (
                         <ThumbnailStyle
                             key={thumbnail.site}
-                            className={`thumbnails-individual ${siteStatus}`}>
+                            className={`thumbnails-individual ${siteStatus}${focusedIndex === idx ? ' keyboard-focused' : ''}`}
+                            tabIndex={focusedIndex === idx ? 0 : -1}>
                         <div
                             className={`thumb-wrapper ${isLoaded ? "loaded" : "loading"}`}>
                                 <div

@@ -381,3 +381,26 @@ br {
     font-size: medium;
     font-weight: 900;
 }
+
+/* Keyboard focus indicator for thumbnails */
+.thumbnails-individual.keyboard-focused {
+    outline: 3px solid var(--accent-color, #3b82f6);
+    outline-offset: 3px;
+    transform: scale(1.02);
+    z-index: 10;
+    position: relative;
+    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.2);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, outline 0.15s ease;
+}
+
+.thumbnails-individual.keyboard-focused .thumb-wrapper {
+    transform: none;
+}
+
+/* Ensure focus is visible in high contrast mode */
+@media (prefers-contrast: high) {
+    .thumbnails-individual.keyboard-focused {
+        outline: 4px solid HighlightText;
+        outline-offset: 4px;
+    }
+}

@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 
-function Logout({ setAuth, className = "", icon, ariaLabel = "Logout" }) {
+function Logout({ setAuth, className = "", icon, label = "Logout", ariaLabel = "Logout" }) {
     const logout = () => {
         Cookies.remove("BM");
         setAuth(false);
@@ -13,7 +13,7 @@ function Logout({ setAuth, className = "", icon, ariaLabel = "Logout" }) {
                     {icon}
                 </span>
             )}
-            <span className="btn-label">Logout</span>
+            <span className="btn-label">{label}</span>
         </button>
     );
 }

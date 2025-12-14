@@ -163,7 +163,7 @@
 }
 
 .admin-toggle {
-    width: 140px; /* keep width stable for Monitor/Setting labels */
+    width: 120px; /* keep width stable for 모니터/세팅 labels */
     flex-shrink: 0;
     justify-content: center;
 }
@@ -293,4 +293,99 @@
         border: none;
         box-shadow: none;
     }
+}
+
+/* Keyboard Help Modal */
+.keyboard-help-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+.keyboard-help-modal {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+.keyboard-help-modal h3 {
+    margin: 0 0 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    text-align: center;
+}
+
+.shortcut-group {
+    margin-bottom: 16px;
+}
+
+.shortcut-group h4 {
+    margin: 0 0 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted-text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.shortcut-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.shortcut-row kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 26px;
+    padding: 0 8px;
+    background: var(--surface-alt-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-color);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.shortcut-row span {
+    margin-left: auto;
+    color: var(--muted-text-color);
+}
+
+.close-help-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    background: var(--surface-alt-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.close-help-btn:hover {
+    background: var(--border-color);
 }
