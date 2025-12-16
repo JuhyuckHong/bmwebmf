@@ -18,7 +18,7 @@ const STATUS_PRIORITY = {
 function AllSites({
     admin,
     onSelectSite,
-    sortType = 'name', // 'name' | 'device' | 'status'
+    sortType = 'status', // 'name' | 'device' | 'status'
     thumbnails = [],
     siteInformation = {},
     staticURLs = {},
@@ -51,10 +51,10 @@ function AllSites({
             // Sort by status
             const infoA = siteInformation[a.site] || {};
             const infoB = siteInformation[b.site] || {};
-            const missingA = computeMissingAgainstGrace(infoA);
-            const missingB = computeMissingAgainstGrace(infoB);
-            const statusA = getSiteStatus(infoA, missingA);
-            const statusB = getSiteStatus(infoB, missingB);
+            const percentA = computeMissingPercent(infoA);
+            const percentB = computeMissingPercent(infoB);
+            const statusA = getSiteStatus(infoA, percentA);
+            const statusB = getSiteStatus(infoB, percentB);
             const priorityA = STATUS_PRIORITY[statusA] ?? 5;
             const priorityB = STATUS_PRIORITY[statusB] ?? 5;
             if (priorityA !== priorityB) return priorityA - priorityB;
@@ -288,7 +288,7 @@ function AllSites({
                     );
                     const siteStatus = getSiteStatus(
                         siteInfo,
-                        missingAgainstGrace,
+                        missingPercentGrace,
                     );
                     const isLoaded =
                         imageLoadState[thumbnail.site]?.loaded &&
@@ -426,7 +426,7 @@ const formatTimeRange = (siteInfo) => {
 const getCurrentMinutes = () =>
     new Date().getHours() * 60 + new Date().getMinutes();
 
-const getSiteStatus = (siteInfo, missingAgainstGrace = 0) => {
+const getSiteStatus = (siteInfo, missingPercent = 0) => {
     const startTime = parseTimeToMinutes(siteInfo.time_start);
     const endTime = parseTimeToMinutes(siteInfo.time_end);
     const nowMinutes = getCurrentMinutes();
@@ -440,10 +440,20 @@ const getSiteStatus = (siteInfo, missingAgainstGrace = 0) => {
     const remote = siteInfo.ssh;
 
     if (!operational) return "not-operational-time";
-    if (missingAgainstGrace >= 5 && !remote) return "need-solution";
-    if (missingAgainstGrace >= 5 && remote) return "need-check";
-    if (missingAgainstGrace < 5 && !remote) return "remote-issue";
-    if (missingAgainstGrace < 5 && remote) return "operational";
+
+    if (missingPercent > 20) return "need-solution";
+
+    if (missingPercent <= 5) {
+        if (remote === true) return "operational";
+        if (remote === false) return "remote-issue";
+        // remote unknown/undefined falls through or is handled via lack of match?
+        // Let's assume operational if not clearly broken, or maybe just return empty if unknown?
+        // But for safety, if missing is low, it's generally okay.
+        return "operational";
+    }
+
+    if (remote === true) return "need-check";
+    if (remote === false) return "need-solution";
 
     return "";
 };
@@ -463,7 +473,7 @@ const getStatusMeta = (missingPercent, remoteStatus) => {
     if (missingPercent <= 5 && remoteStatus === true)
         return { label: "정상", className: "status-green" };
     if (missingPercent <= 5 && remoteStatus === false)
-        return { label: "원격 미연결", className: "status-orange" };
+        return { label: "원격 미연결", className: "status-green" };
     if (remoteStatus === true)
         return { label: "확인 필요", className: "status-orange" };
     if (remoteStatus === false)
@@ -533,16 +543,41 @@ const computeExpectedShots = (siteInfo) => {
     return Math.min(expected, planned);
 };
 
-const computeMissingAgainstGrace = (siteInfo) => {
+
+
+const computeMissingPercent = (siteInfo) => {
+    const plannedShots =
+        computePlanShots(siteInfo) ??
+        (Number(siteInfo.shooting_count) ||
+            Number(siteInfo.shooting_count_till_now) ||
+            0);
     const expectedByNow =
         computeExpectedShots(siteInfo) ??
         (Number(siteInfo.shooting_count_till_now) ||
-            computePlanShots(siteInfo) ||
-            Number(siteInfo.shooting_count) ||
-            0);
+            plannedShots);
     const uploaded = Number(siteInfo.photos_count) || 0;
+
+    const missingTotal = plannedShots
+        ? Math.max(plannedShots - uploaded, 0)
+        : 0;
+    const missingPercentRaw =
+        plannedShots > 0
+            ? Math.round((missingTotal / plannedShots) * 100)
+            : 0;
+
     const expectedWithGrace = Math.max(expectedByNow - 2, 0);
-    return Math.max(expectedWithGrace - uploaded, 0);
+    const missingAgainstGrace = Math.max(
+        expectedWithGrace - uploaded,
+        0,
+    );
+
+    return (expectedWithGrace || plannedShots) > 0
+        ? Math.round(
+                (missingAgainstGrace /
+                    (expectedWithGrace || plannedShots)) *
+                    100,
+            )
+        : missingPercentRaw;
 };
 
 const buildMonitorRows = (thumbnails, siteInformation) =>

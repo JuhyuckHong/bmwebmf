@@ -24,12 +24,12 @@ const ThumbnailStyle = styled.div`
         --overlay-site-bg: rgba(239, 68, 68, 0.42);
     }
 
-    &.need-check,
-    &.remote-issue {
+    &.need-check {
         --overlay-site-bg: rgba(245, 158, 11, 0.42);
     }
 
-    &.operational {
+    &.operational,
+    &.remote-issue {
         --overlay-site-bg: rgba(22, 163, 74, 0.38);
     }
 
