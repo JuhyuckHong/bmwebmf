@@ -212,12 +212,13 @@ function App() {
 
             for (const thumbnail of thumbnails) {
                 const cached = nextCache[thumbnail.site];
-                if (cached && cached.source === thumbnail.url) continue;
+                // if (cached && cached.source === thumbnail.url) continue;
 
                 try {
+                    const cacheBuster = `?_t=${Date.now()}`;
                     const response = await API.getStatic(
                         headers,
-                        thumbnail.url,
+                        thumbnail.url + cacheBuster,
                     );
                     const objectURL = URL.createObjectURL(response.data);
 
