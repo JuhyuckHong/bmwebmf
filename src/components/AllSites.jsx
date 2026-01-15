@@ -441,19 +441,24 @@ const getSiteStatus = (siteInfo, missingPercent = 0) => {
 
     if (!operational) return "not-operational-time";
 
-    if (missingPercent > 20) return "need-solution";
+    const isRecovering = checkIsRecovering(siteInfo);
+
+    if (missingPercent > 20) {
+        return isRecovering ? "need-check" : "need-solution";
+    }
 
     if (missingPercent <= 5) {
         if (remote === true) return "operational";
-        if (remote === false) return "remote-issue";
-        // remote unknown/undefined falls through or is handled via lack of match?
-        // Let's assume operational if not clearly broken, or maybe just return empty if unknown?
-        // But for safety, if missing is low, it's generally okay.
+        if (remote === false) {
+             return isRecovering ? "need-check" : "remote-issue";
+        }
         return "operational";
     }
 
     if (remote === true) return "need-check";
-    if (remote === false) return "need-solution";
+    if (remote === false) {
+        return isRecovering ? "need-check" : "need-solution";
+    }
 
     return "";
 };
@@ -465,19 +470,33 @@ const getMissingBadgeClass = (missingPercent, plannedShots) => {
     return "missing-high";
 };
 
-const getStatusMeta = (missingPercent, remoteStatus) => {
+const getStatusMeta = (missingPercent, remoteStatus, isRecovering) => {
     if (!Number.isFinite(missingPercent))
         return { label: "정보 없음", className: "status-gray" };
-    if (missingPercent > 20)
+    
+    if (missingPercent > 20) {
+        if (isRecovering) return { label: "복구 중", className: "status-orange" };
         return { label: "누락 심각", className: "status-red" };
+    }
+
     if (missingPercent <= 5 && remoteStatus === true)
         return { label: "정상", className: "status-green" };
-    if (missingPercent <= 5 && remoteStatus === false)
-        return { label: "원격 미연결", className: "status-green" };
+    
+    if (missingPercent <= 5 && remoteStatus === false) {
+        if (isRecovering) return { label: "복구 중", className: "status-orange" };
+        return { label: "원격 미연결", className: "status-green" }; // 원래 로직 유지 (누락 적으면 원격 꺼져도 초록/빨강? 기존엔 초록이었음. isRecovering이면 오렌지로?) 
+        // 기존: if (missingPercent <= 5 && remoteStatus === false) return { label: "원격 미연결", className: "status-green" };
+        // 사용자가 "빨간색 중에서"라고 했으므로, 기존 초록색인 경우는 건드리지 않음.
+    }
+
     if (remoteStatus === true)
         return { label: "확인 필요", className: "status-orange" };
-    if (remoteStatus === false)
+    
+    if (remoteStatus === false) {
+        if (isRecovering) return { label: "복구 중", className: "status-orange" };
         return { label: "원격 미연결", className: "status-red" };
+    }
+
     return { label: "정보 없음", className: "status-gray" };
 };
 
@@ -499,6 +518,34 @@ const getRemoteMeta = (remoteStatus) => {
         className: "remote-unknown",
         lightClass: "status-gray",
     };
+};
+
+const parseRecentPhotoDate = (photoStr) => {
+    if (!photoStr || photoStr === "No Photo Available") return null;
+    // Format: YYYY-MM-DD_HH-mm-ss...
+    try {
+        const [datePart, timePart] = photoStr.split("_");
+        if (!datePart || !timePart) return null;
+        const [y, m, d] = datePart.split("-").map(Number);
+        const [h, min, s] = timePart.split(".")[0].split("-").map(Number);
+        return new Date(y, m - 1, d, h, min, s);
+    } catch (e) {
+        return null;
+    }
+};
+
+const checkIsRecovering = (siteInfo) => {
+    const photoDate = parseRecentPhotoDate(siteInfo.recent_photo);
+    if (!photoDate) return false;
+
+    const interval = Number(siteInfo.time_interval);
+    if (!interval || interval <= 0) return false;
+
+    const now = new Date();
+    const diffMinutes = (now - photoDate) / (1000 * 60);
+
+    // Recent photo is within 2 * interval
+    return diffMinutes <= interval * 2;
 };
 
 const computePlanShots = (siteInfo) => {
@@ -599,7 +646,8 @@ const buildMonitorRows = (thumbnails, siteInformation) =>
             Number.isFinite(expectedShots) && expectedShots > 0
                 ? (missing / expectedShots) * 100
                 : null;
-        const status = getStatusMeta(missingPercent, siteInfo.ssh);
+        const isRecovering = checkIsRecovering(siteInfo);
+        const status = getStatusMeta(missingPercent, siteInfo.ssh, isRecovering);
         const remote = getRemoteMeta(siteInfo.ssh);
         const intervalLabel = siteInfo.time_interval
             ? `${siteInfo.time_interval}분`
