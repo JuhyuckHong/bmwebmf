@@ -267,7 +267,9 @@ function ModifySiteForm({ username, user, setReload, allSites }) {
 
             showSuccessModal();
 
-            setReload((prev) => !prev);
+            setTimeout(() => {
+                setReload((prev) => !prev);
+            }, 3000);
         } catch (error) {
             console.error(`Error modifying user's sites:`, error);
             showSuccessModal("Failed to modify site.");
