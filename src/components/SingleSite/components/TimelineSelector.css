@@ -183,6 +183,20 @@
     opacity: 0.3;
 }
 
+/* Hide selected/keyboard-selected styling for days outside the current month */
+.react-datepicker__day--outside-month.react-datepicker__day--selected,
+.react-datepicker__day--outside-month.react-datepicker__day--keyboard-selected {
+    background-color: transparent !important;
+    color: var(--muted-text-color) !important;
+    opacity: 0.3;
+}
+
+/* Hide selected highlight on overflow duplicates in multi-month view */
+.dp-overflow-selected.react-datepicker__day--selected {
+    background-color: transparent !important;
+    color: var(--text-color) !important;
+}
+
 
 .timeline-selector {
     display: flex;
@@ -238,6 +252,13 @@
 
 .header-dropdowns {
     display: flex;
+}
+
+.header-selected-date {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    white-space: nowrap;
 }
 
 .custom-nav-btn {

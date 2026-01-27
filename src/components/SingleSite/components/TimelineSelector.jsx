@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/locale"; // Import Korean locale
-import { getMonth, getYear, range } from "date-fns"; // Import getMonth, getYear, range
+import { getMonth, getYear } from "date-fns";
 import "./TimelineSelector.css";
 
 // Register Korean locale once
@@ -43,10 +43,11 @@ const CustomDatePickerHeader = ({
     availableDates,
     customHeaderCount,
     isVideoMode,
+    selectedDate: headerSelectedDate,
 }) => {
-    // In video mode: index 0 = previous month, index 1 = current month
-    const isPrevMonth = isVideoMode && customHeaderCount === 0;
-    const isCurrentMonth = isVideoMode && customHeaderCount === 1;
+    // In video mode: index 0 = left month, index 1 = right month
+    const isLeftMonth = isVideoMode && customHeaderCount === 0;
+    const isRightMonth = isVideoMode && customHeaderCount === 1;
     // Filter available years from availableDates
     const years = useMemo(() => {
         const uniqueYears = [...new Set(availableDates.map((d) => getYear(d)))].sort((a, b) => a - b);
@@ -75,47 +76,53 @@ const CustomDatePickerHeader = ({
         return uniqueMonths;
     }, [availableDates, date]);
 
+    const formattedSelectedDate = headerSelectedDate
+        ? `${headerSelectedDate.getFullYear()}-${String(headerSelectedDate.getMonth() + 1).padStart(2, '0')}-${String(headerSelectedDate.getDate()).padStart(2, '0')}`
+        : '';
+
     return (
         <div className="custom-datepicker-header">
             <button
                 className="custom-nav-btn prev"
                 onClick={decreaseMonth}
                 disabled={prevMonthButtonDisabled}
-                style={isCurrentMonth ? { visibility: 'hidden' } : undefined}
+                style={isRightMonth ? { visibility: 'hidden' } : undefined}
             >
                 {"<"}
             </button>
 
-            <div
-                className="month-year-selects header-dropdowns"
-                style={isPrevMonth ? { visibility: 'hidden' } : undefined}
-            >
-                <span className="header-label">날짜</span>
-                <select
-                    value={getYear(date)}
-                    onChange={({ target: { value } }) => changeYear(parseInt(value, 10))}
-                    className="custom-header-select"
-                >
-                    {years.map((option) => (
-                        <option key={option} value={option}>{option}년</option>
-                    ))}
-                </select>
-                <select
-                    value={getMonth(date)}
-                    onChange={({ target: { value } }) => changeMonth(parseInt(value, 10))}
-                    className="custom-header-select"
-                >
-                    {months.map((option) => (
-                        <option key={option} value={option}>{option + 1}월</option>
-                    ))}
-                </select>
-            </div>
+            {/* Left header: dropdowns, Right header: selected date display */}
+            {isRightMonth ? (
+                <span className="header-selected-date">{formattedSelectedDate}</span>
+            ) : (
+                <div className="month-year-selects header-dropdowns">
+                    <span className="header-label">날짜</span>
+                    <select
+                        value={getYear(date)}
+                        onChange={({ target: { value } }) => changeYear(parseInt(value, 10))}
+                        className="custom-header-select"
+                    >
+                        {years.map((option) => (
+                            <option key={option} value={option}>{option}년</option>
+                        ))}
+                    </select>
+                    <select
+                        value={getMonth(date)}
+                        onChange={({ target: { value } }) => changeMonth(parseInt(value, 10))}
+                        className="custom-header-select"
+                    >
+                        {months.map((option) => (
+                            <option key={option} value={option}>{option + 1}월</option>
+                        ))}
+                    </select>
+                </div>
+            )}
 
             <button
                 className="custom-nav-btn next"
                 onClick={increaseMonth}
                 disabled={nextMonthButtonDisabled}
-                style={isPrevMonth ? { visibility: 'hidden' } : undefined}
+                style={isLeftMonth ? { visibility: 'hidden' } : undefined}
             >
                 {">"}
             </button>
@@ -175,25 +182,16 @@ function TimelineSelector({
 
     const handleDateSelect = (date) => {
         if (!date) return;
+        // Compare by year/month/day to avoid UTC vs local timezone mismatch
+        const y = date.getFullYear();
+        const m = date.getMonth();
+        const d = date.getDate();
         const index = availableDates.findIndex(
-            (d) => d.getTime() === date.getTime()
+            (ad) => ad.getFullYear() === y && ad.getMonth() === m && ad.getDate() === d
         );
         if (index !== -1) {
             onDateChange(index);
         }
-    };
-
-    const handleHourChange = (e) => {
-        const newHour = e.target.value;
-        const minutes = timeStructure[newHour];
-        if (minutes && minutes.length > 0) {
-            // Select the first available minute in the new hour
-            onTimeChange(minutes[0].index);
-        }
-    };
-
-    const handleMinuteChange = (e) => {
-        onTimeChange(parseInt(e.target.value, 10));
     };
 
     return (
@@ -209,11 +207,24 @@ function TimelineSelector({
                         inline
                         disabled={!hasData}
                         monthsShown={type === "video" ? 2 : 1}
-                        showPreviousMonths={type === "video"}
                         fixedHeight
                         locale="ko"
+                        disabledKeyboardNavigation
+                        dayClassName={(date) => {
+                            if (!selectedDate) return "";
+                            // Mark days that share the same date number as selected
+                            // but are in a different month — these are overflow duplicates
+                            if (
+                                date.getDate() === selectedDate.getDate() &&
+                                (date.getMonth() !== selectedDate.getMonth() ||
+                                 date.getFullYear() !== selectedDate.getFullYear())
+                            ) {
+                                return "dp-overflow-selected";
+                            }
+                            return "";
+                        }}
                         renderCustomHeader={(props) => (
-                            <CustomDatePickerHeader {...props} availableDates={availableDates} isVideoMode={type === "video"} />
+                            <CustomDatePickerHeader {...props} availableDates={availableDates} isVideoMode={type === "video"} selectedDate={selectedDate} />
                         )}
                     />
                 </div>
