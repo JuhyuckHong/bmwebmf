@@ -1,8 +1,10 @@
 import axios from "axios";
 
+const apiBaseUrl = import.meta.env.REACT_APP_API_URL;
+
 // axios에 baseURL, header, cors 설정 추가
 const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL,
+    baseURL: apiBaseUrl,
     headers: {},
     withCredentials: false,
 });

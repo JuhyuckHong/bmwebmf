@@ -23,6 +23,9 @@ import WidthAdjuster from "./components/WidthAdjuster";
 import { SortingStyle } from "./styled-components/allsites";
 import { KeyboardNavigationProvider } from "./context";
 
+const thumbnailIntervalMs = Number(import.meta.env.REACT_APP_THUMBNAIL_INTERVAL) || 60000;
+const apiBaseUrl = import.meta.env.REACT_APP_API_URL;
+
 const getInitialTheme = () => {
     if (typeof window === "undefined") return "light";
     const saved = localStorage.getItem("bm-theme");
@@ -175,8 +178,7 @@ function App() {
         // Only refresh periodically when on the all sites page
         if (!isAllPage) return;
 
-        const intervalMs =
-            Number(process.env.REACT_APP_THUMBNAIL_INTERVAL) || 60000;
+        const intervalMs = thumbnailIntervalMs;
         const intervalId = setInterval(fetchAllSitesData, intervalMs);
 
         return () => clearInterval(intervalId);
@@ -237,9 +239,7 @@ function App() {
 
                     updates[thumbnail.site] = objectURL;
                 } catch (err) {
-                    const fallback =
-                        process.env.REACT_APP_API_URL +
-                        "/static/no_image_today.jpg";
+                    const fallback = apiBaseUrl + "/static/no_image_today.jpg";
 
                     nextCache[thumbnail.site] = {
                         source: thumbnail.url,
