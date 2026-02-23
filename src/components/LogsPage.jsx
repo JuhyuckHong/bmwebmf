@@ -7,6 +7,155 @@ const DEFAULT_TYPE = "info";
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 50;
 const PAGE_SIZE_OPTIONS = [50, 100, 200, 500];
+const LOG_PATTERNS = [
+    /^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2}(?:[.,]\d{1,6})?)\s+\[?([A-Z]+)\]?\s*[:\-]?\s*(.*)$/,
+    /^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2}(?:[.,]\d{1,6})?)\s+([A-Z]+)\s*(.*)$/,
+];
+
+const normalizePythonLikeValue = (raw) =>
+    raw
+        .replace(/\bNone\b/g, "null")
+        .replace(/\bTrue\b/g, "true")
+        .replace(/\bFalse\b/g, "false")
+        .replace(/'/g, '"');
+
+const tryParseStructuredValue = (raw) => {
+    try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") return parsed;
+    } catch (_) {
+        // noop
+    }
+
+    try {
+        const parsed = JSON.parse(normalizePythonLikeValue(raw));
+        if (parsed && typeof parsed === "object") return parsed;
+    } catch (_) {
+        // noop
+    }
+
+    return null;
+};
+
+const findStructuredSegment = (message) => {
+    const start = message.search(/[{\[]/);
+    if (start < 0) return null;
+
+    const stack = [];
+    let inString = false;
+    let quoteChar = "";
+    let escaped = false;
+
+    for (let index = start; index < message.length; index += 1) {
+        const char = message[index];
+
+        if (inString) {
+            if (escaped) {
+                escaped = false;
+                continue;
+            }
+
+            if (char === "\\") {
+                escaped = true;
+                continue;
+            }
+
+            if (char === quoteChar) {
+                inString = false;
+                quoteChar = "";
+            }
+
+            continue;
+        }
+
+        if (char === '"' || char === "'") {
+            inString = true;
+            quoteChar = char;
+            continue;
+        }
+
+        if (char === "{" || char === "[") {
+            stack.push(char);
+            continue;
+        }
+
+        if (char === "}" || char === "]") {
+            if (!stack.length) return null;
+            const open = stack[stack.length - 1];
+            const isMatched =
+                (open === "{" && char === "}") ||
+                (open === "[" && char === "]");
+
+            if (!isMatched) return null;
+            stack.pop();
+
+            if (stack.length === 0) {
+                return {
+                    start,
+                    end: index,
+                };
+            }
+        }
+    }
+
+    return null;
+};
+
+const parseMessage = (message) => {
+    const segment = findStructuredSegment(message);
+    if (!segment) {
+        return {
+            text: message,
+            structured: null,
+            trailingText: "",
+        };
+    }
+
+    const rawStructured = message.slice(segment.start, segment.end + 1).trim();
+    const parsedStructured = tryParseStructuredValue(rawStructured);
+
+    if (!parsedStructured) {
+        return {
+            text: message,
+            structured: null,
+            trailingText: "",
+        };
+    }
+
+    return {
+        text: message.slice(0, segment.start).trimEnd(),
+        structured: JSON.stringify(parsedStructured, null, 2),
+        trailingText: message.slice(segment.end + 1).trimStart(),
+    };
+};
+
+const parseLogLine = (line) => {
+    for (const pattern of LOG_PATTERNS) {
+        const match = line.match(pattern);
+        if (!match) continue;
+
+        const [, date, time, level, rawMessage] = match;
+        const parsedMessage = parseMessage(rawMessage ?? "");
+
+        return {
+            date,
+            time,
+            level: (level || "UNKNOWN").toUpperCase(),
+            ...parsedMessage,
+            raw: line,
+        };
+    }
+
+    return {
+        date: "-",
+        time: "-",
+        level: "UNKNOWN",
+        text: line,
+        structured: null,
+        trailingText: "",
+        raw: line,
+    };
+};
 
 const getErrorMessage = (error) => {
     const status = error?.response?.status;
@@ -103,6 +252,11 @@ function LogsPage() {
         return (result.page - 1) * result.pageSize + 1;
     }, [result.logs.length, result.page, result.pageSize, result.total]);
 
+    const parsedLogs = useMemo(
+        () => result.logs.map((line) => parseLogLine(line)),
+        [result.logs],
+    );
+
     const endLine = useMemo(() => {
         if (!result.total || result.logs.length === 0) return 0;
         return Math.min(result.page * result.pageSize, result.total);
@@ -187,15 +341,35 @@ function LogsPage() {
                 <div className="logs-list-wrap">
                     {isLoading ? (
                         <div className="logs-empty">로그를 불러오는 중입니다...</div>
-                    ) : result.logs.length === 0 ? (
+                    ) : parsedLogs.length === 0 ? (
                         <div className="logs-empty">표시할 로그가 없습니다.</div>
                     ) : (
                         <ol className="logs-list" start={startLine}>
-                            {result.logs.map((line, index) => (
+                            {parsedLogs.map((line, index) => (
                                 <li
-                                    key={`${result.page}-${index}-${line.slice(0, 24)}`}
+                                    key={`${result.page}-${index}-${line.raw.slice(0, 24)}`}
                                     className="log-line">
-                                    <code>{line}</code>
+                                    <div className="log-meta-row">
+                                        <span className="log-date">{line.date}</span>
+                                        <span className="log-time">{line.time}</span>
+                                        <span
+                                            className={`log-level ${line.level.toLowerCase()}`}>
+                                            {line.level}
+                                        </span>
+                                    </div>
+                                    {line.text && (
+                                        <p className="log-message">{line.text}</p>
+                                    )}
+                                    {line.structured && (
+                                        <pre className="log-structured">
+                                            <code>{line.structured}</code>
+                                        </pre>
+                                    )}
+                                    {line.trailingText && (
+                                        <p className="log-message">
+                                            {line.trailingText}
+                                        </p>
+                                    )}
                                 </li>
                             ))}
                         </ol>
