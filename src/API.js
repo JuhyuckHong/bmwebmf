@@ -72,4 +72,6 @@ export const API = {
     // 사이트 특정 날짜에 있는 영상 목록 조회
     getSiteDailyVideo: (headers, site, video) =>
         api.get(`/video/${site}/${video}`, { headers, responseType: "blob" }),
+    // 서버 로그 조회
+    getLogs: (headers, params) => api.get("/logs", { headers, params }),
 };

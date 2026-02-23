@@ -20,6 +20,7 @@ import Signup from "./components/Signup";
 import PendingUsers from "./components/PendingUsers";
 import UserPermission from "./components/UserPermission";
 import WidthAdjuster from "./components/WidthAdjuster";
+import LogsPage from "./components/LogsPage";
 import { SortingStyle } from "./styled-components/allsites";
 import { KeyboardNavigationProvider } from "./context";
 
@@ -80,7 +81,9 @@ function App() {
 
     const navigate = useNavigate();
     const location = useLocation();
-    const isAdminPage = location.pathname.startsWith("/setting");
+    const isAdminPage =
+        location.pathname.startsWith("/setting") ||
+        location.pathname.startsWith("/logs");
     const isAllPage = location.pathname === "/all";
     const goToAllSites = () => navigate("/all");
 
@@ -496,6 +499,16 @@ function App() {
                                             />
                                         </div>
                                     </div>
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/logs"
+                        element={
+                            <ProtectedRoute requireAdmin>
+                                <div className="display">
+                                    <LogsPage />
                                 </div>
                             </ProtectedRoute>
                         }
