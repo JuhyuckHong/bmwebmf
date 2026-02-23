@@ -3,9 +3,11 @@ import Cookies from "js-cookie";
 import { API } from "../API";
 import "../CSS/Logs.css";
 
-const DEFAULT_TYPE = "info";
+const DEFAULT_TYPE = "all";
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 50;
+const DEFAULT_DATE_SORT_ORDER = "desc";
+const DEFAULT_TIME_SORT_ORDER = "desc";
 const PAGE_SIZE_OPTIONS = [50, 100, 200, 500];
 const LOG_PATTERNS = [
     /^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2}(?:[.,]\d{1,6})?)\s+\[?([A-Z]+)\]?\s*[:\-]?\s*(.*)$/,
@@ -38,7 +40,7 @@ const tryParseStructuredValue = (raw) => {
 };
 
 const findStructuredSegment = (message) => {
-    const start = message.search(/[{\[]/);
+    const start = message.search(/[\[{]/);
     if (start < 0) return null;
 
     const stack = [];
@@ -157,28 +159,166 @@ const parseLogLine = (line) => {
     };
 };
 
+const parseTimeValue = (time) => {
+    if (!time || time === "-") return Number.NEGATIVE_INFINITY;
+    const [main = "", fraction = ""] = time.replace(",", ".").split(".");
+    const [hh = "0", mm = "0", ss = "0"] = main.split(":");
+    const hour = Number(hh);
+    const minute = Number(mm);
+    const second = Number(ss);
+
+    if (
+        Number.isNaN(hour) ||
+        Number.isNaN(minute) ||
+        Number.isNaN(second)
+    ) {
+        return Number.NEGATIVE_INFINITY;
+    }
+
+    const millis = Number((fraction || "").slice(0, 3).padEnd(3, "0"));
+    return (((hour * 60 + minute) * 60 + second) * 1000) + millis;
+};
+
+const parseDateValue = (date) => {
+    if (!date || date === "-") return Number.NEGATIVE_INFINITY;
+    const parsed = Date.parse(`${date}T00:00:00`);
+    return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed;
+};
+
+const normalizeTimeInput = (value, isEnd) => {
+    if (!value) return "";
+    if (value.length === 5) {
+        return `${value}:${isEnd ? "59" : "00"}`;
+    }
+    return value;
+};
+
+const toSingleLinePreview = (value) =>
+    (value || "").replace(/\s+/g, " ").trim();
+
+const stripEmptyListToken = (value) =>
+    toSingleLinePreview((value || "").replace(/\[\s*\]/g, " "));
+
+const extractInlineListItems = (value) => {
+    if (!value || !value.includes("[") || !value.includes("]")) return [];
+    const match = value.match(/\[([^\]]+)\]/);
+    if (!match) return [];
+
+    return match[1]
+        .split(",")
+        .map((item) => item.trim().replace(/^['"]|['"]$/g, ""))
+        .filter(Boolean);
+};
+
+const collectArrayItems = (value, output) => {
+    if (value === null || value === undefined) return;
+
+    if (Array.isArray(value)) {
+        value.forEach((item) => {
+            if (
+                typeof item === "string" ||
+                typeof item === "number" ||
+                typeof item === "boolean"
+            ) {
+                output.push(String(item));
+                return;
+            }
+
+            if (item && typeof item === "object") {
+                collectArrayItems(item, output);
+            }
+        });
+        return;
+    }
+
+    if (typeof value === "object") {
+        Object.values(value).forEach((next) => collectArrayItems(next, output));
+    }
+};
+
+const getListBadgeItems = (line) => {
+    const collected = [];
+
+    if (line.structured) {
+        try {
+            const structuredValue = JSON.parse(line.structured);
+            collectArrayItems(structuredValue, collected);
+        } catch (_) {
+            // noop
+        }
+    }
+
+    if (collected.length === 0) {
+        collected.push(...extractInlineListItems(line.text));
+        collected.push(...extractInlineListItems(line.trailingText));
+    }
+
+    return collected;
+};
+
+const isEmptyStructuredArray = (structuredText) => {
+    if (!structuredText) return false;
+    try {
+        const parsed = JSON.parse(structuredText);
+        return Array.isArray(parsed) && parsed.length === 0;
+    } catch (_) {
+        return false;
+    }
+};
+
+const buildPreviewText = (line, hasBadges) => {
+    const chunks = [];
+
+    const cleanedText = stripEmptyListToken(line.text);
+    const cleanedTrailingText = stripEmptyListToken(line.trailingText);
+    const emptyStructuredArray = isEmptyStructuredArray(line.structured);
+
+    if (cleanedText) {
+        chunks.push(cleanedText);
+    }
+
+    if (line.structured && !hasBadges && !emptyStructuredArray) {
+        chunks.push(line.structured);
+    }
+
+    if (cleanedTrailingText) {
+        chunks.push(cleanedTrailingText);
+    }
+
+    const merged = toSingleLinePreview(chunks.join(" "));
+    if (merged) return merged;
+    if (hasBadges) return "List values";
+    return "[empty message]";
+};
+
 const getErrorMessage = (error) => {
     const status = error?.response?.status;
 
     if (status === 401) {
-        return "인증이 만료되었거나 유효하지 않습니다. 다시 로그인 해주세요.";
+        return "Session expired or unauthorized. Please sign in again.";
     }
 
     if (status === 403) {
-        return "관리자 권한이 없습니다.";
+        return "You do not have permission to view server logs.";
     }
 
     if (status === 400) {
-        return "요청 파라미터가 올바르지 않습니다.";
+        return "Invalid request parameters.";
     }
 
-    return "로그를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.";
+    return "Failed to load logs. Please try again.";
 };
 
 function LogsPage() {
     const [type, setType] = useState(DEFAULT_TYPE);
     const [page, setPage] = useState(DEFAULT_PAGE);
     const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+    const [dateSortOrder, setDateSortOrder] = useState(DEFAULT_DATE_SORT_ORDER);
+    const [timeSortOrder, setTimeSortOrder] = useState(DEFAULT_TIME_SORT_ORDER);
+    const [selectedDate, setSelectedDate] = useState("");
+    const [timeFrom, setTimeFrom] = useState("");
+    const [timeTo, setTimeTo] = useState("");
+    const [expandedRows, setExpandedRows] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [result, setResult] = useState({
@@ -198,24 +338,77 @@ function LogsPage() {
             setErrorMessage("");
 
             try {
-                const res = await API.getLogs(
-                    { Authorization: Cookies.get("BM") },
-                    { type, page, page_size: pageSize },
-                );
+                const headers = { Authorization: Cookies.get("BM") };
+                let next;
 
-                if (cancelled) return;
+                if (type === "all") {
+                    const mergedSize = page * pageSize;
+                    const fetchByType = async (logType) => {
+                        try {
+                            const res = await API.getLogs(headers, {
+                                type: logType,
+                                page: 1,
+                                page_size: mergedSize,
+                            });
+                            return res?.data ?? {};
+                        } catch (error) {
+                            if (error?.response?.status === 400) {
+                                return {
+                                    type: logType,
+                                    total: 0,
+                                    total_pages: 0,
+                                    logs: [],
+                                };
+                            }
+                            throw error;
+                        }
+                    };
 
-                const data = res?.data ?? {};
-                const next = {
-                    type: data.type ?? type,
-                    page: Number(data.page) || page,
-                    pageSize: Number(data.page_size) || pageSize,
-                    total: Number(data.total) || 0,
-                    totalPages: Number(data.total_pages) || 0,
-                    logs: Array.isArray(data.logs) ? data.logs : [],
-                };
+                    const [infoData, debugData] = await Promise.all([
+                        fetchByType("info"),
+                        fetchByType("debug"),
+                    ]);
+
+                    if (cancelled) return;
+
+                    const infoLogs = Array.isArray(infoData.logs) ? infoData.logs : [];
+                    const debugLogs = Array.isArray(debugData.logs)
+                        ? debugData.logs
+                        : [];
+                    const total =
+                        (Number(infoData.total) || 0) +
+                        (Number(debugData.total) || 0);
+
+                    next = {
+                        type,
+                        page,
+                        pageSize,
+                        total,
+                        totalPages: Math.max(1, Math.ceil(total / pageSize)),
+                        logs: [...infoLogs, ...debugLogs],
+                    };
+                } else {
+                    const res = await API.getLogs(headers, {
+                        type,
+                        page,
+                        page_size: pageSize,
+                    });
+
+                    if (cancelled) return;
+
+                    const data = res?.data ?? {};
+                    next = {
+                        type: data.type ?? type,
+                        page: Number(data.page) || page,
+                        pageSize: Number(data.page_size) || pageSize,
+                        total: Number(data.total) || 0,
+                        totalPages: Number(data.total_pages) || 0,
+                        logs: Array.isArray(data.logs) ? data.logs : [],
+                    };
+                }
 
                 setResult(next);
+                setExpandedRows({});
 
                 if (next.page !== page) {
                     setPage(next.page);
@@ -257,10 +450,68 @@ function LogsPage() {
         [result.logs],
     );
 
-    const endLine = useMemo(() => {
-        if (!result.total || result.logs.length === 0) return 0;
-        return Math.min(result.page * result.pageSize, result.total);
-    }, [result.page, result.pageSize, result.total, result.logs.length]);
+    const availableDates = useMemo(() => {
+        const dateSet = new Set(
+            parsedLogs
+                .map((line) => line.date)
+                .filter((date) => date && date !== "-"),
+        );
+        return [...dateSet].sort((left, right) => parseDateValue(left) - parseDateValue(right));
+    }, [parsedLogs]);
+
+    useEffect(() => {
+        if (!selectedDate) return;
+        if (availableDates.includes(selectedDate)) return;
+        setSelectedDate("");
+    }, [availableDates, selectedDate]);
+
+    const filteredLogs = useMemo(() => {
+        const fromValue = timeFrom
+            ? parseTimeValue(normalizeTimeInput(timeFrom, false))
+            : null;
+        const toValue = timeTo
+            ? parseTimeValue(normalizeTimeInput(timeTo, true))
+            : null;
+
+        return parsedLogs.filter((line) => {
+            if (selectedDate && line.date !== selectedDate) return false;
+
+            if (fromValue !== null || toValue !== null) {
+                const current = parseTimeValue(line.time);
+                if (!Number.isFinite(current)) return false;
+                if (fromValue !== null && current < fromValue) return false;
+                if (toValue !== null && current > toValue) return false;
+            }
+
+            return true;
+        });
+    }, [parsedLogs, selectedDate, timeFrom, timeTo]);
+
+    const sortedLogs = useMemo(() => {
+        const dateDirection = dateSortOrder === "asc" ? 1 : -1;
+        const timeDirection = timeSortOrder === "asc" ? 1 : -1;
+        const nextLogs = [...filteredLogs];
+
+        nextLogs.sort((left, right) => {
+            const dateDiff =
+                (parseDateValue(left.date) - parseDateValue(right.date)) *
+                dateDirection;
+            if (dateDiff !== 0) return dateDiff;
+
+            return (
+                (parseTimeValue(left.time) - parseTimeValue(right.time)) *
+                timeDirection
+            );
+        });
+
+        return nextLogs;
+    }, [dateSortOrder, filteredLogs, timeSortOrder]);
+
+    const visibleLogs = useMemo(() => {
+        if (type !== "all") return sortedLogs;
+        const offset = (page - 1) * pageSize;
+        return sortedLogs.slice(offset, offset + pageSize);
+    }, [page, pageSize, sortedLogs, type]);
 
     const onChangeType = (event) => {
         setType(event.target.value);
@@ -283,28 +534,42 @@ function LogsPage() {
         });
     };
 
+    const toggleDateSortOrder = () => {
+        setDateSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    };
+
+    const toggleTimeSortOrder = () => {
+        setTimeSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    };
+
+    const toggleRowExpanded = (rowKey) => {
+        setExpandedRows((prev) => ({
+            ...prev,
+            [rowKey]: !prev[rowKey],
+        }));
+    };
+
     return (
         <div className="logs-page">
             <div className="logs-card">
                 <div className="logs-card-header">
-                    <h2>백엔드 서버 로그</h2>
-                    <p>
-                        로그 타입별로 최신 로그를 페이지 단위로 조회합니다.
-                    </p>
+                    <h2>Server Logs</h2>
+                    <p>Browse logs by level with paginated results.</p>
                 </div>
 
                 <div className="logs-toolbar">
-                    <label htmlFor="log-type">타입</label>
+                    <label htmlFor="log-type">Level</label>
                     <select
                         id="log-type"
                         value={type}
                         onChange={onChangeType}
                         disabled={isLoading}>
+                        <option value="all">all</option>
                         <option value="info">info</option>
                         <option value="debug">debug</option>
                     </select>
 
-                    <label htmlFor="log-page-size">페이지 크기</label>
+                    <label htmlFor="log-page-size">Rows</label>
                     <select
                         id="log-page-size"
                         value={pageSize}
@@ -316,18 +581,69 @@ function LogsPage() {
                             </option>
                         ))}
                     </select>
+
+                    <label htmlFor="log-date">Date</label>
+                    <input
+                        id="log-date"
+                        type="date"
+                        list="log-date-options"
+                        value={selectedDate}
+                        min={availableDates[0] || ""}
+                        max={availableDates[availableDates.length - 1] || ""}
+                        onChange={(event) => setSelectedDate(event.target.value)}
+                        disabled={isLoading || availableDates.length === 0}
+                    />
+                    <datalist id="log-date-options">
+                        {availableDates.map((date) => (
+                            <option key={date} value={date} />
+                        ))}
+                    </datalist>
+
+                    <span className="logs-toolbar-inline-label">Time From</span>
+                    <input
+                        id="log-time-from"
+                        type="time"
+                        step="1"
+                        value={timeFrom}
+                        onChange={(event) => setTimeFrom(event.target.value)}
+                        disabled={isLoading}
+                    />
+                    <span className="logs-toolbar-inline-to">to</span>
+                    <input
+                        id="log-time-to"
+                        type="time"
+                        step="1"
+                        value={timeTo}
+                        onChange={(event) => setTimeTo(event.target.value)}
+                        disabled={isLoading}
+                    />
+
+                    <button
+                        type="button"
+                        className="log-sort-toggle"
+                        onClick={toggleDateSortOrder}
+                        disabled={isLoading}
+                        aria-label={`Toggle date sort order. Current: ${dateSortOrder}`}>
+                        <span>Date Sort</span>
+                        <span>{dateSortOrder === "asc" ? "↑" : "↓"}</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className="log-sort-toggle"
+                        onClick={toggleTimeSortOrder}
+                        disabled={isLoading}
+                        aria-label={`Toggle time sort order. Current: ${timeSortOrder}`}>
+                        <span>Time Sort</span>
+                        <span>{timeSortOrder === "asc" ? "↑" : "↓"}</span>
+                    </button>
                 </div>
 
                 <div className="logs-meta">
+                    <span>Total: {result.total.toLocaleString()}</span>
+                    <span>Visible: {visibleLogs.length.toLocaleString()}</span>
                     <span>
-                        전체 {result.total.toLocaleString()}줄
-                    </span>
-                    <span>
-                        현재 {startLine.toLocaleString()}-
-                        {endLine.toLocaleString()}줄
-                    </span>
-                    <span>
-                        페이지 {result.page.toLocaleString()} /{" "}
+                        Page: {result.page.toLocaleString()} /{" "}
                         {Math.max(1, result.totalPages).toLocaleString()}
                     </span>
                 </div>
@@ -339,39 +655,108 @@ function LogsPage() {
                 )}
 
                 <div className="logs-list-wrap">
+                    <div className="logs-list-header">
+                        <span>#</span>
+                        <span>DATE</span>
+                        <span>TIME</span>
+                        <span>LEVEL</span>
+                        <span>MESSAGE</span>
+                    </div>
+
                     {isLoading ? (
-                        <div className="logs-empty">로그를 불러오는 중입니다...</div>
-                    ) : parsedLogs.length === 0 ? (
-                        <div className="logs-empty">표시할 로그가 없습니다.</div>
+                        <div className="logs-empty">Loading logs...</div>
+                    ) : visibleLogs.length === 0 ? (
+                        <div className="logs-empty">No logs found for current filters.</div>
                     ) : (
                         <ol className="logs-list" start={startLine}>
-                            {parsedLogs.map((line, index) => (
-                                <li
-                                    key={`${result.page}-${index}-${line.raw.slice(0, 24)}`}
-                                    className="log-line">
-                                    <div className="log-meta-row">
+                            {visibleLogs.map((line, index) => {
+                                const rowKey = `${result.page}-${index}-${line.raw}`;
+                                const isExpanded = Boolean(expandedRows[rowKey]);
+                                const badgeItems = getListBadgeItems(line);
+                                const previewText = buildPreviewText(
+                                    line,
+                                    badgeItems.length > 0,
+                                );
+                                const hasMessageDetail =
+                                    Boolean(line.structured) ||
+                                    Boolean(line.trailingText) ||
+                                    (line.text || "").includes("\n") ||
+                                    (line.text || "").length > 140;
+                                const hasDetail =
+                                    badgeItems.length > 0 || hasMessageDetail;
+                                const showStructuredDetail =
+                                    line.structured &&
+                                    badgeItems.length === 0 &&
+                                    !isEmptyStructuredArray(line.structured);
+
+                                return (
+                                    <li key={rowKey} className="log-line">
+                                        <span className="log-line-number">
+                                            {startLine + index}
+                                        </span>
                                         <span className="log-date">{line.date}</span>
                                         <span className="log-time">{line.time}</span>
                                         <span
                                             className={`log-level ${line.level.toLowerCase()}`}>
                                             {line.level}
                                         </span>
-                                    </div>
-                                    {line.text && (
-                                        <p className="log-message">{line.text}</p>
-                                    )}
-                                    {line.structured && (
-                                        <pre className="log-structured">
-                                            <code>{line.structured}</code>
-                                        </pre>
-                                    )}
-                                    {line.trailingText && (
-                                        <p className="log-message">
-                                            {line.trailingText}
-                                        </p>
-                                    )}
-                                </li>
-                            ))}
+                                        <div className="log-message-wrap">
+                                            <div className="log-message-head">
+                                                <div
+                                                    className={`log-inline-content ${
+                                                        isExpanded
+                                                            ? "expanded"
+                                                            : "collapsed"
+                                                    }`}>
+                                                    <span className="log-message-preview">
+                                                        {previewText}
+                                                    </span>
+                                                    {badgeItems.map((item, badgeIndex) => (
+                                                        <span
+                                                            key={`${rowKey}-badge-${badgeIndex}`}
+                                                            className="log-badge">
+                                                            {item}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                                {hasDetail && (
+                                                    <button
+                                                        type="button"
+                                                        className="log-expand-btn"
+                                                        onClick={() =>
+                                                            toggleRowExpanded(
+                                                                rowKey,
+                                                            )
+                                                        }>
+                                                        {isExpanded
+                                                            ? "Collapse"
+                                                            : "Expand"}
+                                                    </button>
+                                                )}
+                                            </div>
+                                            {isExpanded && badgeItems.length === 0 && (
+                                                <div className="log-message-detail">
+                                                    {line.text && (
+                                                        <p className="log-message">
+                                                            {line.text}
+                                                        </p>
+                                                    )}
+                                                    {showStructuredDetail && (
+                                                        <pre className="log-structured">
+                                                            <code>{line.structured}</code>
+                                                        </pre>
+                                                    )}
+                                                    {line.trailingText && (
+                                                        <p className="log-message">
+                                                            {line.trailingText}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </li>
+                                );
+                            })}
                         </ol>
                     )}
                 </div>
@@ -382,7 +767,7 @@ function LogsPage() {
                         className="admin-btn ghost"
                         onClick={onPrevPage}
                         disabled={isLoading || page <= 1}>
-                        이전
+                        Previous
                     </button>
                     <button
                         type="button"
@@ -393,7 +778,7 @@ function LogsPage() {
                             !result.totalPages ||
                             page >= result.totalPages
                         }>
-                        다음
+                        Next
                     </button>
                 </div>
             </div>
