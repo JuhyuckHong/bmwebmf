@@ -1,0 +1,450 @@
+.control-page {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.control-card {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.ctrl-toolbar-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.ctrl-toolbar-spacer {
+    flex: 1;
+}
+
+.ctrl-refresh-info {
+    margin: 0;
+    color: var(--muted-text-color);
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* live pulse dot */
+.live-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    flex-shrink: 0;
+    animation: live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.75); }
+}
+
+/* ── Stat cards ─────────────────────────────────────── */
+.control-stats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    flex: 1;
+    min-width: 88px;
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--border-color);
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: var(--surface-alt-color);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.stat-card.success {
+    border-color: rgba(34, 197, 94, 0.25);
+    border-left-color: #22c55e;
+    background: rgba(34, 197, 94, 0.06);
+}
+
+.stat-card.error {
+    border-color: rgba(239, 68, 68, 0.25);
+    border-left-color: #ef4444;
+    background: rgba(239, 68, 68, 0.06);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+.stat-card.success .stat-value { color: #16a34a; }
+.stat-card.error   .stat-value { color: #dc2626; }
+
+.stat-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--muted-text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ── Stat pills ──────────────────────────────────────── */
+.ctrl-stat-pills {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.ctrl-stat-pill {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-alt-color);
+    color: var(--muted-text-color);
+    white-space: nowrap;
+}
+
+.ctrl-stat-pill.success {
+    color: #16a34a;
+    border-color: rgba(34, 197, 94, 0.4);
+    background: rgba(34, 197, 94, 0.08);
+}
+
+.ctrl-stat-pill.error {
+    color: #dc2626;
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.08);
+}
+
+/* ── Toolbar ─────────────────────────────────────────── */
+.control-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-search-wrap {
+    position: relative;
+    flex: 1;
+    max-width: 360px;
+    min-width: 180px;
+}
+
+.control-search-wrap::before {
+    content: "⌕";
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: var(--muted-text-color);
+    pointer-events: none;
+    line-height: 1;
+}
+
+.control-search {
+    width: 100%;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-alt-color);
+    color: var(--text-color);
+    padding: 0 12px 0 30px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.control-search:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.control-filter-result {
+    font-size: 0.78rem;
+    color: var(--muted-text-color);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.control-loading {
+    padding: 32px;
+    text-align: center;
+    color: var(--muted-text-color);
+    font-size: 0.88rem;
+}
+
+/* ── Table ─────────────────────────────────────────── */
+.control-table-outer {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: auto;
+}
+
+.control-table-wrap {
+    display: grid;
+    grid-template-columns: max-content 1fr max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content;
+    min-width: max-content;
+    font-size: 0.84rem;
+}
+
+/* header & list transparent to grid */
+.control-table-header,
+.control-table-list,
+.control-row {
+    display: contents;
+}
+
+/* ── Header cells ────────────────────────────────── */
+.control-table-header > span {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    background: var(--surface-alt-color);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: var(--muted-text-color);
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.control-table-header > span:last-child {
+    border-right: none;
+}
+
+/* camera setting columns (10–13: ISO, 노출보정, 포커스, 화질): slightly different tint */
+.control-table-header > span:nth-child(n+10):nth-child(-n+13) {
+    background: color-mix(in srgb, var(--surface-alt-color) 60%, var(--accent-color) 5%);
+}
+
+/* separator before camera settings group */
+.control-table-header > span:nth-child(10),
+.control-row > *:nth-child(10) {
+    border-left: 2px solid var(--border-color);
+}
+
+/* ── Data cells ──────────────────────────────────── */
+.control-row > * {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    transition: background 0.1s;
+}
+
+.ctrl-cell {
+    display: flex;
+    align-items: center;
+}
+
+.control-row > *:last-child {
+    border-right: none;
+}
+
+/* zebra striping */
+.control-row:nth-child(even) > * {
+    background: color-mix(in srgb, var(--surface-color) 80%, var(--surface-alt-color) 20%);
+}
+
+.control-row:hover > * {
+    background: color-mix(in srgb, var(--accent-color) 8%, var(--surface-color) 92%) !important;
+}
+
+/* error row */
+.control-row.row-error > * {
+    background: rgba(239, 68, 68, 0.04);
+}
+.control-row.row-error:hover > * {
+    background: rgba(239, 68, 68, 0.09) !important;
+}
+.control-row.row-error .ctrl-id {
+    animation: err-pulse 2.5s ease-in-out infinite;
+}
+@keyframes err-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.45; }
+}
+
+.control-row.row-unknown > * { opacity: 0.55; }
+
+/* ── Cell styles ─────────────────────────────────── */
+.ctrl-id {
+    font-family: Menlo, Monaco, Consolas, monospace;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--muted-text-color);
+    justify-content: center;
+}
+
+.ctrl-name {
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ctrl-time,
+.ctrl-ip {
+    font-family: Menlo, Monaco, Consolas, monospace;
+    font-size: 0.76rem;
+    color: var(--muted-text-color);
+    white-space: nowrap;
+}
+
+.ctrl-mono {
+    font-family: Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8rem;
+}
+
+.ctrl-mono.muted,
+.muted {
+    color: var(--muted-text-color);
+}
+
+.ctrl-focus {
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+
+.ctrl-highlight {
+    background: rgba(234, 179, 8, 0.35);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+}
+
+.ctrl-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+}
+
+.ctrl-sub {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--muted-text-color);
+    margin-top: 1px;
+    font-family: Menlo, Monaco, Consolas, monospace;
+}
+
+/* ── Usage pie ───────────────────────────────────── */
+.usage-pie-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.usage-pie-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.usage-pie-label {
+    font-family: Menlo, Monaco, Consolas, monospace;
+    font-size: 0.74rem;
+    color: var(--muted-text-color);
+    white-space: nowrap;
+}
+
+.usage-pie-gb {
+    font-family: Menlo, Monaco, Consolas, monospace;
+    font-size: 0.68rem;
+    color: var(--muted-text-color);
+    white-space: nowrap;
+    opacity: 0.7;
+}
+
+/* ── Status + Type badge ─────────────────────────── */
+.status-type-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 800;
+    border: 1.5px solid transparent;
+}
+
+.status-type-badge.success {
+    color: #16a34a;
+    border-color: rgba(34, 197, 94, 0.5);
+    background: rgba(34, 197, 94, 0.14);
+}
+
+.status-type-badge.error {
+    color: #dc2626;
+    border-color: rgba(239, 68, 68, 0.5);
+    background: rgba(239, 68, 68, 0.14);
+    animation: err-pulse 2.5s ease-in-out infinite;
+}
+
+.status-type-badge.unknown {
+    color: var(--muted-text-color);
+    border-color: var(--border-color);
+    background: var(--surface-alt-color);
+}
+
+/* ── CPU temp ────────────────────────────────────── */
+.cpu-temp {
+    font-family: Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    display: inline-block;
+}
+
+.cpu-temp.cool   { color: #0ea5e9; border-color: rgba(14, 165, 233, 0.3); background: rgba(14, 165, 233, 0.09); }
+.cpu-temp.warm   { color: #d97706; border-color: rgba(217, 119, 6, 0.3);  background: rgba(217, 119, 6, 0.09);  }
+.cpu-temp.hot    { color: #dc2626; border-color: rgba(220, 38, 38, 0.3);  background: rgba(220, 38, 38, 0.09);  }
+.cpu-temp.none   { color: var(--muted-text-color); }
+
+/* ── Empty ───────────────────────────────────────── */
+.control-empty {
+    padding: 28px 14px;
+    color: var(--muted-text-color);
+    font-size: 0.88rem;
+    text-align: center;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 768px) {
+    .control-stats { gap: 8px; }
+    .stat-card     { min-width: 70px; padding: 10px 12px; }
+    .stat-value    { font-size: 1.5rem; }
+}

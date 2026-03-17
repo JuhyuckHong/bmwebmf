@@ -1,6 +1,13 @@
 import axios from "axios";
 
 const apiBaseUrl = import.meta.env.REACT_APP_API_URL;
+const relayBaseUrl = import.meta.env.REACT_APP_RELAY_URL;
+
+const relay = axios.create({
+    baseURL: relayBaseUrl,
+    headers: {},
+    withCredentials: false,
+});
 
 // axios에 baseURL, header, cors 설정 추가
 const api = axios.create({
@@ -74,4 +81,6 @@ export const API = {
         api.get(`/video/${site}/${video}`, { headers, responseType: "blob" }),
     // 서버 로그 조회
     getLogs: (headers, params) => api.get("/logs", { headers, params }),
+    // 모듈 최신 현황 조회
+    getLatest: (headers) => relay.get("/latest", { headers }),
 };
