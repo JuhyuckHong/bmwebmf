@@ -15,6 +15,8 @@ function formatTime(dt) {
     return `${mo}/${day}, ${hh}:${mm}`;
 }
 
+const w = (cond) => cond ? " ctrl-warn-bg" : "";
+
 function Highlight({ text, query }) {
     if (!query || !text) return text ?? "—";
     const str = String(text);
@@ -69,14 +71,15 @@ function CpuTempBadge({ temp }) {
     return <span className={`cpu-temp ${cls}`}>{temp.toFixed(1)}°C</span>;
 }
 
-function UsagePie({ value, used, total, warnAt = 70, dangerAt = 90 }) {
-    if (value == null) return <span className="ctrl-mono muted">—</span>;
+function UsagePie({ value, used, total, warnAt = 70, dangerAt = 90, alertAt = 90 }) {
+    const isWarn = value == null || value >= alertAt;
+    if (value == null) return <span className="ctrl-mono muted ctrl-warn-bg">—</span>;
     const color = value >= dangerAt ? "#ef4444" : value >= warnAt ? "#f59e0b" : "#22c55e";
     const r = 10;
     const circ = 2 * Math.PI * r;
     const filled = (value / 100) * circ;
     return (
-        <div className="usage-pie-wrap">
+        <div className={`usage-pie-wrap${isWarn ? " ctrl-warn-bg" : ""}`}>
             <svg width="28" height="28" viewBox="0 0 28 28">
                 <circle cx="14" cy="14" r={r} fill="none" stroke="var(--border-color)" strokeWidth="4" />
                 <circle
@@ -99,7 +102,7 @@ function UsagePie({ value, used, total, warnAt = 70, dangerAt = 90 }) {
 }
 
 function StatusTypeBadge({ status, type }) {
-    const cls = status === "SUCCESS" ? "success" : status === "ERROR" ? "error" : "unknown";
+    const cls = (status === "SUCCESS" || status === "PARTIAL") ? "success" : status === "ERROR" ? "error" : "unknown";
     const label = type === "modern" ? "M" : "L";
     return (
         <span className={`status-type-badge ${cls}`} title={`${type} · ${status ?? "데이터 없음"}`}>
@@ -160,35 +163,35 @@ export default function ControlPage() {
 
     return (
         <div className="control-page">
-            <div className="control-card">
-                <div className="control-toolbar">
-                    <h2 className="ctrl-toolbar-title">모듈 현황</h2>
-                    <div className="control-search-wrap">
-                        <input
-                            className="control-search"
-                            type="text"
-                            placeholder="검색..."
-                            value={filter}
-                            onChange={(e) => setFilter(e.target.value)}
-                        />
-                    </div>
-                    {!loading && data && (
-                        <div className="ctrl-stat-pills">
-                            <span className="ctrl-stat-pill">{data.count} 전체</span>
-                            <span className="ctrl-stat-pill success">{successCount} 정상</span>
-                            <span className="ctrl-stat-pill error">{errorCount} 오류</span>
-                            {noDataCount > 0 && <span className="ctrl-stat-pill">{noDataCount} 없음</span>}
-                        </div>
-                    )}
-                    {q && <span className="control-filter-result">{filtered.length}개</span>}
-                    <div className="ctrl-toolbar-spacer" />
-                    <p className="ctrl-refresh-info">
-                        <span className="live-dot" />
-                        {lastFetched ? lastFetched.toLocaleTimeString("ko-KR") : "..."}
-                    </p>
-                    <button className="admin-btn" onClick={fetchData}>새로고침</button>
+            <div className="control-toolbar">
+                <h2 className="ctrl-toolbar-title">모듈 현황</h2>
+                <div className="control-search-wrap">
+                    <input
+                        className="control-search"
+                        type="text"
+                        placeholder="검색..."
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                    />
                 </div>
+                {!loading && data && (
+                    <div className="ctrl-stat-pills">
+                        <span className="ctrl-stat-pill">{data.count} 전체</span>
+                        <span className="ctrl-stat-pill success">{successCount} 정상</span>
+                        <span className="ctrl-stat-pill error">{errorCount} 오류</span>
+                        {noDataCount > 0 && <span className="ctrl-stat-pill">{noDataCount} 없음</span>}
+                    </div>
+                )}
+                {q && <span className="control-filter-result">{filtered.length}개</span>}
+                <div className="ctrl-toolbar-spacer" />
+                <p className="ctrl-refresh-info">
+                    <span className="live-dot" />
+                    {lastFetched ? lastFetched.toLocaleTimeString("ko-KR") : "..."}
+                </p>
+                <button className="admin-btn" onClick={fetchData}>새로고침</button>
+            </div>
 
+            <div className="control-card">
                 {error && <div className="logs-error">오류: {error}</div>}
                 {loading && (
                     <div className="control-loading">데이터 불러오는 중...</div>
@@ -232,16 +235,16 @@ export default function ControlPage() {
                                         <span className="ctrl-id">{parseInt(m.id, 10)}</span>
                                         <span className="ctrl-name"><Highlight text={m.site_name} query={q} /></span>
                                         <span className="ctrl-cell"><StatusTypeBadge status={m.last_status} type={m.type} /></span>
-                                        <span className="ctrl-cell"><CpuTempBadge temp={m.cpu_temp} /></span>
-                                        <UsagePie value={m.mem_usage} />
-                                        <UsagePie value={m.disk_usage} used={m.disk_used_gb} total={m.disk_total_gb} warnAt={60} dangerAt={80} />
-                                        <span className="ctrl-sub"><Highlight text={formatPiModel(m.pi_model)} query={q} /></span>
-                                        <span className="ctrl-sub"><Highlight text={m.os_version} query={q} /></span>
-                                        <span className="ctrl-sub"><Highlight text={(m.camera_model && !/^USB PTP Class Camera$/i.test(m.camera_model.trim())) ? m.camera_model.replace(/^Nikon DSC\s*/i, "") : null} query={q} /></span>
-                                        <span className="ctrl-sub"><Highlight text={m.iso != null ? String(m.iso) : null} query={q} /></span>
-                                        <span className="ctrl-sub"><Highlight text={formatExpComp(m.exposure_comp)} query={q} /></span>
-                                        <span className="ctrl-sub"><Highlight text={m.focus_mode} query={q} /></span>
-                                        <span className="ctrl-mono ctrl-col">
+                                        <span className={`ctrl-cell${w(m.cpu_temp == null || m.cpu_temp >= 50)}`}><CpuTempBadge temp={m.cpu_temp} /></span>
+                                        <UsagePie value={m.mem_usage} alertAt={90} />
+                                        <UsagePie value={m.disk_usage} used={m.disk_used_gb} total={m.disk_total_gb} warnAt={60} dangerAt={75} alertAt={75} />
+                                        <span className={`ctrl-sub${w(m.pi_model == null)}`}><Highlight text={formatPiModel(m.pi_model)} query={q} /></span>
+                                        <span className={`ctrl-sub${w(m.os_version == null)}`}><Highlight text={m.os_version} query={q} /></span>
+                                        <span className={`ctrl-sub${w(!m.camera_model || /^USB PTP Class Camera$/i.test(m.camera_model.trim()))}`}><Highlight text={(m.camera_model && !/^USB PTP Class Camera$/i.test(m.camera_model.trim())) ? m.camera_model.replace(/^Nikon DSC\s*/i, "") : null} query={q} /></span>
+                                        <span className={`ctrl-sub${w(m.iso == null)}`}><Highlight text={m.iso != null ? String(m.iso) : null} query={q} /></span>
+                                        <span className={`ctrl-sub${w(m.exposure_comp == null)}`}><Highlight text={formatExpComp(m.exposure_comp)} query={q} /></span>
+                                        <span className={`ctrl-sub${w(m.focus_mode == null)}`}><Highlight text={m.focus_mode} query={q} /></span>
+                                        <span className={`ctrl-mono ctrl-col${w(m.img_quality == null)}`}>
                                             <span className="ctrl-mono ctrl-sub"><Highlight text={m.img_quality} query={q} /></span>
                                             {m.img_size ? <span className="ctrl-sub"><Highlight text={m.img_size} query={q} /></span> : null}
                                         </span>
