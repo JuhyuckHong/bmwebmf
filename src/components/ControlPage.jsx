@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Cookies from "js-cookie";
 import { API } from "../API";
 import "../CSS/Control.css";
 import HistoryModal from "./HistoryModal";
+import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 
 const REFRESH_INTERVAL = 30000;
 
@@ -119,6 +120,7 @@ export default function ControlPage() {
     const [lastFetched, setLastFetched] = useState(null);
     const [filter, setFilter] = useState("");
     const [selectedModule, setSelectedModule] = useState(null);
+    const searchRef = useRef(null);
 
     const fetchData = useCallback(async () => {
         try {
@@ -139,6 +141,15 @@ export default function ControlPage() {
         const id = setInterval(fetchData, REFRESH_INTERVAL);
         return () => clearInterval(id);
     }, [fetchData]);
+
+    useKeyboardNavigation({
+        '/': () => {
+            searchRef.current?.focus();
+            searchRef.current?.select();
+        },
+        'r': () => fetchData(),
+        'R': () => fetchData(),
+    }, { enabled: !selectedModule });
 
     const modules = data?.modules ?? [];
     const q = filter.trim().toLowerCase();
@@ -170,6 +181,7 @@ export default function ControlPage() {
                 <h2 className="ctrl-toolbar-title">모듈 정보</h2>
                 <div className="control-search-wrap">
                     <input
+                        ref={searchRef}
                         id="control-search"
                         name="control-search"
                         className="control-search"

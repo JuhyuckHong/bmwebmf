@@ -53,6 +53,36 @@ export function KeyboardNavigationProvider({ children }) {
                 navigate('/all');
             }
         },
+        'c': () => {
+            if (location.pathname !== '/control') {
+                navigate('/control');
+            }
+        },
+        'C': () => {
+            if (location.pathname !== '/control') {
+                navigate('/control');
+            }
+        },
+        'l': () => {
+            if (location.pathname !== '/logs') {
+                navigate('/logs');
+            }
+        },
+        'L': () => {
+            if (location.pathname !== '/logs') {
+                navigate('/logs');
+            }
+        },
+        's': () => {
+            if (location.pathname !== '/setting') {
+                navigate('/setting');
+            }
+        },
+        'S': () => {
+            if (location.pathname !== '/setting') {
+                navigate('/setting');
+            }
+        },
     };
 
     useKeyboardNavigation(keyHandlers, { enabled, preventDefault: false });

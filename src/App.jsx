@@ -86,6 +86,7 @@ const HamburgerMenu = ({ admin, isAdminPage, setAuth, onOpenKeyboardHelp, onAdmi
                             <span className="menu-item-label">
                                 {isAdminPage ? "모니터" : "설정"}
                             </span>
+                            <span className="menu-item-kbd">{isAdminPage ? "h" : "s"}</span>
                         </button>
                     )}
                     {admin && (
@@ -95,6 +96,7 @@ const HamburgerMenu = ({ admin, isAdminPage, setAuth, onOpenKeyboardHelp, onAdmi
                             onClick={() => { setShowMenu(false); onNavigateControl(); }}>
                             <span className="menu-item-icon">💻</span>
                             <span className="menu-item-label">모듈 정보</span>
+                            <span className="menu-item-kbd">c</span>
                         </button>
                     )}
                     <Logout

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
 import { API } from "../API";
 import "../CSS/Logs.css";
+import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 
 const DEFAULT_TYPE = "all";
 const DEFAULT_PAGE = 1;
@@ -548,6 +549,15 @@ function LogsPage() {
             [rowKey]: !prev[rowKey],
         }));
     };
+
+    useKeyboardNavigation({
+        'ArrowLeft': () => onPrevPage(),
+        'ArrowRight': () => onNextPage(),
+        'd': () => toggleDateSortOrder(),
+        'D': () => toggleDateSortOrder(),
+        't': () => toggleTimeSortOrder(),
+        'T': () => toggleTimeSortOrder(),
+    }, { enabled: !isLoading });
 
     return (
         <div className="logs-page">

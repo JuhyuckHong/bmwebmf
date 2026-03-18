@@ -368,6 +368,19 @@
     flex: 1;
 }
 
+.menu-item-kbd {
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: monospace;
+    color: var(--text-muted, #888);
+    background: var(--surface-alt-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 1px 5px;
+    flex-shrink: 0;
+    letter-spacing: 0;
+}
+
 /* Keyboard Help Modal */
 .keyboard-help-overlay {
     position: fixed;
