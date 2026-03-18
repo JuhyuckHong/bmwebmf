@@ -189,16 +189,18 @@
 }
 
 .display {
-    padding: 0; /* Removed padding to avoid double padding with children */
+    padding: 0;
     color: var(--text-color);
-    height: 100%; /* Fill the main-content container */
+    height: 100%;
     overflow: auto;
+    scrollbar-gutter: stable;
 }
 
 .app-shell {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     background: var(--background-color);
 }
 
