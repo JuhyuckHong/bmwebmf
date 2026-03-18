@@ -38,7 +38,7 @@ const getInitialTheme = () => {
     return prefersDark ? "dark" : "light";
 };
 
-const ThemeToggleButton = () => {
+const ThemeToggleMenuItem = () => {
     const [themeMode, setThemeMode] = useState(getInitialTheme);
 
     useEffect(() => {
@@ -53,16 +53,16 @@ const ThemeToggleButton = () => {
     return (
         <button
             type="button"
-            className={`pill-button theme-toggle ${themeMode}`}
+            className="menu-item"
             aria-pressed={themeMode === "dark"}
             aria-label="테마 전환"
             onClick={handleThemeToggle}>
-            <span className="mode-indicator" aria-hidden="true">
+            <span className="menu-item-icon" aria-hidden="true">
                 {themeMode === "dark" ? "🌙" : "☀️"}
             </span>
-            <div className="mode-copy">
-                <span className="mode-label">테마</span>
-            </div>
+            <span className="menu-item-label">
+                {themeMode === "dark" ? "다크 모드" : "라이트 모드"}
+            </span>
         </button>
     );
 };
@@ -75,10 +75,12 @@ function App() {
     const [authChecked, setAuthChecked] = useState(false);
     const [sortType, setSortType] = useState('name'); // 'name' | 'device' | 'status'
     const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+    const [showMenu, setShowMenu] = useState(false);
     const [thumbnails, setThumbnails] = useState([]);
     const [siteInformation, setSiteInformation] = useState({});
     const [staticURLs, setStaticURLs] = useState({});
     const staticCacheRef = useRef({});
+    const menuRef = useRef(null);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -310,8 +312,20 @@ function App() {
         return children;
     };
 
+    useEffect(() => {
+        if (!showMenu) return;
+        const handleClickOutside = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setShowMenu(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showMenu]);
+
     const handleAdminToggle = () => {
         if (!admin) return;
+        setShowMenu(false);
         navigate(isAdminPage ? "/all" : "/setting");
     };
 
@@ -351,57 +365,51 @@ function App() {
                             </SortingStyle>
                         )}
                     </div>
-                    <div className="control-btns">
-                        {isAllPage && (
-                            <button
-                                type="button"
-                                className="pill-button sort-icon-btn"
-                                onClick={() => setSortType((prev) =>
-                                    prev === 'name' ? 'device' : prev === 'device' ? 'status' : 'name'
-                                )}
-                                aria-label={
-                                    sortType === 'name' ? "모듈번호 순으로 정렬" :
-                                    sortType === 'device' ? "현장상태 순으로 정렬" : "현장이름 순으로 정렬"
-                                }
-                                title={
-                                    sortType === 'name' ? "모듈번호 순으로 정렬" :
-                                    sortType === 'device' ? "현장상태 순으로 정렬" : "현장이름 순으로 정렬"
-                                }>
-                                <span className="sort-icon" aria-hidden="true">
-                                    {sortType === 'name' ? "🏗️" : sortType === 'device' ? "#" : "🚦"}
-                                </span>
-                            </button>
-                        )}
-                        <ThemeToggleButton />
+                    <div className="hamburger-menu" ref={menuRef}>
                         <button
                             type="button"
-                            className="pill-button shortcut-btn"
-                            onClick={() => setShowKeyboardHelp(true)}
-                            aria-label="키보드 단축키">
-                            <span className="btn-icon" aria-hidden="true">⌨️</span>
-                            <span className="btn-label">단축키</span>
+                            className="pill-button hamburger-btn"
+                            onClick={() => setShowMenu(v => !v)}
+                            aria-label="메뉴 열기"
+                            aria-expanded={showMenu}>
+                            <span className="hamburger-icon" aria-hidden="true">
+                                {showMenu ? "✕" : "☰"}
+                            </span>
                         </button>
-                        {admin && (
-                            <button
-                                className="pill-button admin-toggle"
-                                onClick={handleAdminToggle}
-                                aria-label={isAdminPage ? "모니터 화면으로 이동" : "설정 화면으로 이동"}>
-                                <span className="btn-icon" aria-hidden="true">
-                                    {isAdminPage ? "🖥️" : "⚙️"}
-                                </span>
-                                <span className="btn-label">
-                                    {isAdminPage ? "모니터" : "세팅"}
-                                </span>
-                            </button>
+                        {showMenu && (
+                            <div className="hamburger-dropdown">
+                                <ThemeToggleMenuItem />
+                                <button
+                                    type="button"
+                                    className="menu-item"
+                                    onClick={() => { setShowKeyboardHelp(true); setShowMenu(false); }}>
+                                    <span className="menu-item-icon">⌨️</span>
+                                    <span className="menu-item-label">단축키</span>
+                                </button>
+                                {admin && (
+                                    <button
+                                        type="button"
+                                        className="menu-item"
+                                        onClick={handleAdminToggle}>
+                                        <span className="menu-item-icon">
+                                            {isAdminPage ? "🖥️" : "⚙️"}
+                                        </span>
+                                        <span className="menu-item-label">
+                                            {isAdminPage ? "모니터" : "세팅"}
+                                        </span>
+                                    </button>
+                                )}
+                                <Logout
+                                    className="menu-item"
+                                    icon="👋"
+                                    label="로그아웃"
+                                    ariaLabel="로그아웃"
+                                    setAuth={setAuth}
+                                    onLogout={() => setShowMenu(false)}
+                                />
+                            </div>
                         )}
-                            <Logout
-                                className="pill-button logout-btn"
-                                icon="👋"
-                                label="로그아웃"
-                                ariaLabel="로그아웃"
-                                setAuth={setAuth}
-                            />
-                        </div>
+                    </div>
                     </div>
                 )}
 

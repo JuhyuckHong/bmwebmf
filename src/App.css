@@ -295,6 +295,77 @@
     }
 }
 
+/* Hamburger Menu */
+.hamburger-menu {
+    position: relative;
+    margin-right: 10px;
+}
+
+.hamburger-btn {
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    justify-content: center;
+}
+
+.hamburger-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.hamburger-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 160px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-strong);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 100;
+    animation: dropdown-appear 0.15s ease;
+}
+
+@keyframes dropdown-appear {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease;
+}
+
+.menu-item:hover {
+    background: var(--surface-alt-color);
+}
+
+.menu-item-icon {
+    font-size: 1.05rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.menu-item-label {
+    flex: 1;
+}
+
 /* Keyboard Help Modal */
 .keyboard-help-overlay {
     position: fixed;
