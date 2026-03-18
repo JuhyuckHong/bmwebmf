@@ -120,15 +120,12 @@ function AllSites({
             const nextURL = staticURLs[siteKey];
             if (!nextURL) return;
 
-            const currentURL = displayedURLs[siteKey];
-            if (currentURL === nextURL) return;
-
             const img = new Image();
             const applyReady = () => {
-                setDisplayedURLs((prev) => ({
-                    ...prev,
-                    [siteKey]: nextURL,
-                }));
+                setDisplayedURLs((prev) => {
+                    if (prev[siteKey] === nextURL) return prev;
+                    return { ...prev, [siteKey]: nextURL };
+                });
                 setImageLoadState((prev) => ({
                     ...prev,
                     [siteKey]: { loaded: true, url: nextURL },
@@ -150,7 +147,7 @@ function AllSites({
             };
             img.src = nextURL;
         });
-    }, [thumbnails, staticURLs, displayedURLs]);
+    }, [thumbnails, staticURLs]);
 
     // Keep summary card height in sync with thumbnail aspect ratio and width changes.
     useEffect(() => {
