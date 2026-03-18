@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import Cookies from "js-cookie";
 import { API } from "../API";
 import "../CSS/Control.css";
+import HistoryModal from "./HistoryModal";
 
 const REFRESH_INTERVAL = 30000;
 
@@ -117,6 +118,7 @@ export default function ControlPage() {
     const [error, setError] = useState(null);
     const [lastFetched, setLastFetched] = useState(null);
     const [filter, setFilter] = useState("");
+    const [selectedModule, setSelectedModule] = useState(null);
 
     const fetchData = useCallback(async () => {
         try {
@@ -162,6 +164,7 @@ export default function ControlPage() {
     const noDataCount = modules.filter((m) => !m.last_status).length;
 
     return (
+        <>
         <div className="control-page">
             <div className="control-toolbar">
                 <h2 className="ctrl-toolbar-title">모듈 현황</h2>
@@ -231,7 +234,9 @@ export default function ControlPage() {
                                                 : !m.last_status
                                                   ? "row-unknown"
                                                   : ""
-                                        }`}>
+                                        }`}
+                                        onClick={() => setSelectedModule(m)}
+                                        style={{ cursor: "pointer" }}>
                                         <span className="ctrl-id">{parseInt(m.id, 10)}</span>
                                         <span className="ctrl-name"><Highlight text={m.site_name} query={q} /></span>
                                         <span className="ctrl-cell"><StatusTypeBadge status={m.last_status} type={m.type} /></span>
@@ -248,7 +253,7 @@ export default function ControlPage() {
                                             <span className="ctrl-mono ctrl-sub"><Highlight text={m.img_quality} query={q} /></span>
                                             {m.img_size ? <span className="ctrl-sub"><Highlight text={m.img_size} query={q} /></span> : null}
                                         </span>
-                                        <span className="ctrl-time">
+                                        <span className="ctrl-time ctrl-sub">
                                             {formatTime(m.last_success_time !== m.last_attempt_time
                                                 ? m.last_success_time
                                                 : (m.last_attempt_time ?? m.last_log_time))}
@@ -262,5 +267,13 @@ export default function ControlPage() {
                 )}
             </div>
         </div>
+
+        {selectedModule && (
+            <HistoryModal
+                module={selectedModule}
+                onClose={() => setSelectedModule(null)}
+            />
+        )}
+        </>
     );
 }
