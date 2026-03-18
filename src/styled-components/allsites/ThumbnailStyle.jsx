@@ -10,30 +10,77 @@ const ThumbnailStyle = styled.div`
     align-items: center;
     background-color: var(--surface-alt-color);
     border-radius: 10px;
+    overflow: hidden;
     color: var(--text-color);
     box-shadow: var(--shadow-soft);
     transition: background-color 0.25s ease, box-shadow 0.25s ease;
-    --overlay-top-strong: rgba(0, 0, 0, 0.65);
-    --overlay-top-fade: rgba(0, 0, 0, 0);
-    --overlay-bottom-strong: rgba(0, 0, 0, 0.65);
-    --overlay-bottom-fade: rgba(0, 0, 0, 0);
-    --overlay-chip-bg: rgba(0, 0, 0, 0.35);
-    --overlay-site-bg: rgba(0, 0, 0, 0.4);
+    --overlay-top-strong: rgba(255, 255, 255, 0.55);
+    --overlay-top-fade: rgba(255, 255, 255, 0);
+    --overlay-bottom-strong: rgba(255, 255, 255, 0.55);
+    --overlay-bottom-fade: rgba(255, 255, 255, 0);
+    --overlay-chip-bg: rgba(255, 255, 255, 0.45);
+    --overlay-site-bg: rgba(255, 255, 255, 0.38);
+    --overlay-text: #1e293b;
+    --overlay-text-muted: rgba(30, 41, 59, 0.7);
+    --chip-low-bg: rgba(134, 239, 172, 0.55);
+    --chip-low-text: #14532d;
+    --chip-mid-bg: rgba(253, 186, 116, 0.55);
+    --chip-mid-text: #7c2d12;
+    --chip-high-bg: rgba(252, 165, 165, 0.55);
+    --chip-high-text: #7f1d1d;
+    --chip-unknown-bg: rgba(203, 213, 225, 0.5);
+    --chip-unknown-text: #475569;
 
     &.need-solution {
-        --overlay-site-bg: rgba(239, 68, 68, 0.42);
+        --overlay-site-bg: rgba(252, 165, 165, 0.5);
     }
 
     &.need-check {
-        --overlay-site-bg: rgba(245, 158, 11, 0.42);
+        --overlay-site-bg: rgba(253, 186, 116, 0.5);
     }
 
     &.operational,
     &.remote-issue {
-        --overlay-site-bg: rgba(22, 163, 74, 0.38);
+        --overlay-site-bg: rgba(134, 239, 172, 0.45);
     }
 
     &.not-operational-time {
+        --overlay-site-bg: rgba(203, 213, 225, 0.4);
+    }
+
+    [data-theme="dark"] & {
+        --overlay-top-strong: rgba(0, 0, 0, 0.65);
+        --overlay-top-fade: rgba(0, 0, 0, 0);
+        --overlay-bottom-strong: rgba(0, 0, 0, 0.65);
+        --overlay-bottom-fade: rgba(0, 0, 0, 0);
+        --overlay-chip-bg: rgba(0, 0, 0, 0.35);
+        --overlay-site-bg: rgba(0, 0, 0, 0.4);
+        --overlay-text: #fff;
+        --overlay-text-muted: rgba(255, 255, 255, 0.85);
+        --chip-low-bg: rgba(34, 197, 94, 0.32);
+        --chip-low-text: #f8fafc;
+        --chip-mid-bg: rgba(249, 115, 22, 0.32);
+        --chip-mid-text: #f8fafc;
+        --chip-high-bg: rgba(239, 68, 68, 0.35);
+        --chip-high-text: #f8fafc;
+        --chip-unknown-bg: rgba(148, 163, 184, 0.32);
+        --chip-unknown-text: #f8fafc;
+    }
+
+    [data-theme="dark"] &.need-solution {
+        --overlay-site-bg: rgba(239, 68, 68, 0.42);
+    }
+
+    [data-theme="dark"] &.need-check {
+        --overlay-site-bg: rgba(245, 158, 11, 0.42);
+    }
+
+    [data-theme="dark"] &.operational,
+    [data-theme="dark"] &.remote-issue {
+        --overlay-site-bg: rgba(22, 163, 74, 0.38);
+    }
+
+    [data-theme="dark"] &.not-operational-time {
         --overlay-site-bg: rgba(15, 23, 42, 0.55);
     }
 
@@ -129,11 +176,12 @@ const ThumbnailStyle = styled.div`
     }
 
     .overlay-device {
-        background: rgba(255, 255, 255, 0.15);
+        background: var(--overlay-chip-bg);
         border-radius: 8px;
         padding: 4px 8px;
         font-size: calc(0.85rem + 0.3rem * var(--thumb-scale-clamped));
         font-weight: 700;
+        color: var(--overlay-text);
     }
 
     .thumb-top-overlay {
@@ -149,7 +197,7 @@ const ThumbnailStyle = styled.div`
         align-items: center;
         justify-content: space-between;
         padding: 10px 12px;
-        color: #fff;
+        color: var(--overlay-text);
         background: linear-gradient(
             180deg,
             var(--overlay-top-strong) 0%,
@@ -168,7 +216,7 @@ const ThumbnailStyle = styled.div`
         align-items: flex-end;
         justify-content: space-between;
         padding: 10px 12px;
-        color: #fff;
+        color: var(--overlay-text);
         background: linear-gradient(
             0deg,
             var(--overlay-bottom-strong) 0%,
@@ -192,7 +240,7 @@ const ThumbnailStyle = styled.div`
         align-items: center;
         gap: 6px;
         flex-wrap: wrap;
-        color: #fff;
+        color: var(--overlay-text);
         font-size: calc(0.55rem + 0.45rem * var(--thumb-scale-clamped));
     }
 
@@ -218,7 +266,7 @@ const ThumbnailStyle = styled.div`
     }
 
     .recent-text {
-        color: rgba(255, 255, 255, 0.85);
+        color: var(--overlay-text-muted);
         font-size: calc(0.55rem + 0.45rem * var(--thumb-scale-clamped));
         overflow: hidden;
         text-overflow: ellipsis;
@@ -373,34 +421,33 @@ const ThumbnailStyle = styled.div`
         background: var(--overlay-chip-bg);
         padding: 4px 8px;
         border-radius: 8px;
-        color: #f8fafc;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+        color: var(--overlay-text);
     }
 
     .chip-missing {
         padding: 2px 6px;
         border-radius: 6px;
-        color: #f8fafc;
+        color: var(--overlay-text);
     }
 
     .chip-text.missing-low {
-        background: rgba(34, 197, 94, 0.32);
-        color: #f8fafc;
+        background: var(--chip-low-bg);
+        color: var(--chip-low-text);
     }
 
     .chip-text.missing-mid {
-        background: rgba(249, 115, 22, 0.32);
-        color: #f8fafc;
+        background: var(--chip-mid-bg);
+        color: var(--chip-mid-text);
     }
 
     .chip-text.missing-high {
-        background: rgba(239, 68, 68, 0.35);
-        color: #f8fafc;
+        background: var(--chip-high-bg);
+        color: var(--chip-high-text);
     }
 
     .chip-text.missing-unknown {
-        background: rgba(148, 163, 184, 0.32);
-        color: #f8fafc;
+        background: var(--chip-unknown-bg);
+        color: var(--chip-unknown-text);
     }
 
     .status-row {
