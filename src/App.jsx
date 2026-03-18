@@ -395,8 +395,17 @@ function App() {
                                             {isAdminPage ? "🖥️" : "⚙️"}
                                         </span>
                                         <span className="menu-item-label">
-                                            {isAdminPage ? "모니터" : "세팅"}
+                                            {isAdminPage ? "모니터" : "설정"}
                                         </span>
+                                    </button>
+                                )}
+                                {admin && (
+                                    <button
+                                        type="button"
+                                        className="menu-item"
+                                        onClick={() => { setShowMenu(false); navigate("/control"); }}>
+                                        <span className="menu-item-icon">🔧</span>
+                                        <span className="menu-item-label">모듈</span>
                                     </button>
                                 )}
                                 <Logout

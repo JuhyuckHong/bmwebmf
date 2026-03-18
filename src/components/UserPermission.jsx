@@ -245,9 +245,6 @@ function ModifySiteForm({ username, user, setReload, allSites }) {
 
     const handleModifySites = async (e) => {
         e.preventDefault();
-        console.log("user permitted sites:", user.sites);
-        console.log("handle modify sites:", selectedSites);
-
         // 변경 사항이 없는 경우 바로 return
         const equals = (a, b) =>
             a.length === b.length && a.every((v, i) => v === b[i]);
