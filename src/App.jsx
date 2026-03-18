@@ -254,15 +254,14 @@ function App() {
         }
 
         fetchAllSitesData();
+    }, [auth, reload, fetchAllSitesData, clearStaticCache]);
 
-        // Only refresh periodically when on the all sites page
-        if (!isAllPage) return;
+    useEffect(() => {
+        if (!auth || !isAllPage) return;
 
-        const intervalMs = thumbnailIntervalMs;
-        const intervalId = setInterval(fetchAllSitesData, intervalMs);
-
+        const intervalId = setInterval(fetchAllSitesData, thumbnailIntervalMs);
         return () => clearInterval(intervalId);
-    }, [auth, reload, fetchAllSitesData, clearStaticCache, isAllPage]);
+    }, [auth, isAllPage, fetchAllSitesData]);
 
     // Keep static thumbnails cached across navigation and update only when the source url changes.
     useEffect(() => {
@@ -294,7 +293,7 @@ function App() {
 
             for (const thumbnail of thumbnails) {
                 const cached = nextCache[thumbnail.site];
-                // if (cached && cached.source === thumbnail.url) continue;
+                if (cached && cached.source === thumbnail.url) continue;
 
                 try {
                     const cacheBuster = `?_t=${Date.now()}`;

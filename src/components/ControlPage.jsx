@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Cookies from "js-cookie";
 import { API } from "../API";
 import "../CSS/Control.css";
@@ -8,16 +8,49 @@ import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 const REFRESH_INTERVAL = 30000;
 
 function formatTime(dt) {
-    if (!dt) return "—";
+    if (!dt) return null;
     const d = new Date(dt);
     const mo = String(d.getMonth() + 1);
     const day = String(d.getDate());
     const hh = String(d.getHours()).padStart(2, "0");
     const mm = String(d.getMinutes()).padStart(2, "0");
-    return `${mo}/${day}, ${hh}:${mm}`;
+    return { date: `${mo}/${day}`, time: `${hh}:${mm}` };
+}
+
+function formatRelative(dt) {
+    if (!dt) return null;
+    const diffMs = Date.now() - new Date(dt).getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 60) return { val: `${Math.max(diffMin, 1)}분`, unit: "전" };
+    const diffHr = Math.floor(diffMin / 60);
+    if (diffHr < 24) return { val: `${diffHr}시간`, unit: "전" };
+    return { val: `${Math.floor(diffHr / 24)}일`, unit: "전" };
 }
 
 const w = (cond) => cond ? " ctrl-warn-bg" : "";
+
+const COLUMNS = [
+    { label: "ID",         key: "id",           getValue: (m) => parseInt(m.id, 10) },
+    { label: "현장명",      key: "site_name",    getValue: (m) => m.site_name ?? "" },
+    { label: "촬영 스케줄", key: "schedule",     getValue: (m) => m.time_start ?? "" },
+    { label: "상태",        key: "status",       getValue: (m) => m.last_status ?? "" },
+    { label: "CPU",         key: "cpu_temp",     getValue: (m) => m.cpu_temp },
+    { label: "메모리",      key: "mem_usage",    getValue: (m) => m.mem_usage },
+    { label: "디스크",      key: "disk_usage",   getValue: (m) => m.disk_usage },
+    { label: "Pi",          key: "pi_model",     getValue: (m) => formatPiModel(m.pi_model) },
+    { label: "OS",          key: "os_version",   getValue: (m) => m.os_version ?? "" },
+    { label: "카메라",      key: "camera",       getValue: (m) => m.camera_model ? m.camera_model.replace(/^Nikon DSC\s*/i, "") : "" },
+    { label: "ISO",         key: "iso",          getValue: (m) => m.iso },
+    { label: "노출보정",    key: "exposure_comp", getValue: (m) => m.exposure_comp },
+    { label: "포커스",      key: "focus_mode",   getValue: (m) => m.focus_mode ?? "" },
+    { label: "화질/해상도", key: "img_quality",  getValue: (m) => m.img_quality ?? "" },
+    { label: "수집",        key: "last_time",    getValue: (m) => {
+        const dt = m.last_success_time !== m.last_attempt_time
+            ? m.last_success_time
+            : (m.last_attempt_time ?? m.last_log_time);
+        return dt ? new Date(dt).getTime() : null;
+    }},
+];
 
 function Highlight({ text, query }) {
     if (!query || !text) return text ?? "—";
@@ -68,9 +101,9 @@ function formatPiModel(raw) {
 }
 
 function CpuTempBadge({ temp }) {
-    if (temp == null) return <span className="ctrl-mono muted">—</span>;
-    const cls = temp >= 50 ? "hot" : temp >= 40 ? "warm" : "cool";
-    return <span className={`cpu-temp ${cls}`}>{temp.toFixed(1)}°C</span>;
+    if (temp == null) return <span className="ctrl-sub muted">—</span>;
+    const color = temp >= 50 ? "#ef4444" : temp >= 40 ? "#f59e0b" : "#0ea5e9";
+    return <span className="ctrl-sub" style={{ color }}>{temp.toFixed(1)}°C</span>;
 }
 
 function UsagePie({ value, used, total, warnAt = 70, dangerAt = 90, alertAt = 90 }) {
@@ -103,6 +136,25 @@ function UsagePie({ value, used, total, warnAt = 70, dangerAt = 90, alertAt = 90
     );
 }
 
+function ScheduleBar({ timeStart, timeEnd, interval }) {
+    const fmt = (t) => {
+        if (!t || t.length < 4) return null;
+        return `${t.slice(0, 2)}:${t.slice(2, 4)}`;
+    };
+    const start = fmt(timeStart);
+    const end = fmt(timeEnd);
+    const intervalStr = interval != null ? `${String(interval).padStart(2, "0")}분` : null;
+
+    if (!start && !end && !intervalStr) return <span className="ctrl-mono muted">—</span>;
+
+    return (
+        <span className="ctrl-sub">
+            {start && end ? `${start}~${end}` : (start || end || "—")}
+            {intervalStr && `, ${intervalStr}`}
+        </span>
+    );
+}
+
 function StatusTypeBadge({ status, type }) {
     const cls = (status === "SUCCESS" || status === "PARTIAL") ? "success" : status === "ERROR" ? "error" : "unknown";
     const label = type === "modern" ? "M" : "L";
@@ -120,7 +172,16 @@ export default function ControlPage() {
     const [lastFetched, setLastFetched] = useState(null);
     const [filter, setFilter] = useState("");
     const [selectedModule, setSelectedModule] = useState(null);
+    const [sort, setSort] = useState({ key: null, dir: null });
     const searchRef = useRef(null);
+
+    const handleSort = useCallback((key) => {
+        setSort(prev => {
+            if (prev.key !== key) return { key, dir: "asc" };
+            if (prev.dir === "asc") return { key, dir: "desc" };
+            return { key: null, dir: null };
+        });
+    }, []);
 
     const fetchData = useCallback(async () => {
         try {
@@ -170,6 +231,21 @@ export default function ControlPage() {
           ].some((v) => v && String(v).toLowerCase().includes(q)))
         : modules;
 
+    const sorted = useMemo(() => {
+        if (!sort.key || !sort.dir) return filtered;
+        const col = COLUMNS.find(c => c.key === sort.key);
+        if (!col) return filtered;
+        return [...filtered].sort((a, b) => {
+            const av = col.getValue(a);
+            const bv = col.getValue(b);
+            if (av == null && bv == null) return 0;
+            if (av == null) return 1;
+            if (bv == null) return -1;
+            const cmp = typeof av === "string" ? av.localeCompare(bv, "ko") : av - bv;
+            return sort.dir === "asc" ? cmp : -cmp;
+        });
+    }, [filtered, sort]);
+
     const successCount = modules.filter((m) => m.last_status === "SUCCESS").length;
     const errorCount = modules.filter((m) => m.last_status === "ERROR").length;
     const noDataCount = modules.filter((m) => !m.last_status).length;
@@ -195,7 +271,7 @@ export default function ControlPage() {
                     <div className="ctrl-stat-pills">
                         <span className="ctrl-stat-pill">{data.count} 전체</span>
                         <span className="ctrl-stat-pill success">{successCount} 정상</span>
-                        <span className="ctrl-stat-pill error">{errorCount} 오류</span>
+                        <span className="ctrl-stat-pill error">{errorCount} 연결실패</span>
                         {noDataCount > 0 && <span className="ctrl-stat-pill">{noDataCount} 없음</span>}
                     </div>
                 )}
@@ -209,7 +285,7 @@ export default function ControlPage() {
             </div>
 
             <div className="control-card">
-                {error && <div className="logs-error">오류: {error}</div>}
+                {error && <div className="logs-error">연결실패: {error}</div>}
                 {loading && (
                     <div className="control-loading">데이터 불러오는 중...</div>
                 )}
@@ -218,41 +294,55 @@ export default function ControlPage() {
                     <div className="control-table-outer">
                     <div className="control-table-wrap">
                         <div className="control-table-header">
-                            <span>ID</span>
-                            <span>현장명</span>
-                            <span>상태</span>
-                            <span>CPU</span>
-                            <span>메모리</span>
-                            <span>디스크</span>
-                            <span>Pi</span>
-                            <span>OS</span>
-                            <span>카메라</span>
-                            <span>ISO</span>
-                            <span>노출보정</span>
-                            <span>포커스</span>
-                            <span>화질 / 해상도</span>
-                            <span>마지막 로그</span>
+                            {COLUMNS.map(col => (
+                                <span
+                                    key={col.key}
+                                    className={`ctrl-th-sortable${sort.key === col.key ? " ctrl-th-active" : ""}`}
+                                    onClick={() => handleSort(col.key)}
+                                >
+                                    {col.label}
+                                    <span className="ctrl-sort-icon">
+                                        {sort.key === col.key
+                                            ? sort.dir === "asc" ? "↑" : "↓"
+                                            : "↕"}
+                                    </span>
+                                </span>
+                            ))}
                         </div>
                         <ul className="control-table-list">
-                            {filtered.length === 0 ? (
+                            {sorted.length === 0 ? (
                                 <li className="control-empty">
                                     검색 결과가 없습니다.
                                 </li>
                             ) : (
-                                filtered.map((m) => (
+                                sorted.map((m) => {
+                                    const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+                                    const msSinceSuccess = m.last_status === "ERROR"
+                                        ? (m.last_success_time
+                                            ? Date.now() - new Date(m.last_success_time).getTime()
+                                            : ONE_WEEK)
+                                        : 0;
+                                    const fadeRatio = Math.min(msSinceSuccess / ONE_WEEK, 1);
+                                    const isWithdrawn = fadeRatio >= 1;
+                                    return (
                                     <li
                                         key={m.id}
                                         className={`control-row ${
-                                            m.last_status === "ERROR"
-                                                ? "row-error"
-                                                : !m.last_status
-                                                  ? "row-unknown"
-                                                  : ""
+                                            isWithdrawn
+                                                ? "row-withdrawn"
+                                                : m.last_status === "ERROR"
+                                                  ? "row-error row-fading"
+                                                  : !m.last_status
+                                                    ? "row-unknown"
+                                                    : ""
                                         }`}
                                         onClick={() => setSelectedModule(m)}
-                                        style={{ cursor: "pointer" }}>
+                                        style={{ cursor: "pointer", ...(fadeRatio > 0 && { "--row-fade": fadeRatio }) }}>
                                         <span className="ctrl-id">{parseInt(m.id, 10)}</span>
                                         <span className="ctrl-name"><Highlight text={m.site_name} query={q} /></span>
+                                        <span className="ctrl-cell ctrl-schedule">
+                                            <ScheduleBar timeStart={m.time_start} timeEnd={m.time_end} interval={m.time_interval} />
+                                        </span>
                                         <span className="ctrl-cell"><StatusTypeBadge status={m.last_status} type={m.type} /></span>
                                         <span className={`ctrl-cell${w(m.cpu_temp == null || m.cpu_temp >= 50)}`}><CpuTempBadge temp={m.cpu_temp} /></span>
                                         <UsagePie value={m.mem_usage} alertAt={90} />
@@ -262,18 +352,28 @@ export default function ControlPage() {
                                         <span className={`ctrl-sub${w(!m.camera_model || /^USB PTP Class Camera$/i.test(m.camera_model.trim()))}`}><Highlight text={(m.camera_model && !/^USB PTP Class Camera$/i.test(m.camera_model.trim())) ? m.camera_model.replace(/^Nikon DSC\s*/i, "") : null} query={q} /></span>
                                         <span className={`ctrl-sub${w(m.iso == null)}`}><Highlight text={m.iso != null ? String(m.iso) : null} query={q} /></span>
                                         <span className={`ctrl-sub${w(m.exposure_comp == null)}`}><Highlight text={formatExpComp(m.exposure_comp)} query={q} /></span>
-                                        <span className={`ctrl-sub${w(m.focus_mode == null)}`}><Highlight text={m.focus_mode} query={q} /></span>
+                                        <span className={`ctrl-sub${w(m.focus_mode == null)}`}><Highlight text={m.focus_mode ? m.focus_mode.replace(/\s*\(.*\)/, "") : null} query={q} /></span>
                                         <span className={`ctrl-mono ctrl-col${w(m.img_quality == null)}`}>
                                             <span className="ctrl-mono ctrl-sub"><Highlight text={m.img_quality} query={q} /></span>
                                             {m.img_size ? <span className="ctrl-sub"><Highlight text={m.img_size} query={q} /></span> : null}
                                         </span>
-                                        <span className="ctrl-time ctrl-sub">
-                                            {formatTime(m.last_success_time !== m.last_attempt_time
-                                                ? m.last_success_time
-                                                : (m.last_attempt_time ?? m.last_log_time))}
+                                        <span className="ctrl-col ctrl-time-col">
+                                            {(() => {
+                                                const dt = m.last_success_time !== m.last_attempt_time
+                                                    ? m.last_success_time
+                                                    : (m.last_attempt_time ?? m.last_log_time);
+                                                const rel = formatRelative(dt);
+                                                return rel
+                                                    ? <span className="ctrl-rel-time">
+                                                        <span className="ctrl-rel-val">{rel.val}</span>
+                                                        <span className="ctrl-rel-unit">{rel.unit}</span>
+                                                      </span>
+                                                    : <span className="ctrl-sub">—</span>;
+                                            })()}
                                         </span>
                                     </li>
-                                ))
+                                    );
+                                })
                             )}
                         </ul>
                     </div>

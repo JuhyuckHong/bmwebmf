@@ -220,7 +220,7 @@
 
 .control-table-wrap {
     display: grid;
-    grid-template-columns: max-content 1fr max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content;
+    grid-template-columns: max-content 1fr max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content;
     min-width: max-content;
     font-size: 0.84rem;
 }
@@ -254,8 +254,41 @@
     border-right: none;
 }
 
-/* camera setting columns (10–13: ISO, 노출보정, 포커스, 화질): slightly different tint */
-.control-table-header > span:nth-child(n+10):nth-child(-n+13) {
+/* ── Sortable header ────────────────────────────── */
+.ctrl-th-sortable {
+    cursor: pointer;
+    user-select: none;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    transition: color 0.12s, background 0.12s;
+}
+
+.ctrl-th-sortable:hover {
+    color: var(--text-color);
+    background: color-mix(in srgb, var(--accent-color) 12%, var(--surface-alt-color) 88%) !important;
+}
+
+.ctrl-th-active {
+    color: var(--accent-color) !important;
+}
+
+.ctrl-sort-icon {
+    font-size: 0.65rem;
+    opacity: 0.35;
+    flex-shrink: 0;
+    line-height: 1;
+    width: 0.65em;
+    text-align: center;
+}
+
+.ctrl-th-active .ctrl-sort-icon {
+    opacity: 1;
+}
+
+/* camera setting columns (10–14: 카메라, ISO, 노출보정, 포커스, 화질/해상도): slightly different tint */
+.control-table-header > span:nth-child(n+10):nth-child(-n+14) {
     background: color-mix(in srgb, var(--surface-alt-color) 60%, var(--accent-color) 5%);
 }
 
@@ -311,6 +344,26 @@
 
 .control-row.row-unknown > * { opacity: 0.55; }
 
+/* withdrawn row (연결실패 7일 이상 → 철수 추정) */
+.control-row.row-withdrawn > * {
+    background: color-mix(in srgb, var(--surface-color) 60%, transparent 40%);
+}
+.control-row.row-withdrawn:hover > * {
+    background: color-mix(in srgb, var(--surface-color) 75%, transparent 25%) !important;
+}
+
+/* progressive fade: error → withdrawn 구간 + 철수 후 (ctrl-id 제외) */
+.control-row.row-fading > *:not(.ctrl-id),
+.control-row.row-withdrawn > *:not(.ctrl-id) {
+    opacity: calc(1 - var(--row-fade, 0) * 0.85);
+    filter: grayscale(calc(var(--row-fade, 0) * 0.6));
+    transition: opacity 0.5s ease, filter 0.5s ease;
+}
+.control-row.row-withdrawn .ctrl-id {
+    opacity: 1;
+    filter: none;
+}
+
 /* ── Cell styles ─────────────────────────────────── */
 .ctrl-id {
     font-family: Menlo, Monaco, Consolas, monospace;
@@ -340,6 +393,13 @@
     font-size: 0.8rem;
 }
 
+.ctrl-schedule {
+    justify-content: center;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+
 .ctrl-mono.muted,
 .muted {
     color: var(--muted-text-color);
@@ -362,6 +422,35 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 1px;
+}
+
+.ctrl-time-col {
+    align-items: flex-end;
+}
+
+.ctrl-rel-time {
+    display: flex;
+    gap: 2px;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.7rem;
+    color: var(--muted-text-color);
+    font-family: Menlo, Monaco, Consolas, monospace;
+}
+
+.ctrl-rel-val {
+    text-align: right;
+    flex: 1;
+    font-family: Menlo, Monaco, Consolas, monospace;
+    font-size: 0.7rem;
+    color: var(--muted-text-color);
+}
+
+.ctrl-rel-unit {
+    min-width: 1.4em;
+    text-align: left;
+    font-family: Menlo, Monaco, Consolas, monospace;
+    font-size: 0.7rem;
+    color: var(--muted-text-color);
 }
 
 .ctrl-sub {
@@ -432,21 +521,6 @@
     background: var(--surface-alt-color);
 }
 
-/* ── CPU temp ────────────────────────────────────── */
-.cpu-temp {
-    font-family: Menlo, Monaco, Consolas, monospace;
-    font-size: 0.8rem;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 6px;
-    border: 1px solid transparent;
-    display: inline-block;
-}
-
-.cpu-temp.cool   { color: #0ea5e9; border-color: rgba(14, 165, 233, 0.3); background: rgba(14, 165, 233, 0.09); }
-.cpu-temp.warm   { color: #d97706; border-color: rgba(217, 119, 6, 0.3);  background: rgba(217, 119, 6, 0.09);  }
-.cpu-temp.hot    { color: #dc2626; border-color: rgba(220, 38, 38, 0.3);  background: rgba(220, 38, 38, 0.09);  }
-.cpu-temp.none   { color: var(--muted-text-color); }
 
 /* ── Warn background pulse ───────────────────────────── */
 @keyframes warn-bg-pulse {

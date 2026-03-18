@@ -200,7 +200,11 @@
 }
 
 .hist-events-title {
-    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 7px 14px;
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.06em;
@@ -208,6 +212,37 @@
     color: var(--muted-text-color);
     background: var(--surface-alt-color);
     border-bottom: 1px solid var(--border-color);
+}
+
+/* ── Tab group ───────────────────────────────────── */
+.hist-tab-group {
+    display: flex;
+    gap: 4px;
+}
+
+.hist-tab-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--muted-text-color);
+    border-radius: 5px;
+    padding: 3px 9px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0;
+    text-transform: none;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.hist-tab-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--text-color);
+}
+
+.hist-tab-btn.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
 }
 
 .hist-events-list {
@@ -283,4 +318,108 @@
     color: var(--muted-text-color);
     font-size: 0.75rem;
     flex: 1;
+}
+
+/* ── Field status grid ───────────────────────────── */
+.hist-fields-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.hist-field-group {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.hist-field-group:last-child {
+    border-bottom: none;
+}
+
+.hist-field-group-title {
+    padding: 6px 14px;
+    font-size: 0.67rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--accent-color);
+    background: color-mix(in srgb, var(--accent-color) 6%, var(--surface-alt-color));
+    border-bottom: 1px solid var(--border-color);
+}
+
+.hist-field-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    padding: 8px 0 8px 14px;
+    border-bottom: 1px solid var(--border-color);
+    min-height: 36px;
+}
+
+.hist-field-row:last-child {
+    border-bottom: none;
+}
+
+.hist-field-row.changed.config {
+    border-left: 3px solid #3b82f6;
+}
+
+.hist-field-row.changed.hardware {
+    border-left: 3px solid #a855f7;
+}
+
+.hist-field-row.no-change {
+    border-left: 3px solid transparent;
+    opacity: 0.55;
+}
+
+.hist-field-label {
+    flex-shrink: 0;
+    width: 84px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--muted-text-color);
+}
+
+.hist-field-value {
+    flex-shrink: 0;
+    width: 110px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-color);
+    font-family: Menlo, Monaco, Consolas, monospace;
+    padding-right: 12px;
+}
+
+.hist-field-chain {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-family: Menlo, Monaco, Consolas, monospace;
+    font-size: 0.75rem;
+}
+
+.hist-chain-origin {
+    color: var(--muted-text-color);
+}
+
+.hist-chain-step {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.hist-chain-arrow {
+    color: var(--muted-text-color);
+    font-size: 0.7rem;
+}
+
+.hist-field-time {
+    font-size: 0.67rem;
+    color: var(--muted-text-color);
+    white-space: nowrap;
+}
+
+.hist-field-nochange {
+    font-size: 0.72rem;
+    color: var(--muted-text-color);
 }

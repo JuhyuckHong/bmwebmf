@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Cookies from "js-cookie";
 import {
     ComposedChart,
@@ -14,6 +14,83 @@ import { API } from "../API";
 import "../CSS/HistoryModal.css";
 
 const HOUR_OPTIONS = [12, 24, 48, 72];
+
+function formatExpComp(val) {
+    if (val == null) return null;
+    const n = parseFloat(val);
+    if (isNaN(n)) return String(val);
+    const thirds = Math.round(n * 3);
+    if (thirds === 0) return "0";
+    const sign = thirds < 0 ? "-" : "+";
+    const abs = Math.abs(thirds);
+    const whole = Math.floor(abs / 3);
+    const rem = abs % 3;
+    const frac = rem === 1 ? "1/3" : rem === 2 ? "2/3" : "";
+    if (whole === 0) return `${sign}${frac}`;
+    if (rem === 0)   return `${sign}${whole}`;
+    return `${sign}${whole} ${frac}`;
+}
+
+function formatPiModel(raw) {
+    if (!raw) return null;
+    const s = raw.trim();
+    if (/Zero 2 W/i.test(s))              return "02W";
+    if (/Zero W/i.test(s))                return "0W";
+    if (/Zero/i.test(s))                  return "0";
+    if (/Raspberry Pi 5/i.test(s))        return "5";
+    if (/Raspberry Pi 4/i.test(s))        return "4B";
+    if (/Raspberry Pi 3.*Plus/i.test(s))  return "3B+";
+    if (/Raspberry Pi 3/i.test(s))        return "3B";
+    if (/Raspberry Pi 2/i.test(s))        return "2B";
+    if (/Model B Plus/i.test(s))          return "1B+";
+    if (/Model B/i.test(s))               return "1B";
+    if (/Model A Plus/i.test(s))          return "1A+";
+    if (/Model A/i.test(s))               return "1A";
+    return s;
+}
+
+function fmtHHMM(t) {
+    if (!t || t.length < 4) return null;
+    return `${t.slice(0, 2)}:${t.slice(2, 4)}`;
+}
+
+function fmtEventVal(type, val) {
+    if (val == null) return "—";
+    const s = String(val);
+    if (type === "camera_serial") return s.replace(/^0+|0+$/g, "") || s;
+    return s;
+}
+
+const FIELD_GROUPS = [
+    {
+        group: "카메라 세팅",
+        fields: [
+            { key: "camera_model",  label: "카메라",      kind: "config",   getValue: (m) => m.camera_model ? m.camera_model.replace(/^Nikon DSC\s*/i, "") : null },
+            { key: "camera_serial", label: "시리얼",      kind: "hardware", getValue: (m) => m.camera_serial ? m.camera_serial.replace(/^0+|0+$/g, "") || m.camera_serial : null },
+            { key: "iso",           label: "ISO",         kind: "config",   getValue: (m) => m.iso != null ? String(m.iso) : null },
+            { key: "exposure_comp", label: "노출보정",     kind: "config",   getValue: (m) => formatExpComp(m.exposure_comp) },
+            { key: "focus_mode",    label: "포커스 모드",  kind: "config",   getValue: (m) => m.focus_mode ?? null },
+            { key: "img_quality",   label: "화질",         kind: "config",   getValue: (m) => m.img_quality ?? null },
+            { key: "img_size",      label: "해상도",        kind: "config",  getValue: (m) => m.img_size ?? null },
+        ],
+    },
+    {
+        group: "모듈 정보",
+        fields: [
+            { key: "pi_model",      label: "Pi 모델",     kind: "hardware", getValue: (m) => formatPiModel(m.pi_model) },
+            { key: "os_version",    label: "OS",           kind: "hardware", getValue: (m) => m.os_version ?? null },
+        ],
+    },
+    {
+        group: "운영 정보",
+        fields: [
+            { key: "site_name",     label: "현장명",       kind: "config",   getValue: (m) => m.site_name ?? null },
+            { key: "time_start",    label: "촬영 시작",    kind: "config",   getValue: (m) => fmtHHMM(m.time_start) },
+            { key: "time_end",      label: "촬영 종료",    kind: "config",   getValue: (m) => fmtHHMM(m.time_end) },
+            { key: "time_interval", label: "촬영 간격",    kind: "config",   getValue: (m) => m.time_interval != null ? `${m.time_interval}분` : null },
+        ],
+    },
+];
 
 function fmtAxisTime(ts) {
     if (!ts) return "";
@@ -57,6 +134,7 @@ export default function HistoryModal({ module, onClose }) {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [eventsView, setEventsView] = useState("fields");
 
     const fetchHistory = useCallback(async () => {
         setLoading(true);
@@ -90,13 +168,24 @@ export default function HistoryModal({ module, onClose }) {
     }));
 
     // Merge all event timestamps for ReferenceLine
-    const hwTimes = hardwareEvents.map((e) => new Date(e.occurred_at).getTime());
-    const cfgTimes = configEvents.map((e) => new Date(e.occurred_at).getTime());
+    const hwTimes = hardwareEvents.map((e) => new Date(e.ts).getTime());
+    const cfgTimes = configEvents.map((e) => new Date(e.ts).getTime());
 
     const allEvents = [
         ...hardwareEvents.map((e) => ({ ...e, kind: "hardware" })),
         ...configEvents.map((e) => ({ ...e, kind: "config" })),
-    ].sort((a, b) => new Date(a.occurred_at) - new Date(b.occurred_at));
+    ].sort((a, b) => new Date(a.ts) - new Date(b.ts));
+
+    // 필드별 이벤트 목록 (시간순)
+    const eventsByType = useMemo(() => {
+        const map = {};
+        for (const e of allEvents) {
+            if (!e.type) continue;
+            if (!map[e.type]) map[e.type] = [];
+            map[e.type].push(e);
+        }
+        return map;
+    }, [allEvents]);
 
     return (
         <div className="hist-overlay" onClick={onClose}>
@@ -184,36 +273,85 @@ export default function HistoryModal({ module, onClose }) {
                                 </div>
                             )}
 
-                            {allEvents.length > 0 && (
-                                <div className="hist-events">
-                                    <div className="hist-events-title">이벤트</div>
-                                    <ul className="hist-events-list">
-                                        {allEvents.map((e, i) => (
-                                            <li key={i} className={`hist-event-row ${e.kind}`}>
-                                                <span className="hist-event-icon">
-                                                    {e.kind === "hardware" ? "🛠" : "⚙️"}
-                                                </span>
-                                                <span className="hist-event-time">{fmtEventTime(e.occurred_at)}</span>
-                                                <span className="hist-event-field">{e.field ?? e.type ?? ""}</span>
-                                                {e.from_value != null && (
-                                                    <span className="hist-event-change">
-                                                        <span className="hist-event-from">{String(e.from_value)}</span>
-                                                        <span className="hist-event-arrow">→</span>
-                                                        <span className="hist-event-to">{String(e.to_value)}</span>
-                                                    </span>
-                                                )}
-                                                {e.description && (
-                                                    <span className="hist-event-desc">{e.description}</span>
-                                                )}
-                                            </li>
-                                        ))}
-                                    </ul>
+                            <div className="hist-events">
+                                <div className="hist-events-title">
+                                    <span>변경 이력</span>
+                                    <div className="hist-tab-group">
+                                        <button
+                                            className={`hist-tab-btn${eventsView === "fields" ? " active" : ""}`}
+                                            onClick={() => setEventsView("fields")}
+                                        >필드 현황</button>
+                                        <button
+                                            className={`hist-tab-btn${eventsView === "events" ? " active" : ""}`}
+                                            onClick={() => setEventsView("events")}
+                                        >이벤트 목록{allEvents.length > 0 ? ` (${allEvents.length})` : ""}</button>
+                                    </div>
                                 </div>
-                            )}
 
-                            {allEvents.length === 0 && chartData.length > 0 && (
-                                <div className="hist-no-events">이벤트 없음</div>
-                            )}
+                                {eventsView === "fields" && (
+                                    <div className="hist-fields-body">
+                                        {FIELD_GROUPS.map(({ group, fields }) => (
+                                            <div key={group} className="hist-field-group">
+                                                <div className="hist-field-group-title">{group}</div>
+                                                {fields.map((field) => {
+                                                    const events = eventsByType[field.key] ?? [];
+                                                    const currentVal = field.getValue(module);
+                                                    return (
+                                                        <div key={field.key} className={`hist-field-row${events.length > 0 ? ` changed ${field.kind}` : " no-change"}`}>
+                                                            <span className="hist-field-label">{field.label}</span>
+                                                            <span className="hist-field-value">{currentVal ?? "—"}</span>
+                                                            {events.length > 0 ? (
+                                                                <span className="hist-field-chain">
+                                                                    {events[0].from != null && (
+                                                                        <span className="hist-chain-origin">{fmtEventVal(field.key, events[0].from)}</span>
+                                                                    )}
+                                                                    {events.map((ev, i) => (
+                                                                        <span key={i} className="hist-chain-step">
+                                                                            <span className="hist-chain-arrow">→</span>
+                                                                            <span className="hist-event-to">{fmtEventVal(field.key, ev.to)}</span>
+                                                                            <span className="hist-field-time">{fmtEventTime(ev.ts)}</span>
+                                                                        </span>
+                                                                    ))}
+                                                                </span>
+                                                            ) : (
+                                                                <span className="hist-field-nochange">변경 없음</span>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {eventsView === "events" && (
+                                    allEvents.length === 0 ? (
+                                        <div className="hist-no-events">이 기간 내 이벤트 없음</div>
+                                    ) : (
+                                        <ul className="hist-events-list">
+                                            {allEvents.map((e, i) => (
+                                                <li key={i} className={`hist-event-row ${e.kind}`}>
+                                                    <span className="hist-event-icon">
+                                                        {e.kind === "hardware" ? "🛠" : "⚙️"}
+                                                    </span>
+                                                    <span className="hist-event-time">{fmtEventTime(e.ts)}</span>
+                                                    <span className="hist-event-field">{e.type ?? ""}</span>
+                                                    {e.from != null && (
+                                                        <span className="hist-event-change">
+                                                            <span className="hist-event-from">{fmtEventVal(e.type, e.from)}</span>
+                                                            <span className="hist-event-arrow">→</span>
+                                                            <span className="hist-event-to">{fmtEventVal(e.type, e.to)}</span>
+                                                        </span>
+                                                    )}
+                                                    {e.description && (
+                                                        <span className="hist-event-desc">{e.description}</span>
+                                                    )}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )
+                                )}
+                            </div>
                         </>
                     )}
                 </div>
