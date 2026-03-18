@@ -38,6 +38,79 @@ const getInitialTheme = () => {
     return prefersDark ? "dark" : "light";
 };
 
+const HamburgerMenu = ({ admin, isAdminPage, setAuth, onOpenKeyboardHelp, onAdminToggle, onNavigateControl }) => {
+    const [showMenu, setShowMenu] = useState(false);
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        if (!showMenu) return;
+        const handleClickOutside = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) {
+                setShowMenu(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showMenu]);
+
+    return (
+        <div className="hamburger-menu" ref={menuRef}>
+            <button
+                type="button"
+                className="pill-button hamburger-btn"
+                onClick={() => setShowMenu(v => !v)}
+                aria-label="메뉴 열기"
+                aria-expanded={showMenu}>
+                <span className="hamburger-icon" aria-hidden="true">
+                    {showMenu ? "✕" : "☰"}
+                </span>
+            </button>
+            {showMenu && (
+                <div className="hamburger-dropdown">
+                    <ThemeToggleMenuItem />
+                    <button
+                        type="button"
+                        className="menu-item"
+                        onClick={() => { onOpenKeyboardHelp(); setShowMenu(false); }}>
+                        <span className="menu-item-icon">⌨️</span>
+                        <span className="menu-item-label">단축키</span>
+                    </button>
+                    {admin && (
+                        <button
+                            type="button"
+                            className="menu-item"
+                            onClick={() => { onAdminToggle(); setShowMenu(false); }}>
+                            <span className="menu-item-icon">
+                                {isAdminPage ? "🖥️" : "⚙️"}
+                            </span>
+                            <span className="menu-item-label">
+                                {isAdminPage ? "모니터" : "설정"}
+                            </span>
+                        </button>
+                    )}
+                    {admin && (
+                        <button
+                            type="button"
+                            className="menu-item"
+                            onClick={() => { setShowMenu(false); onNavigateControl(); }}>
+                            <span className="menu-item-icon">💻</span>
+                            <span className="menu-item-label">모듈 정보</span>
+                        </button>
+                    )}
+                    <Logout
+                        className="menu-item"
+                        icon="👋"
+                        label="로그아웃"
+                        ariaLabel="로그아웃"
+                        setAuth={setAuth}
+                        onLogout={() => setShowMenu(false)}
+                    />
+                </div>
+            )}
+        </div>
+    );
+};
+
 const ThemeToggleMenuItem = () => {
     const [themeMode, setThemeMode] = useState(getInitialTheme);
 
@@ -75,12 +148,10 @@ function App() {
     const [authChecked, setAuthChecked] = useState(false);
     const [sortType, setSortType] = useState('name'); // 'name' | 'device' | 'status'
     const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
-    const [showMenu, setShowMenu] = useState(false);
     const [thumbnails, setThumbnails] = useState([]);
     const [siteInformation, setSiteInformation] = useState({});
     const [staticURLs, setStaticURLs] = useState({});
     const staticCacheRef = useRef({});
-    const menuRef = useRef(null);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -312,22 +383,16 @@ function App() {
         return children;
     };
 
-    useEffect(() => {
-        if (!showMenu) return;
-        const handleClickOutside = (e) => {
-            if (menuRef.current && !menuRef.current.contains(e.target)) {
-                setShowMenu(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [showMenu]);
+    const handleOpenKeyboardHelp = useCallback(() => setShowKeyboardHelp(true), []);
 
-    const handleAdminToggle = () => {
+    const handleAdminToggle = useCallback(() => {
         if (!admin) return;
-        setShowMenu(false);
         navigate(isAdminPage ? "/all" : "/setting");
-    };
+    }, [admin, isAdminPage, navigate]);
+
+    const handleNavigateControl = useCallback(() => {
+        navigate("/control");
+    }, [navigate]);
 
     const handleLoginSuccess = (redirectTo = "/all") => {
         navigate(redirectTo, { replace: true });
@@ -365,60 +430,14 @@ function App() {
                             </SortingStyle>
                         )}
                     </div>
-                    <div className="hamburger-menu" ref={menuRef}>
-                        <button
-                            type="button"
-                            className="pill-button hamburger-btn"
-                            onClick={() => setShowMenu(v => !v)}
-                            aria-label="메뉴 열기"
-                            aria-expanded={showMenu}>
-                            <span className="hamburger-icon" aria-hidden="true">
-                                {showMenu ? "✕" : "☰"}
-                            </span>
-                        </button>
-                        {showMenu && (
-                            <div className="hamburger-dropdown">
-                                <ThemeToggleMenuItem />
-                                <button
-                                    type="button"
-                                    className="menu-item"
-                                    onClick={() => { setShowKeyboardHelp(true); setShowMenu(false); }}>
-                                    <span className="menu-item-icon">⌨️</span>
-                                    <span className="menu-item-label">단축키</span>
-                                </button>
-                                {admin && (
-                                    <button
-                                        type="button"
-                                        className="menu-item"
-                                        onClick={handleAdminToggle}>
-                                        <span className="menu-item-icon">
-                                            {isAdminPage ? "🖥️" : "⚙️"}
-                                        </span>
-                                        <span className="menu-item-label">
-                                            {isAdminPage ? "모니터" : "설정"}
-                                        </span>
-                                    </button>
-                                )}
-                                {admin && (
-                                    <button
-                                        type="button"
-                                        className="menu-item"
-                                        onClick={() => { setShowMenu(false); navigate("/control"); }}>
-                                        <span className="menu-item-icon">🔧</span>
-                                        <span className="menu-item-label">모듈</span>
-                                    </button>
-                                )}
-                                <Logout
-                                    className="menu-item"
-                                    icon="👋"
-                                    label="로그아웃"
-                                    ariaLabel="로그아웃"
-                                    setAuth={setAuth}
-                                    onLogout={() => setShowMenu(false)}
-                                />
-                            </div>
-                        )}
-                    </div>
+                    <HamburgerMenu
+                        admin={admin}
+                        isAdminPage={isAdminPage}
+                        setAuth={setAuth}
+                        onOpenKeyboardHelp={handleOpenKeyboardHelp}
+                        onAdminToggle={handleAdminToggle}
+                        onNavigateControl={handleNavigateControl}
+                    />
                     </div>
                 )}
 

@@ -719,7 +719,7 @@ function MonitorTable({ rows, compact = false }) {
                                         <tr>
                                             <th>No</th>
                                             <th>현장 이름</th>
-                                            <th>모듈</th>
+                                            <th>모듈정보</th>
                                             <th>최근사진</th>
                                             <th>촬영</th>
                                             <th>누락</th>

@@ -167,7 +167,7 @@ export default function ControlPage() {
         <>
         <div className="control-page">
             <div className="control-toolbar">
-                <h2 className="ctrl-toolbar-title">모듈 현황</h2>
+                <h2 className="ctrl-toolbar-title">모듈 정보</h2>
                 <div className="control-search-wrap">
                     <input
                         id="control-search"
