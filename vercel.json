@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+            "source": "/relay/:path*",
+            "destination": "https://bmtl.codebuild.pe.kr/api/:path*"
+        }
+    ]
+}

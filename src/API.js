@@ -83,4 +83,7 @@ export const API = {
     getLogs: (headers, params) => api.get("/logs", { headers, params }),
     // 모듈 최신 현황 조회
     getLatest: (headers) => relay.get("/latest", { headers }),
+    // 모듈 히스토리 조회
+    getHistory: (headers, moduleId, hours = 24) =>
+        relay.get(`/history/${moduleId}`, { headers, params: { hours } }),
 };
