@@ -48,6 +48,8 @@ function Signup({ onSwitchToLogin }) {
 
                 <InputFormBox className="SignupBox" onSubmit={RequestSignup}>
                     <input
+                        id="signup-id"
+                        name="username"
                         type="text"
                         placeholder="아이디"
                         value={id}
@@ -56,6 +58,8 @@ function Signup({ onSwitchToLogin }) {
                     />
 
                     <input
+                        id="signup-password"
+                        name="new-password"
                         type="password"
                         placeholder="비밀번호"
                         value={pw}
@@ -69,6 +73,8 @@ function Signup({ onSwitchToLogin }) {
                     ) : null}
 
                     <input
+                        id="signup-password-confirm"
+                        name="password-confirm"
                         type="password"
                         placeholder="비밀번호 확인"
                         value={pwConfirm}
@@ -80,6 +86,8 @@ function Signup({ onSwitchToLogin }) {
                     ) : null}
 
                     <input
+                        id="signup-code"
+                        name="signup-code"
                         type="text"
                         placeholder="회원가입 코드"
                         value={code}

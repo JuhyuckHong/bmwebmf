@@ -170,6 +170,8 @@ export default function ControlPage() {
                 <h2 className="ctrl-toolbar-title">모듈 현황</h2>
                 <div className="control-search-wrap">
                     <input
+                        id="control-search"
+                        name="control-search"
                         className="control-search"
                         type="text"
                         placeholder="검색..."
