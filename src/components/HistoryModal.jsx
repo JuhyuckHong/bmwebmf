@@ -65,7 +65,7 @@ const FIELD_GROUPS = [
     {
         group: "카메라 세팅",
         fields: [
-            { key: "camera_model",  label: "카메라",      kind: "config",   getValue: (m) => m.camera_model ? m.camera_model.replace(/^Nikon DSC\s*/i, "") : null },
+            { key: "camera_model",  label: "카메라",      kind: "config",   getValue: (m) => m.camera_model ? m.camera_model.replace(/^Nikon DSC\s*/i, "").replace(/\s*\(.*?\)/g, "").trim() : null },
             { key: "camera_serial", label: "시리얼",      kind: "hardware", getValue: (m) => m.camera_serial ? m.camera_serial.replace(/^0+|0+$/g, "") || m.camera_serial : null },
             { key: "iso",           label: "ISO",         kind: "config",   getValue: (m) => m.iso != null ? String(m.iso) : null },
             { key: "exposure_comp", label: "노출보정",     kind: "config",   getValue: (m) => formatExpComp(m.exposure_comp) },

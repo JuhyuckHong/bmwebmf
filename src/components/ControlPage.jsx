@@ -30,19 +30,19 @@ function formatRelative(dt) {
 const w = (cond) => cond ? " ctrl-warn-bg" : "";
 
 const COLUMNS = [
-    { label: "ID",         key: "id",           getValue: (m) => parseInt(m.id, 10) },
-    { label: "현장명",      key: "site_name",    getValue: (m) => m.site_name ?? "" },
-    { label: "촬영 스케줄", key: "schedule",     getValue: (m) => m.time_start ?? "" },
+    { label: "#",         key: "id",           getValue: (m) => parseInt(m.id, 10) },
+    { label: "현장",      key: "site_name",    getValue: (m) => m.site_name ?? "" },
+    { label: "촬영", key: "schedule",     getValue: (m) => m.time_start ?? "" },
     { label: "상태",        key: "status",       getValue: (m) => m.last_status ?? "" },
-    { label: "CPU",         key: "cpu_temp",     getValue: (m) => m.cpu_temp },
+    { label: "온도",         key: "cpu_temp",     getValue: (m) => m.cpu_temp },
     { label: "메모리",      key: "mem_usage",    getValue: (m) => m.mem_usage },
     { label: "디스크",      key: "disk_usage",   getValue: (m) => m.disk_usage },
     { label: "Pi",          key: "pi_model",     getValue: (m) => formatPiModel(m.pi_model) },
-    { label: "OS",          key: "os_version",   getValue: (m) => m.os_version ?? "" },
-    { label: "카메라",      key: "camera",       getValue: (m) => m.camera_model ? m.camera_model.replace(/^Nikon DSC\s*/i, "") : "" },
+    { label: "OS",          key: "os_version",   getValue: (m) => formatOsVersion(m.os_version) },
+    { label: "기종",      key: "camera",       getValue: (m) => m.camera_model ? m.camera_model.replace(/^Nikon DSC\s*/i, "").replace(/\s*\(.*?\)/g, "").trim() : "" },
     { label: "ISO",         key: "iso",          getValue: (m) => m.iso },
-    { label: "노출보정",    key: "exposure_comp", getValue: (m) => m.exposure_comp },
-    { label: "포커스",      key: "focus_mode",   getValue: (m) => m.focus_mode ?? "" },
+    { label: "노출",    key: "exposure_comp", getValue: (m) => m.exposure_comp },
+    { label: "초점",      key: "focus_mode",   getValue: (m) => m.focus_mode ?? "" },
     { label: "화질/해상도", key: "img_quality",  getValue: (m) => m.img_quality ?? "" },
     { label: "수집",        key: "last_time",    getValue: (m) => {
         const dt = m.last_success_time !== m.last_attempt_time
@@ -80,6 +80,18 @@ function formatExpComp(val) {
     if (whole === 0) return `${sign}${frac}`;
     if (rem === 0)   return `${sign}${whole}`;
     return `${sign}${whole} ${frac}`;
+}
+
+function formatOsVersion(raw) {
+    if (!raw) return "—";
+    const s = raw.toLowerCase();
+    if (s.includes("trixie"))   return "Tr";
+    if (s.includes("bookworm")) return "Bk";
+    if (s.includes("bullseye")) return "Bl";
+    if (s.includes("buster"))   return "Bu";
+    if (s.includes("stretch"))  return "St";
+    if (s.includes("jessie"))   return "Je";
+    return raw.trim();
 }
 
 function formatPiModel(raw) {
@@ -130,7 +142,7 @@ function UsagePie({ value, used, total, warnAt = 70, dangerAt = 90, alertAt = 90
             <div className="usage-pie-info">
                 <span className="usage-pie-label">{value}%</span>
                 {used != null && total != null &&
-                    <span className="usage-pie-gb">{used}/{total}GB</span>}
+                    <span className="usage-pie-gb">{used}/{total}</span>}
             </div>
         </div>
     );
@@ -222,7 +234,7 @@ export default function ControlPage() {
               m.last_status,
               m.pi_model ? formatPiModel(m.pi_model) : null,
               m.os_version,
-              m.camera_model ? m.camera_model.replace(/^Nikon DSC\s*/i, "") : null,
+              m.camera_model ? m.camera_model.replace(/^Nikon DSC\s*/i, "").replace(/\s*\(.*?\)/g, "").trim() : null,
               m.iso != null ? String(m.iso) : null,
               m.exposure_comp != null ? formatExpComp(m.exposure_comp) : null,
               m.focus_mode,
@@ -348,8 +360,8 @@ export default function ControlPage() {
                                         <UsagePie value={m.mem_usage} alertAt={90} />
                                         <UsagePie value={m.disk_usage} used={m.disk_used_gb} total={m.disk_total_gb} warnAt={60} dangerAt={75} alertAt={75} />
                                         <span className={`ctrl-sub${w(m.pi_model == null)}`}><Highlight text={formatPiModel(m.pi_model)} query={q} /></span>
-                                        <span className={`ctrl-sub${w(m.os_version == null)}`}><Highlight text={m.os_version} query={q} /></span>
-                                        <span className={`ctrl-sub${w(!m.camera_model || /^USB PTP Class Camera$/i.test(m.camera_model.trim()))}`}><Highlight text={(m.camera_model && !/^USB PTP Class Camera$/i.test(m.camera_model.trim())) ? m.camera_model.replace(/^Nikon DSC\s*/i, "") : null} query={q} /></span>
+                                        <span className={`ctrl-sub${w(m.os_version == null)}`}><Highlight text={formatOsVersion(m.os_version)} query={q} /></span>
+                                        <span className={`ctrl-sub${w(!m.camera_model || /^USB PTP Class Camera$/i.test(m.camera_model.trim()))}`}><Highlight text={(m.camera_model && !/^USB PTP Class Camera$/i.test(m.camera_model.trim())) ? m.camera_model.replace(/^Nikon DSC\s*/i, "").replace(/\s*\(.*?\)/g, "").trim() : null} query={q} /></span>
                                         <span className={`ctrl-sub${w(m.iso == null)}`}><Highlight text={m.iso != null ? String(m.iso) : null} query={q} /></span>
                                         <span className={`ctrl-sub${w(m.exposure_comp == null)}`}><Highlight text={formatExpComp(m.exposure_comp)} query={q} /></span>
                                         <span className={`ctrl-sub${w(m.focus_mode == null)}`}><Highlight text={m.focus_mode ? m.focus_mode.replace(/\s*\(.*\)/, "") : null} query={q} /></span>
