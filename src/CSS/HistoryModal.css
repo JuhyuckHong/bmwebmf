@@ -327,22 +327,15 @@
 }
 
 .hist-field-group {
-    border-bottom: 1px solid var(--border-color);
-}
-
-.hist-field-group:last-child {
-    border-bottom: none;
 }
 
 .hist-field-group-title {
-    padding: 6px 14px;
-    font-size: 0.67rem;
+    padding: 10px 14px 3px;
+    font-size: 0.64rem;
     font-weight: 800;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--accent-color);
-    background: color-mix(in srgb, var(--accent-color) 6%, var(--surface-alt-color));
-    border-bottom: 1px solid var(--border-color);
 }
 
 .hist-field-row {
@@ -358,17 +351,8 @@
     border-bottom: none;
 }
 
-.hist-field-row.changed.config {
-    border-left: 3px solid #3b82f6;
-}
-
-.hist-field-row.changed.hardware {
-    border-left: 3px solid #a855f7;
-}
-
 .hist-field-row.no-change {
-    border-left: 3px solid transparent;
-    opacity: 0.55;
+    opacity: 0.45;
 }
 
 .hist-field-label {

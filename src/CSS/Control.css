@@ -292,11 +292,6 @@
     background: color-mix(in srgb, var(--surface-alt-color) 60%, var(--accent-color) 5%);
 }
 
-/* separator before camera settings group */
-.control-table-header > span:nth-child(10),
-.control-row > *:nth-child(10) {
-    border-left: 2px solid var(--border-color);
-}
 
 /* ── Data cells ──────────────────────────────────── */
 .control-row > * {
@@ -375,6 +370,8 @@
 
 .ctrl-name {
     font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--muted-text-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

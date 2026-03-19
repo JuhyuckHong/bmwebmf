@@ -298,7 +298,7 @@ export default function HistoryModal({ module, onClose }) {
                                                     const currentVal = field.getValue(module);
                                                     return (
                                                         <div key={field.key} className={`hist-field-row${events.length > 0 ? ` changed ${field.kind}` : " no-change"}`}>
-                                                            <span className="hist-field-label">{field.label}</span>
+                                                            <span className="hist-field-label" style={events.length > 0 ? { color: field.kind === "hardware" ? "#a855f7" : "#3b82f6" } : undefined}>{field.label}</span>
                                                             <span className="hist-field-value">{currentVal ?? "—"}</span>
                                                             {events.length > 0 ? (
                                                                 <span className="hist-field-chain">
