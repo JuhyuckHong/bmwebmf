@@ -220,7 +220,7 @@
 
 .control-table-wrap {
     display: grid;
-    grid-template-columns: max-content 1fr max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content;
+    grid-template-columns: max-content 1fr max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content;
     min-width: max-content;
     font-size: 0.84rem;
 }
@@ -274,6 +274,19 @@
     color: var(--accent-color) !important;
 }
 
+.ctrl-th-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    line-height: 1.2;
+}
+
+.ctrl-th-sublabel {
+    opacity: 0.6;
+    font-size: 0.6rem;
+}
+
 .ctrl-sort-icon {
     font-size: 0.65rem;
     opacity: 0.35;
@@ -301,7 +314,13 @@
     align-self: stretch;
     display: flex;
     align-items: center;
+    justify-content: center;
     transition: background 0.1s;
+}
+
+/* 현장: 좌측 정렬 */
+.control-row > *:nth-child(2) {
+    justify-content: flex-start;
 }
 
 .ctrl-cell {
@@ -417,7 +436,7 @@
 .ctrl-col {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 1px;
 }
 
@@ -451,7 +470,6 @@
 }
 
 .ctrl-sub {
-    display: block;
     font-size: 0.7rem;
     color: var(--muted-text-color);
     margin-top: 1px;

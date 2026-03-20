@@ -21,10 +21,10 @@ function formatRelative(dt) {
     if (!dt) return null;
     const diffMs = Date.now() - new Date(dt).getTime();
     const diffMin = Math.floor(diffMs / 60000);
-    if (diffMin < 60) return { val: `${Math.max(diffMin, 1)}분`, unit: "전" };
+    if (diffMin < 60) return { val: `${Math.max(diffMin, 1)}m`, unit: "전" };
     const diffHr = Math.floor(diffMin / 60);
-    if (diffHr < 24) return { val: `${diffHr}시간`, unit: "전" };
-    return { val: `${Math.floor(diffHr / 24)}일`, unit: "전" };
+    if (diffHr < 24) return { val: `${diffHr}h`, unit: "전" };
+    return { val: `${Math.floor(diffHr / 24)}d`, unit: "전" };
 }
 
 const w = (cond) => cond ? " ctrl-warn-bg" : "";
@@ -32,18 +32,15 @@ const w = (cond) => cond ? " ctrl-warn-bg" : "";
 const COLUMNS = [
     { label: "#",         key: "id",           getValue: (m) => parseInt(m.id, 10) },
     { label: "현장",      key: "site_name",    getValue: (m) => m.site_name ?? "" },
-    { label: "촬영", key: "schedule",     getValue: (m) => m.time_start ?? "" },
+    { label: "촬영", subLabel: "간격", key: "schedule",     getValue: (m) => m.time_start ?? "" },
     { label: "상태",        key: "status",       getValue: (m) => m.last_status ?? "" },
     { label: "온도",         key: "cpu_temp",     getValue: (m) => m.cpu_temp },
     { label: "메모리",      key: "mem_usage",    getValue: (m) => m.mem_usage },
     { label: "디스크",      key: "disk_usage",   getValue: (m) => m.disk_usage },
-    { label: "Pi",          key: "pi_model",     getValue: (m) => formatPiModel(m.pi_model) },
-    { label: "OS",          key: "os_version",   getValue: (m) => formatOsVersion(m.os_version) },
+    { label: "Pi",          subLabel: "OS", key: "pi_model",     getValue: (m) => formatPiModel(m.pi_model) },
     { label: "기종",      key: "camera",       getValue: (m) => m.camera_model ? m.camera_model.replace(/^Nikon DSC\s*/i, "").replace(/\s*\(.*?\)/g, "").trim() : "" },
-    { label: "ISO",         key: "iso",          getValue: (m) => m.iso },
-    { label: "노출",    key: "exposure_comp", getValue: (m) => m.exposure_comp },
-    { label: "초점",      key: "focus_mode",   getValue: (m) => m.focus_mode ?? "" },
-    { label: "화질/해상도", key: "img_quality",  getValue: (m) => m.img_quality ?? "" },
+    { label: "EV",          subLabel: "ISO · F", key: "exposure_comp", getValue: (m) => m.exposure_comp },
+    { label: "화질", subLabel: "해상도", key: "img_quality",  getValue: (m) => m.img_quality ?? "" },
     { label: "수집",        key: "last_time",    getValue: (m) => {
         const dt = m.last_success_time !== m.last_attempt_time
             ? m.last_success_time
@@ -160,9 +157,9 @@ function ScheduleBar({ timeStart, timeEnd, interval }) {
     if (!start && !end && !intervalStr) return <span className="ctrl-mono muted">—</span>;
 
     return (
-        <span className="ctrl-sub">
-            {start && end ? `${start}~${end}` : (start || end || "—")}
-            {intervalStr && `, ${intervalStr}`}
+        <span className="ctrl-col">
+            <span className="ctrl-sub">{start && end ? `${start}~${end}` : (start || end || "—")}</span>
+            {intervalStr && <span className="ctrl-sub muted">{intervalStr}</span>}
         </span>
     );
 }
@@ -312,7 +309,10 @@ export default function ControlPage() {
                                     className={`ctrl-th-sortable${sort.key === col.key ? " ctrl-th-active" : ""}`}
                                     onClick={() => handleSort(col.key)}
                                 >
-                                    {col.label}
+                                    <span className="ctrl-th-label">
+                                        <span className={col.subLabel ? "ctrl-th-sublabel" : ""}>{col.label}</span>
+                                        {col.subLabel && <span className="ctrl-th-sublabel">{col.subLabel}</span>}
+                                    </span>
                                     <span className="ctrl-sort-icon">
                                         {sort.key === col.key
                                             ? sort.dir === "asc" ? "↑" : "↓"
@@ -359,12 +359,19 @@ export default function ControlPage() {
                                         <span className={`ctrl-cell${w(m.cpu_temp == null || m.cpu_temp >= 50)}`}><CpuTempBadge temp={m.cpu_temp} /></span>
                                         <UsagePie value={m.mem_usage} alertAt={90} />
                                         <UsagePie value={m.disk_usage} used={m.disk_used_gb} total={m.disk_total_gb} warnAt={60} dangerAt={75} alertAt={75} />
-                                        <span className={`ctrl-sub${w(m.pi_model == null)}`}><Highlight text={formatPiModel(m.pi_model)} query={q} /></span>
-                                        <span className={`ctrl-sub${w(m.os_version == null)}`}><Highlight text={formatOsVersion(m.os_version)} query={q} /></span>
+                                        <span className={`ctrl-col${w(m.pi_model == null)}`}>
+                                            <span className="ctrl-sub"><Highlight text={formatPiModel(m.pi_model)} query={q} /></span>
+                                            <span className="ctrl-sub muted"><Highlight text={formatOsVersion(m.os_version)} query={q} /></span>
+                                        </span>
                                         <span className={`ctrl-sub${w(!m.camera_model || /^USB PTP Class Camera$/i.test(m.camera_model.trim()))}`}><Highlight text={(m.camera_model && !/^USB PTP Class Camera$/i.test(m.camera_model.trim())) ? m.camera_model.replace(/^Nikon DSC\s*/i, "").replace(/\s*\(.*?\)/g, "").trim() : null} query={q} /></span>
-                                        <span className={`ctrl-sub${w(m.iso == null)}`}><Highlight text={m.iso != null ? String(m.iso) : null} query={q} /></span>
-                                        <span className={`ctrl-sub${w(m.exposure_comp == null)}`}><Highlight text={formatExpComp(m.exposure_comp)} query={q} /></span>
-                                        <span className={`ctrl-sub${w(m.focus_mode == null)}`}><Highlight text={m.focus_mode ? m.focus_mode.replace(/\s*\(.*\)/, "") : null} query={q} /></span>
+                                        <span className={`ctrl-col${w(m.exposure_comp == null && m.iso == null && m.focus_mode == null)}`}>
+                                            <span className="ctrl-sub"><Highlight text={formatExpComp(m.exposure_comp)} query={q} /></span>
+                                            <span className="ctrl-sub muted">
+                                                <Highlight text={m.iso != null ? String(m.iso) : null} query={q} />
+                                                {m.iso != null && m.focus_mode ? " · " : null}
+                                                <Highlight text={m.focus_mode ? m.focus_mode.replace(/\s*\(.*\)/, "") : null} query={q} />
+                                            </span>
+                                        </span>
                                         <span className={`ctrl-mono ctrl-col${w(m.img_quality == null)}`}>
                                             <span className="ctrl-mono ctrl-sub"><Highlight text={m.img_quality} query={q} /></span>
                                             {m.img_size ? <span className="ctrl-sub"><Highlight text={m.img_size} query={q} /></span> : null}
