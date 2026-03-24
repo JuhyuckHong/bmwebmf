@@ -13,7 +13,7 @@ import {
 import { API } from "../API";
 import "../CSS/HistoryModal.css";
 
-const HOUR_OPTIONS = [12, 24, 48, 72];
+const HOUR_OPTIONS = [0, 12, 24, 48, 72];
 
 function formatExpComp(val) {
     if (val == null) return null;
@@ -203,7 +203,7 @@ export default function HistoryModal({ module, onClose }) {
                                 className={`hist-hour-btn${hours === h ? " active" : ""}`}
                                 onClick={() => setHours(h)}
                             >
-                                {h}h
+                                {h === 0 ? "전체" : `${h}h`}
                             </button>
                         ))}
                         <button className="hist-close-btn" onClick={onClose}>✕</button>
