@@ -77,6 +77,7 @@ const FIELD_GROUPS = [
     {
         group: "모듈 정보",
         fields: [
+            { key: "module_version", label: "모듈 버전", kind: "update", getValue: (m) => m.module_version ?? null },
             { key: "pi_model",      label: "Pi 모델",     kind: "hardware", getValue: (m) => formatPiModel(m.pi_model) },
             { key: "os_version",    label: "OS",           kind: "hardware", getValue: (m) => m.os_version ?? null },
         ],
@@ -157,6 +158,7 @@ export default function HistoryModal({ module, onClose }) {
     const snapshots = data?.metrics ?? [];
     const hardwareEvents = data?.hardware_events ?? [];
     const configEvents = data?.config_events ?? [];
+    const updateEvents = data?.update_events ?? [];
 
     // Build chart data: each snapshot becomes a point, timestamp as numeric key
     const chartData = snapshots.map((s) => ({
@@ -170,10 +172,12 @@ export default function HistoryModal({ module, onClose }) {
     // Merge all event timestamps for ReferenceLine
     const hwTimes = hardwareEvents.map((e) => new Date(e.ts).getTime());
     const cfgTimes = configEvents.map((e) => new Date(e.ts).getTime());
+    const updTimes = updateEvents.map((e) => new Date(e.ts).getTime());
 
     const allEvents = [
         ...hardwareEvents.map((e) => ({ ...e, kind: "hardware" })),
         ...configEvents.map((e) => ({ ...e, kind: "config" })),
+        ...updateEvents.map((e) => ({ ...e, kind: "update" })),
     ].sort((a, b) => new Date(a.ts) - new Date(b.ts));
 
     // 필드별 이벤트 목록 (시간순)
@@ -232,6 +236,7 @@ export default function HistoryModal({ module, onClose }) {
                                                 <ReferenceLine y={50} stroke="#ef4444" strokeDasharray="6 3" strokeWidth={1} label={{ value: "50°C", position: "insideTopRight", fontSize: 9, fill: "#ef4444" }} />
                                                 {hwTimes.map((t, i) => <ReferenceLine key={`hw-${i}`} x={t} stroke="#a855f7" strokeDasharray="4 3" strokeWidth={1.5} />)}
                                                 {cfgTimes.map((t, i) => <ReferenceLine key={`cfg-${i}`} x={t} stroke="#3b82f6" strokeDasharray="4 3" strokeWidth={1.5} />)}
+                                                {updTimes.map((t, i) => <ReferenceLine key={`upd-${i}`} x={t} stroke="#16a34a" strokeDasharray="2 2" strokeWidth={1.5} />)}
                                                 <Line type="monotone" dataKey="temp" name="CPU 온도" stroke="#ef4444" strokeWidth={1.5} dot={false} unit="°C" connectNulls />
                                             </ComposedChart>
                                         </ResponsiveContainer>
@@ -249,6 +254,7 @@ export default function HistoryModal({ module, onClose }) {
                                                 <ReferenceLine y={90} stroke="#f59e0b" strokeDasharray="6 3" strokeWidth={1} label={{ value: "90%", position: "insideTopRight", fontSize: 9, fill: "#f59e0b" }} />
                                                 {hwTimes.map((t, i) => <ReferenceLine key={`hw-${i}`} x={t} stroke="#a855f7" strokeDasharray="4 3" strokeWidth={1.5} />)}
                                                 {cfgTimes.map((t, i) => <ReferenceLine key={`cfg-${i}`} x={t} stroke="#3b82f6" strokeDasharray="4 3" strokeWidth={1.5} />)}
+                                                {updTimes.map((t, i) => <ReferenceLine key={`upd-${i}`} x={t} stroke="#16a34a" strokeDasharray="2 2" strokeWidth={1.5} />)}
                                                 <Line type="monotone" dataKey="mem" name="메모리" stroke="#f59e0b" strokeWidth={1.5} dot={false} unit="%" connectNulls />
                                             </ComposedChart>
                                         </ResponsiveContainer>
@@ -266,6 +272,7 @@ export default function HistoryModal({ module, onClose }) {
                                                 <ReferenceLine y={75} stroke="#22c55e" strokeDasharray="6 3" strokeWidth={1} label={{ value: "75%", position: "insideTopRight", fontSize: 9, fill: "#22c55e" }} />
                                                 {hwTimes.map((t, i) => <ReferenceLine key={`hw-${i}`} x={t} stroke="#a855f7" strokeDasharray="4 3" strokeWidth={1.5} />)}
                                                 {cfgTimes.map((t, i) => <ReferenceLine key={`cfg-${i}`} x={t} stroke="#3b82f6" strokeDasharray="4 3" strokeWidth={1.5} />)}
+                                                {updTimes.map((t, i) => <ReferenceLine key={`upd-${i}`} x={t} stroke="#16a34a" strokeDasharray="2 2" strokeWidth={1.5} />)}
                                                 <Line type="monotone" dataKey="disk" name="디스크" stroke="#22c55e" strokeWidth={1.5} dot={false} unit="%" connectNulls />
                                             </ComposedChart>
                                         </ResponsiveContainer>
@@ -296,9 +303,14 @@ export default function HistoryModal({ module, onClose }) {
                                                 {fields.map((field) => {
                                                     const events = eventsByType[field.key] ?? [];
                                                     const currentVal = field.getValue(module);
+                                                    const fieldColor = field.kind === "hardware"
+                                                        ? "#a855f7"
+                                                        : field.kind === "update"
+                                                            ? "#16a34a"
+                                                            : "#3b82f6";
                                                     return (
                                                         <div key={field.key} className={`hist-field-row${events.length > 0 ? ` changed ${field.kind}` : " no-change"}`}>
-                                                            <span className="hist-field-label" style={events.length > 0 ? { color: field.kind === "hardware" ? "#a855f7" : "#3b82f6" } : undefined}>{field.label}</span>
+                                                            <span className="hist-field-label" style={events.length > 0 ? { color: fieldColor } : undefined}>{field.label}</span>
                                                             <span className="hist-field-value">{currentVal ?? "—"}</span>
                                                             {events.length > 0 ? (
                                                                 <span className="hist-field-chain">
@@ -332,7 +344,7 @@ export default function HistoryModal({ module, onClose }) {
                                             {allEvents.map((e, i) => (
                                                 <li key={i} className={`hist-event-row ${e.kind}`}>
                                                     <span className="hist-event-icon">
-                                                        {e.kind === "hardware" ? "🛠" : "⚙️"}
+                                                        {e.kind === "hardware" ? "🛠" : e.kind === "update" ? "UP" : "⚙️"}
                                                     </span>
                                                     <span className="hist-event-time">{fmtEventTime(e.ts)}</span>
                                                     <span className="hist-event-field">{e.type ?? ""}</span>
