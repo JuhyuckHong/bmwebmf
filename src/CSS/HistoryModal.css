@@ -16,7 +16,7 @@
     border-radius: 16px;
     width: 100%;
     max-width: 1100px;
-    max-height: 90vh;
+    max-height: 96vh;
     display: flex;
     flex-direction: column;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
@@ -364,7 +364,7 @@
 
 .hist-field-label {
     flex-shrink: 0;
-    width: 84px;
+    width: 96px;
     font-size: 0.72rem;
     font-weight: 700;
     color: var(--muted-text-color);
@@ -372,7 +372,7 @@
 
 .hist-field-value {
     flex-shrink: 0;
-    width: 110px;
+    width: 140px;
     font-size: 0.8rem;
     font-weight: 700;
     color: var(--text-color);
@@ -385,6 +385,8 @@
     align-items: baseline;
     flex-wrap: wrap;
     gap: 4px;
+    min-width: 0;
+    flex: 1;
     font-family: Menlo, Monaco, Consolas, monospace;
     font-size: 0.75rem;
 }

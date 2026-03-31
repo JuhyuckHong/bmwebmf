@@ -54,10 +54,19 @@ function fmtHHMM(t) {
     return `${t.slice(0, 2)}:${t.slice(2, 4)}`;
 }
 
+function formatModuleVersion(version) {
+    if (!version) return null;
+    const parts = String(version).split(".");
+    if (parts.length >= 3) return `${parts[1]}.${parts[2]}`;
+    if (parts.length >= 2) return parts.slice(1).join(".") || String(version);
+    return String(version);
+}
+
 function fmtEventVal(type, val) {
     if (val == null) return "—";
     const s = String(val);
     if (type === "camera_serial") return s.replace(/^0+|0+$/g, "") || s;
+    if (type === "module_version") return formatModuleVersion(s) ?? s;
     return s;
 }
 
@@ -77,7 +86,7 @@ const FIELD_GROUPS = [
     {
         group: "모듈 정보",
         fields: [
-            { key: "module_version", label: "모듈 버전", kind: "update", getValue: (m) => m.module_version ?? null },
+            { key: "module_version", label: "모듈 버전", kind: "update", getValue: (m) => formatModuleVersion(m.module_version) },
             { key: "pi_model",      label: "Pi 모델",     kind: "hardware", getValue: (m) => formatPiModel(m.pi_model) },
             { key: "os_version",    label: "OS",           kind: "hardware", getValue: (m) => m.os_version ?? null },
         ],
