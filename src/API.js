@@ -86,4 +86,10 @@ export const API = {
     // 모듈 히스토리 조회
     getHistory: (headers, moduleId, hours = 24) =>
         relay.get(`/history/${moduleId}`, { headers, params: { hours } }),
+    // 모듈 업데이트 시작
+    startModuleUpdate: (headers, moduleId) =>
+        relay.post(`/modules/${moduleId}/update`, "", { headers }),
+    // 모듈 업데이트 상태 조회
+    getModuleUpdateStatus: (headers, moduleId) =>
+        relay.get(`/modules/${moduleId}/update-status`, { headers }),
 };

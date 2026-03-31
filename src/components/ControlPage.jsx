@@ -6,6 +6,7 @@ import HistoryModal from "./HistoryModal";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 
 const REFRESH_INTERVAL = 30000;
+const UPDATE_POLL_INTERVAL = 5000;
 
 function formatTime(dt) {
     if (!dt) return null;
@@ -109,6 +110,21 @@ function formatPiModel(raw) {
     return s;
 }
 
+function formatModuleVersion(version) {
+    if (!version) return "-";
+    const parts = String(version).split(".");
+    if (parts.length >= 3) return `${parts[1]}.${parts[2]}`;
+    if (parts.length >= 2) return parts.slice(1).join(".") || "-";
+    return String(version);
+}
+
+function getModuleUpdateState(type, isLatest) {
+    if (type !== "modern") return "-";
+    if (isLatest === true) return "최신";
+    if (isLatest === false) return "업데이트 필요";
+    return "확인 불가";
+}
+
 function CpuTempBadge({ temp }) {
     if (temp == null) return <span className="ctrl-sub muted">—</span>;
     const color = temp >= 50 ? "#ef4444" : temp >= 40 ? "#f59e0b" : "#0ea5e9";
@@ -164,13 +180,19 @@ function ScheduleBar({ timeStart, timeEnd, interval }) {
     );
 }
 
-function StatusTypeBadge({ status, type }) {
+function StatusTypeBadge({ status, type, moduleVersion, onClick, canClick, title }) {
     const cls = (status === "SUCCESS" || status === "PARTIAL") ? "success" : status === "ERROR" ? "error" : "unknown";
-    const label = type === "modern" ? "M" : "L";
+    const label = type === "modern" ? formatModuleVersion(moduleVersion) : "L";
     return (
-        <span className={`status-type-badge ${cls}`} title={`${type} · ${status ?? "데이터 없음"}`}>
+        <button
+            type="button"
+            className={`status-type-badge ${cls}${canClick ? " clickable" : ""}`}
+            title={title}
+            onClick={onClick}
+            disabled={!canClick}
+        >
             {label}
-        </span>
+        </button>
     );
 }
 
@@ -182,7 +204,11 @@ export default function ControlPage() {
     const [filter, setFilter] = useState("");
     const [selectedModule, setSelectedModule] = useState(null);
     const [sort, setSort] = useState({ key: null, dir: null });
+    const [updateDialog, setUpdateDialog] = useState(null);
+    const [updateStatuses, setUpdateStatuses] = useState({});
     const searchRef = useRef(null);
+    const updateTimersRef = useRef({});
+    const autoCloseTimerRef = useRef(null);
 
     const handleSort = useCallback((key) => {
         setSort(prev => {
@@ -211,6 +237,132 @@ export default function ControlPage() {
         const id = setInterval(fetchData, REFRESH_INTERVAL);
         return () => clearInterval(id);
     }, [fetchData]);
+
+    useEffect(() => () => {
+        Object.values(updateTimersRef.current).forEach(clearTimeout);
+        if (autoCloseTimerRef.current) {
+            clearTimeout(autoCloseTimerRef.current);
+        }
+    }, []);
+
+    const pollUpdateStatus = useCallback(async (moduleId) => {
+        try {
+            const headers = { Authorization: Cookies.get("BM") };
+            const res = await API.getModuleUpdateStatus(headers, moduleId);
+            const nextStatus = res.data?.status ?? "idle";
+            const nextMessage = res.data?.message ?? null;
+
+            setUpdateStatuses((prev) => ({
+                ...prev,
+                [moduleId]: { status: nextStatus, message: nextMessage },
+            }));
+
+            setUpdateDialog((prev) => (
+                prev?.module?.id === moduleId
+                    ? { ...prev, phase: nextStatus, message: nextMessage ?? prev.message }
+                    : prev
+            ));
+
+            if (nextStatus === "in_progress") {
+                updateTimersRef.current[moduleId] = setTimeout(() => {
+                    pollUpdateStatus(moduleId);
+                }, UPDATE_POLL_INTERVAL);
+                return;
+            }
+
+            delete updateTimersRef.current[moduleId];
+
+            if (nextStatus === "completed") {
+                fetchData();
+            }
+        } catch (err) {
+            const message = err.message ?? "업데이트 상태를 확인하지 못했습니다.";
+            setUpdateStatuses((prev) => ({
+                ...prev,
+                [moduleId]: { status: "failed", message },
+            }));
+            setUpdateDialog((prev) => (
+                prev?.module?.id === moduleId
+                    ? { ...prev, phase: "failed", message }
+                    : prev
+            ));
+            delete updateTimersRef.current[moduleId];
+        }
+    }, [fetchData]);
+
+    const openUpdateDialog = useCallback((module) => {
+        const current = updateStatuses[module.id];
+        const phase = module.is_latest === true ? "latest" : (current?.status ?? "confirm");
+
+        if (autoCloseTimerRef.current) {
+            clearTimeout(autoCloseTimerRef.current);
+        }
+
+        setUpdateDialog({
+            module,
+            phase,
+            message: current?.message ?? null,
+        });
+
+        if (module.is_latest === true) {
+            autoCloseTimerRef.current = setTimeout(() => {
+                setUpdateDialog(null);
+                autoCloseTimerRef.current = null;
+            }, 1800);
+        }
+    }, [updateStatuses]);
+
+    const startUpdate = useCallback(async () => {
+        if (!updateDialog?.module) return;
+        const moduleId = updateDialog.module.id;
+
+        setUpdateDialog((prev) => prev ? { ...prev, phase: "submitting", message: null } : prev);
+
+        try {
+            const headers = { Authorization: Cookies.get("BM") };
+            const res = await API.startModuleUpdate(headers, moduleId);
+            const nextStatus = res.data?.status ?? "in_progress";
+            const nextMessage = res.data?.message ?? "Update started";
+
+            setUpdateStatuses((prev) => ({
+                ...prev,
+                [moduleId]: { status: nextStatus, message: nextMessage },
+            }));
+            setUpdateDialog((prev) => (
+                prev ? { ...prev, phase: nextStatus, message: nextMessage } : prev
+            ));
+
+            if (updateTimersRef.current[moduleId]) {
+                clearTimeout(updateTimersRef.current[moduleId]);
+            }
+
+            if (nextStatus === "accepted" || nextStatus === "in_progress") {
+                pollUpdateStatus(moduleId);
+                return;
+            }
+
+            if (nextStatus === "completed") {
+                fetchData();
+            }
+        } catch (err) {
+            const message = err.message ?? "업데이트 요청에 실패했습니다.";
+            setUpdateStatuses((prev) => ({
+                ...prev,
+                [moduleId]: { status: "failed", message },
+            }));
+            setUpdateDialog((prev) => (
+                prev ? { ...prev, phase: "failed", message } : prev
+            ));
+        }
+    }, [fetchData, pollUpdateStatus, updateDialog]);
+
+    const closeUpdateDialog = useCallback(() => {
+        if (autoCloseTimerRef.current) {
+            clearTimeout(autoCloseTimerRef.current);
+            autoCloseTimerRef.current = null;
+        }
+        setUpdateDialog(null);
+    }, []);
 
     useKeyboardNavigation({
         '/': () => {
@@ -355,7 +507,20 @@ export default function ControlPage() {
                                         <span className="ctrl-cell ctrl-schedule">
                                             <ScheduleBar timeStart={m.time_start} timeEnd={m.time_end} interval={m.time_interval} />
                                         </span>
-                                        <span className="ctrl-cell"><StatusTypeBadge status={m.last_status} type={m.type} /></span>
+                                        <span className="ctrl-cell">
+                                            <StatusTypeBadge
+                                                status={m.last_status}
+                                                type={m.type}
+                                                moduleVersion={m.module_version}
+                                                canClick={m.type === "modern"}
+                                                title={`${getModuleUpdateState(m.type, m.is_latest)} · ${m.type} · ${m.last_status ?? "데이터 없음"} · v${m.module_version ?? "-"}`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (m.type !== "modern") return;
+                                                    openUpdateDialog(m);
+                                                }}
+                                            />
+                                        </span>
                                         <span className={`ctrl-cell${w(m.cpu_temp == null || m.cpu_temp >= 50)}`}><CpuTempBadge temp={m.cpu_temp} /></span>
                                         <UsagePie value={m.mem_usage} alertAt={90} />
                                         <UsagePie value={m.disk_usage} used={m.disk_used_gb} total={m.disk_total_gb} warnAt={60} dangerAt={75} alertAt={75} />
@@ -406,6 +571,54 @@ export default function ControlPage() {
                 module={selectedModule}
                 onClose={() => setSelectedModule(null)}
             />
+        )}
+        {updateDialog && (
+            <div className="control-modal-overlay" onClick={closeUpdateDialog}>
+                <div className="control-confirm-modal" onClick={(e) => e.stopPropagation()}>
+                    <h3 className="control-confirm-title">모듈 업데이트</h3>
+                    <p className="control-confirm-text">
+                        {updateDialog.phase === "latest" ? (
+                            <>
+                                <strong>{updateDialog.module.site_name}</strong>
+                                {" "}
+                                ({parseInt(updateDialog.module.id, 10)}) 모듈은 최신입니다.
+                            </>
+                        ) : (
+                            <>
+                                <strong>{updateDialog.module.site_name}</strong>
+                                {" "}
+                                ({parseInt(updateDialog.module.id, 10)}) 모듈을 업데이트하시겠습니까?
+                            </>
+                        )}
+                    </p>
+                    <p className="control-confirm-subtext">
+                        현재 버전: {updateDialog.module.module_version || "-"}
+                    </p>
+                    <p className="control-confirm-subtext">
+                        최신 버전: {updateDialog.module.latest_module_version || "-"} · {getModuleUpdateState(updateDialog.module.type, updateDialog.module.is_latest)}
+                    </p>
+                    {updateDialog.message && (
+                        <p className="control-confirm-status">{updateDialog.message}</p>
+                    )}
+                    <div className="control-confirm-actions">
+                        <button className="hist-close-btn" onClick={closeUpdateDialog}>
+                            {updateDialog.phase === "confirm" ? "취소" : "닫기"}
+                        </button>
+                        {updateDialog.phase !== "latest" && (
+                            <button
+                                className="admin-btn"
+                                onClick={startUpdate}
+                                disabled={
+                                    !["confirm", "failed"].includes(updateDialog.phase) ||
+                                    !(updateDialog.module.type === "modern" && updateDialog.module.is_latest === false)
+                                }
+                            >
+                                {updateDialog.phase === "submitting" ? "요청 중..." : "확인"}
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
         )}
         </>
     );
