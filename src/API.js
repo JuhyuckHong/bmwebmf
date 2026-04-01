@@ -89,7 +89,10 @@ export const API = {
     // 모듈 업데이트 시작
     startModuleUpdate: (headers, moduleId) =>
         relay.post(`/modules/${moduleId}/update`, "", { headers }),
-    // 모듈 업데이트 상태 조회
-    getModuleUpdateStatus: (headers, moduleId) =>
-        relay.get(`/modules/${moduleId}/update-status`, { headers }),
+    // 모듈 업데이트 SSE 스트림 URL
+    getModuleUpdateEventsUrl: (moduleId, jobId) =>
+        `${relayBaseUrl}/modules/${moduleId}/update/events?job_id=${encodeURIComponent(jobId)}`,
+    // 모듈 활성 업데이트 조회
+    getActiveModuleUpdate: (headers, moduleId) =>
+        relay.get(`/modules/${moduleId}/update-active`, { headers }),
 };

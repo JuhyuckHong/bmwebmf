@@ -6,7 +6,7 @@ import HistoryModal from "./HistoryModal";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 
 const REFRESH_INTERVAL = 30000;
-const UPDATE_POLL_INTERVAL = 5000;
+const TOAST_DURATION = 3000;
 
 function formatTime(dt) {
     if (!dt) return null;
@@ -125,6 +125,13 @@ function getModuleUpdateState(type, isLatest) {
     return "확인 불가";
 }
 
+function getUpdatePhaseLabel(status) {
+    if (status === "in_progress") return "업데이트 진행 중";
+    if (status === "completed") return "업데이트 완료";
+    if (status === "failed") return "업데이트 실패";
+    return null;
+}
+
 function CpuTempBadge({ temp }) {
     if (temp == null) return <span className="ctrl-sub muted">—</span>;
     const color = temp >= 50 ? "#ef4444" : temp >= 40 ? "#f59e0b" : "#0ea5e9";
@@ -180,13 +187,20 @@ function ScheduleBar({ timeStart, timeEnd, interval }) {
     );
 }
 
-function StatusTypeBadge({ status, type, moduleVersion, onClick, canClick, title }) {
+function StatusTypeBadge({ status, type, moduleVersion, onClick, canClick, title, updateState }) {
     const cls = (status === "SUCCESS" || status === "PARTIAL") ? "success" : status === "ERROR" ? "error" : "unknown";
     const label = type === "modern" ? formatModuleVersion(moduleVersion) : "L";
+    const updateCls = updateState === "in_progress"
+        ? " updating"
+        : updateState === "failed"
+            ? " update-failed"
+            : updateState === "completed"
+                ? " update-completed"
+                : "";
     return (
         <button
             type="button"
-            className={`status-type-badge ${cls}${canClick ? " clickable" : ""}`}
+            className={`status-type-badge ${cls}${canClick ? " clickable" : ""}${updateCls}`}
             title={title}
             onClick={onClick}
             disabled={!canClick}
@@ -206,9 +220,11 @@ export default function ControlPage() {
     const [sort, setSort] = useState({ key: null, dir: null });
     const [updateDialog, setUpdateDialog] = useState(null);
     const [updateStatuses, setUpdateStatuses] = useState({});
+    const [toast, setToast] = useState(null);
     const searchRef = useRef(null);
-    const updateTimersRef = useRef({});
-    const autoCloseTimerRef = useRef(null);
+    const eventSourcesRef = useRef({});
+    const toastTimerRef = useRef(null);
+    const hasRestoredRef = useRef(false);
 
     const handleSort = useCallback((key) => {
         setSort(prev => {
@@ -238,78 +254,146 @@ export default function ControlPage() {
         return () => clearInterval(id);
     }, [fetchData]);
 
-    useEffect(() => () => {
-        Object.values(updateTimersRef.current).forEach(clearTimeout);
-        if (autoCloseTimerRef.current) {
-            clearTimeout(autoCloseTimerRef.current);
+    const closeUpdateStream = useCallback((moduleId) => {
+        const current = eventSourcesRef.current[moduleId];
+        if (current) {
+            current.close();
+            delete eventSourcesRef.current[moduleId];
         }
     }, []);
 
-    const pollUpdateStatus = useCallback(async (moduleId) => {
-        try {
-            const headers = { Authorization: Cookies.get("BM") };
-            const res = await API.getModuleUpdateStatus(headers, moduleId);
-            const nextStatus = res.data?.status ?? "idle";
-            const nextMessage = res.data?.message ?? null;
-
-            setUpdateStatuses((prev) => ({
-                ...prev,
-                [moduleId]: { status: nextStatus, message: nextMessage },
-            }));
-
-            setUpdateDialog((prev) => (
-                prev?.module?.id === moduleId
-                    ? { ...prev, phase: nextStatus, message: nextMessage ?? prev.message }
-                    : prev
-            ));
-
-            if (nextStatus === "in_progress") {
-                updateTimersRef.current[moduleId] = setTimeout(() => {
-                    pollUpdateStatus(moduleId);
-                }, UPDATE_POLL_INTERVAL);
-                return;
-            }
-
-            delete updateTimersRef.current[moduleId];
-
-            if (nextStatus === "completed") {
-                fetchData();
-            }
-        } catch (err) {
-            const message = err.message ?? "업데이트 상태를 확인하지 못했습니다.";
-            setUpdateStatuses((prev) => ({
-                ...prev,
-                [moduleId]: { status: "failed", message },
-            }));
-            setUpdateDialog((prev) => (
-                prev?.module?.id === moduleId
-                    ? { ...prev, phase: "failed", message }
-                    : prev
-            ));
-            delete updateTimersRef.current[moduleId];
+    const showToast = useCallback((message, tone = "info") => {
+        if (toastTimerRef.current) {
+            clearTimeout(toastTimerRef.current);
         }
-    }, [fetchData]);
+        setToast({ message, tone });
+        toastTimerRef.current = setTimeout(() => {
+            setToast(null);
+            toastTimerRef.current = null;
+        }, TOAST_DURATION);
+    }, []);
+
+    useEffect(() => () => {
+        Object.values(eventSourcesRef.current).forEach((source) => source.close());
+        if (toastTimerRef.current) {
+            clearTimeout(toastTimerRef.current);
+        }
+    }, []);
+
+    const applyUpdateEvent = useCallback((payload) => {
+        const moduleId = payload?.module_id;
+        if (!moduleId) return;
+
+        const nextStatus = payload.status ?? "in_progress";
+        const nextMessage = payload.message ?? null;
+        const jobId = payload.job_id ?? null;
+
+        setUpdateStatuses((prev) => ({
+            ...prev,
+            [moduleId]: {
+                status: nextStatus,
+                message: nextMessage,
+                jobId,
+                previousVersion: payload.previous_version ?? prev[moduleId]?.previousVersion ?? null,
+                currentVersion: payload.current_version ?? prev[moduleId]?.currentVersion ?? null,
+            },
+        }));
+
+        setUpdateDialog((prev) => (
+            prev?.module?.id === moduleId
+                ? { ...prev, phase: nextStatus, message: nextMessage, jobId }
+                : prev
+        ));
+
+        if (nextStatus === "completed") {
+            closeUpdateStream(moduleId);
+            showToast(nextMessage ?? "업데이트가 완료되었습니다.", "success");
+            fetchData();
+            return;
+        }
+
+        if (nextStatus === "failed") {
+            closeUpdateStream(moduleId);
+            showToast(nextMessage ?? "업데이트에 실패했습니다.", "error");
+        }
+    }, [closeUpdateStream, fetchData, showToast]);
+
+    const openUpdateStream = useCallback((moduleId, jobId) => {
+        if (!moduleId || !jobId) return;
+
+        const current = eventSourcesRef.current[moduleId];
+        if (current?.jobId === jobId) return;
+
+        closeUpdateStream(moduleId);
+
+        const source = new EventSource(API.getModuleUpdateEventsUrl(moduleId, jobId));
+        source.jobId = jobId;
+
+        const handleEvent = (event) => {
+            try {
+                const payload = JSON.parse(event.data);
+                applyUpdateEvent(payload);
+            } catch (err) {
+                console.error("Failed to parse update event", err);
+            }
+        };
+
+        source.addEventListener("started", handleEvent);
+        source.addEventListener("progress", handleEvent);
+        source.addEventListener("completed", handleEvent);
+        source.addEventListener("failed", handleEvent);
+        source.onerror = () => {
+            source.close();
+            delete eventSourcesRef.current[moduleId];
+        };
+
+        eventSourcesRef.current[moduleId] = source;
+    }, [applyUpdateEvent, closeUpdateStream]);
+
+    const restoreActiveUpdates = useCallback(async (modulesToRestore) => {
+        const modernModules = modulesToRestore.filter((module) => module.type === "modern");
+        if (modernModules.length === 0) return;
+
+        const headers = { Authorization: Cookies.get("BM") };
+        const results = await Promise.allSettled(
+            modernModules.map((module) => API.getActiveModuleUpdate(headers, module.id))
+        );
+
+        results.forEach((result, index) => {
+            if (result.status !== "fulfilled") return;
+
+            const module = modernModules[index];
+            const payload = result.value.data;
+            if (payload?.status !== "in_progress" || !payload.job_id) return;
+
+            setUpdateStatuses((prev) => ({
+                ...prev,
+                [module.id]: {
+                    status: "in_progress",
+                    message: payload.message ?? "Update in progress",
+                    jobId: payload.job_id,
+                },
+            }));
+            openUpdateStream(module.id, payload.job_id);
+        });
+    }, [openUpdateStream]);
+
+    useEffect(() => {
+        if (hasRestoredRef.current || !data?.modules?.length) return;
+        hasRestoredRef.current = true;
+        restoreActiveUpdates(data.modules);
+    }, [data, restoreActiveUpdates]);
 
     const openUpdateDialog = useCallback((module) => {
         const current = updateStatuses[module.id];
         const phase = module.is_latest === true ? "latest" : (current?.status ?? "confirm");
 
-        if (autoCloseTimerRef.current) {
-            clearTimeout(autoCloseTimerRef.current);
-        }
-
         setUpdateDialog({
             module,
             phase,
             message: current?.message ?? null,
+            jobId: current?.jobId ?? null,
         });
-
-        if (module.is_latest === true) {
-            autoCloseTimerRef.current = setTimeout(() => {
-                setUpdateDialog(null);
-                autoCloseTimerRef.current = null;
-            }, 1800);
-        }
     }, [updateStatuses]);
 
     const startUpdate = useCallback(async () => {
@@ -323,26 +407,19 @@ export default function ControlPage() {
             const res = await API.startModuleUpdate(headers, moduleId);
             const nextStatus = res.data?.status ?? "in_progress";
             const nextMessage = res.data?.message ?? "Update started";
+            const jobId = res.data?.job_id ?? null;
 
             setUpdateStatuses((prev) => ({
                 ...prev,
-                [moduleId]: { status: nextStatus, message: nextMessage },
+                [moduleId]: { status: nextStatus, message: nextMessage, jobId },
             }));
             setUpdateDialog((prev) => (
-                prev ? { ...prev, phase: nextStatus, message: nextMessage } : prev
+                prev ? { ...prev, phase: nextStatus, message: nextMessage, jobId } : prev
             ));
 
-            if (updateTimersRef.current[moduleId]) {
-                clearTimeout(updateTimersRef.current[moduleId]);
-            }
-
-            if (nextStatus === "accepted" || nextStatus === "in_progress") {
-                pollUpdateStatus(moduleId);
-                return;
-            }
-
-            if (nextStatus === "completed") {
-                fetchData();
+            if (nextStatus === "in_progress" && jobId) {
+                openUpdateStream(moduleId, jobId);
+                showToast(nextMessage, "info");
             }
         } catch (err) {
             const message = err.message ?? "업데이트 요청에 실패했습니다.";
@@ -353,14 +430,11 @@ export default function ControlPage() {
             setUpdateDialog((prev) => (
                 prev ? { ...prev, phase: "failed", message } : prev
             ));
+            showToast(message, "error");
         }
-    }, [fetchData, pollUpdateStatus, updateDialog]);
+    }, [openUpdateStream, showToast, updateDialog]);
 
     const closeUpdateDialog = useCallback(() => {
-        if (autoCloseTimerRef.current) {
-            clearTimeout(autoCloseTimerRef.current);
-            autoCloseTimerRef.current = null;
-        }
         setUpdateDialog(null);
     }, []);
 
@@ -480,6 +554,8 @@ export default function ControlPage() {
                                 </li>
                             ) : (
                                 sorted.map((m) => {
+                                    const updateStatus = updateStatuses[m.id]?.status ?? "idle";
+                                    const updateMessage = updateStatuses[m.id]?.message;
                                     const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
                                     const msSinceSuccess = m.last_status === "ERROR"
                                         ? (m.last_success_time
@@ -513,7 +589,8 @@ export default function ControlPage() {
                                                 type={m.type}
                                                 moduleVersion={m.module_version}
                                                 canClick={m.type === "modern"}
-                                                title={`${getModuleUpdateState(m.type, m.is_latest)} · ${m.type} · ${m.last_status ?? "데이터 없음"} · v${m.module_version ?? "-"}`}
+                                                updateState={updateStatus}
+                                                title={`${getModuleUpdateState(m.type, m.is_latest)} · ${getUpdatePhaseLabel(updateStatus) ?? "대기"} · ${m.type} · ${m.last_status ?? "데이터 없음"} · v${m.module_version ?? "-"}`}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     if (m.type !== "modern") return;
@@ -597,6 +674,11 @@ export default function ControlPage() {
                     <p className="control-confirm-subtext">
                         최신 버전: {updateDialog.module.latest_module_version || "-"} · {getModuleUpdateState(updateDialog.module.type, updateDialog.module.is_latest)}
                     </p>
+                    {updateStatuses[updateDialog.module.id]?.status === "in_progress" && (
+                        <p className="control-confirm-subtext">
+                            작업 ID: {updateStatuses[updateDialog.module.id]?.jobId || "-"} · 업데이트 진행 중
+                        </p>
+                    )}
                     {updateDialog.message && (
                         <p className="control-confirm-status">{updateDialog.message}</p>
                     )}
@@ -610,13 +692,28 @@ export default function ControlPage() {
                                 onClick={startUpdate}
                                 disabled={
                                     !["confirm", "failed"].includes(updateDialog.phase) ||
-                                    !(updateDialog.module.type === "modern" && updateDialog.module.is_latest === false)
+                                    !(updateDialog.module.type === "modern" && updateDialog.module.is_latest === false) ||
+                                    updateStatuses[updateDialog.module.id]?.status === "in_progress"
                                 }
                             >
-                                {updateDialog.phase === "submitting" ? "요청 중..." : "확인"}
+                                {updateDialog.phase === "submitting"
+                                    ? "요청 중..."
+                                    : updateStatuses[updateDialog.module.id]?.status === "in_progress"
+                                        ? "진행 중"
+                                        : "확인"}
                             </button>
                         )}
                     </div>
+                </div>
+            </div>
+        )}
+        {toast && (
+            <div className="control-toast-wrap">
+                <div className={`control-toast ${toast.tone}`}>
+                    <span>{toast.message}</span>
+                    <button type="button" className="control-toast-close" onClick={() => setToast(null)}>
+                        ✕
+                    </button>
                 </div>
             </div>
         )}
