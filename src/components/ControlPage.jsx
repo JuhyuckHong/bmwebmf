@@ -692,7 +692,7 @@ export default function ControlPage() {
                                 onClick={startUpdate}
                                 disabled={
                                     !["confirm", "failed"].includes(updateDialog.phase) ||
-                                    !(updateDialog.module.type === "modern" && updateDialog.module.is_latest === false) ||
+                                    !(updateDialog.module.type === "modern" && updateDialog.module.is_latest !== true) ||
                                     updateStatuses[updateDialog.module.id]?.status === "in_progress"
                                 }
                             >
