@@ -386,7 +386,7 @@ export default function ControlPage() {
 
     const openUpdateDialog = useCallback((module) => {
         const current = updateStatuses[module.id];
-        const phase = module.is_latest === true ? "latest" : (current?.status ?? "confirm");
+        const phase = module.is_latest === true ? "latest" : (current?.status === "in_progress" ? "in_progress" : "confirm");
 
         setUpdateDialog({
             module,
