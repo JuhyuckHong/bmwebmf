@@ -430,10 +430,17 @@ const getSiteStatus = (siteInfo, missingPercent = 0) => {
     const hasTimeRange =
         Number.isFinite(startTime) &&
         Number.isFinite(endTime) &&
-        endTime > startTime;
-    const operational = hasTimeRange
-        ? nowMinutes >= startTime && nowMinutes <= endTime
-        : true;
+        startTime !== endTime;
+    let operational = true;
+    if (hasTimeRange) {
+        const overnight = endTime < startTime;
+        if (overnight) {
+            // 자정 통과: 시작~자정 또는 자정~종료 구간에 있으면 운영 중
+            operational = nowMinutes >= startTime || nowMinutes <= endTime;
+        } else {
+            operational = nowMinutes >= startTime && nowMinutes <= endTime;
+        }
+    }
     const remote = siteInfo.ssh;
 
     if (!operational) return "not-operational-time";
@@ -554,10 +561,11 @@ const computePlanShots = (siteInfo) => {
         !Number.isFinite(end) ||
         !Number.isFinite(interval) ||
         interval <= 0 ||
-        end <= start
+        start === end
     )
         return null;
-    const duration = end - start;
+    const adjustedEnd = end < start ? end + 1440 : end;
+    const duration = adjustedEnd - start;
     return Math.max(Math.floor(duration / interval), 0);
 };
 
@@ -571,16 +579,21 @@ const computeExpectedShots = (siteInfo) => {
         !Number.isFinite(end) ||
         !Number.isFinite(interval) ||
         interval <= 0 ||
-        end <= start ||
+        start === end ||
         !Number.isFinite(planned)
     )
         return null;
 
-    const nowMinutes = getCurrentMinutes();
+    const adjustedEnd = end < start ? end + 1440 : end;
+    let nowMinutes = getCurrentMinutes();
+    // 자정 통과 모듈: 현재 시각이 자정 이후(종료 시각 이전)라면 +1440 보정
+    if (end < start && nowMinutes <= end) {
+        nowMinutes += 1440;
+    }
 
     if (nowMinutes <= start) return 0;
 
-    const cutoff = Math.min(nowMinutes, end);
+    const cutoff = Math.min(nowMinutes, adjustedEnd);
     const elapsed = cutoff - start;
     const expected = Math.floor(elapsed / interval);
 
