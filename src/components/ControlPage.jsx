@@ -4,6 +4,7 @@ import { API } from "../API";
 import "../CSS/Control.css";
 import HistoryModal from "./HistoryModal";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
+import { useKeyboardContext } from "../context/KeyboardNavigationContext";
 
 const REFRESH_INTERVAL = 30000;
 const TOAST_DURATION = 3000;
@@ -221,6 +222,7 @@ export default function ControlPage() {
     const [updateDialog, setUpdateDialog] = useState(null);
     const [updateStatuses, setUpdateStatuses] = useState({});
     const [toast, setToast] = useState(null);
+    const { pushModal } = useKeyboardContext();
     const searchRef = useRef(null);
     const eventSourcesRef = useRef({});
     const toastTimerRef = useRef(null);
@@ -437,6 +439,34 @@ export default function ControlPage() {
     const closeUpdateDialog = useCallback(() => {
         setUpdateDialog(null);
     }, []);
+
+    const isHistoryOpen = !!selectedModule;
+    useEffect(() => {
+        if (!isHistoryOpen) return;
+        pushModal('history-modal');
+        const handler = (e) => {
+            if (e.detail?.modalId === 'history-modal') setSelectedModule(null);
+        };
+        window.addEventListener('closeModal', handler);
+        return () => {
+            window.removeEventListener('closeModal', handler);
+            window.dispatchEvent(new CustomEvent('modalClosed', { detail: { modalId: 'history-modal' } }));
+        };
+    }, [isHistoryOpen, pushModal]);
+
+    const isUpdateOpen = !!updateDialog;
+    useEffect(() => {
+        if (!isUpdateOpen) return;
+        pushModal('update-dialog');
+        const handler = (e) => {
+            if (e.detail?.modalId === 'update-dialog') setUpdateDialog(null);
+        };
+        window.addEventListener('closeModal', handler);
+        return () => {
+            window.removeEventListener('closeModal', handler);
+            window.dispatchEvent(new CustomEvent('modalClosed', { detail: { modalId: 'update-dialog' } }));
+        };
+    }, [isUpdateOpen, pushModal]);
 
     useKeyboardNavigation({
         '/': () => {
