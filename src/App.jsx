@@ -200,7 +200,7 @@ function App() {
                 const sites = Array.isArray(user?.sites)
                     ? [...user.sites].sort()
                     : [];
-                setAdmin(user.class === user.username);
+                setAdmin(user.class === "bmotion");
                 setAuth(true);
                 setAuthSites(sites);
             })
