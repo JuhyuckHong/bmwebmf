@@ -141,7 +141,7 @@ function getUpdatePhaseLabel(status) {
 
 function CpuTempBadge({ temp }) {
     if (temp == null) return <span className="ctrl-sub muted">—</span>;
-    const color = temp >= 50 ? "#ef4444" : temp >= 40 ? "#f59e0b" : "#0ea5e9";
+    const color = temp >= 55 ? "#ef4444" : temp >= 40 ? "#f59e0b" : "#0ea5e9";
     return <span className="ctrl-sub" style={{ color }}>{temp.toFixed(1)}°C</span>;
 }
 
@@ -686,7 +686,7 @@ export default function ControlPage() {
                                         <span className="ctrl-cell ctrl-schedule">
                                             <ScheduleBar timeStart={m.time_start} timeEnd={m.time_end} interval={m.time_interval} />
                                         </span>
-                                        <span className={`ctrl-cell${w(m.cpu_temp == null || m.cpu_temp >= 50)}`}><CpuTempBadge temp={m.cpu_temp} /></span>
+                                        <span className={`ctrl-cell${w(m.cpu_temp == null || m.cpu_temp >= 55)}`}><CpuTempBadge temp={m.cpu_temp} /></span>
                                         <UsagePie value={m.disk_usage} used={m.disk_used_gb} total={m.disk_total_gb} warnAt={60} dangerAt={75} alertAt={75} />
                                         <span className={`ctrl-col${w(m.pi_model == null)}`}>
                                             <span className="ctrl-sub"><Highlight text={formatPiModel(m.pi_model)} query={q} /></span>

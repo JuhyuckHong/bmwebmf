@@ -16,7 +16,7 @@ import "../CSS/HistoryModal.css";
 const HOUR_OPTIONS = [0, 12, 24, 48, 72];
 
 const CHART_OPTIONS = [
-    { key: "temp", label: "CPU 온도", dataKey: "temp", color: "#ef4444", unit: "°C", domain: [0, 70], tickFormatter: (v) => `${v}°`, refY: 50, refLabel: "50°C" },
+    { key: "temp", label: "CPU 온도", dataKey: "temp", color: "#ef4444", unit: "°C", domain: [0, 70], tickFormatter: (v) => `${v}°`, refY: 55, refLabel: "55°C" },
     { key: "mem",  label: "메모리",   dataKey: "mem",  color: "#f59e0b", unit: "%",  domain: [0, 100], tickFormatter: (v) => `${v}%`, refY: 90, refLabel: "90%" },
     { key: "disk", label: "디스크",   dataKey: "disk", color: "#22c55e", unit: "%",  domain: [0, 100], tickFormatter: (v) => `${v}%`, refY: 75, refLabel: "75%" },
 ];
