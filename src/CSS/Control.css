@@ -1,6 +1,6 @@
 .control-page {
-    width: 100%;
-    max-width: 1440px;
+    width: 95vw;
+    max-width: none;
     margin: 0 auto;
     padding: 16px;
     box-sizing: border-box;
@@ -259,14 +259,14 @@
 .control-table-outer {
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    overflow: auto;
+    overflow: hidden auto;
     max-height: calc(100vh - 200px);
 }
 
 .control-table-wrap {
     display: grid;
-    grid-template-columns: max-content 1fr max-content max-content max-content max-content max-content max-content max-content max-content max-content;
-    min-width: max-content;
+    grid-template-columns: repeat(10, minmax(max-content, 1fr));
+    width: 100%;
     font-size: 0.84rem;
 }
 
@@ -321,9 +321,11 @@
 
 .ctrl-th-label {
     display: flex;
-    flex-direction: column;
+    flex-flow: row wrap;
     align-items: center;
-    gap: 1px;
+    justify-content: center;
+    column-gap: 4px;
+    row-gap: 1px;
     line-height: 1.2;
 }
 
@@ -345,8 +347,8 @@
     opacity: 1;
 }
 
-/* camera setting columns (9–13: 카메라, ISO, 노출보정, 포커스, 화질/해상도): slightly different tint */
-.control-table-header > span:nth-child(n+9):nth-child(-n+13) {
+/* camera setting columns (8–12: 카메라, ISO, 노출보정, 포커스, 화질/해상도): slightly different tint */
+.control-table-header > span:nth-child(n+8):nth-child(-n+12) {
     background: color-mix(in srgb, var(--surface-alt-color) 60%, var(--accent-color) 5%);
 }
 
@@ -369,7 +371,7 @@
 }
 
 /* 디스크: 좌측 정렬 (도넛 차트 시작 위치 정렬) */
-.control-row > *:nth-child(6) {
+.control-row > *:nth-child(5) {
     justify-content: flex-start;
 }
 
@@ -485,13 +487,15 @@
 
 .ctrl-col {
     display: flex;
-    flex-direction: column;
+    flex-flow: row wrap;
     align-items: center;
-    gap: 1px;
+    justify-content: center;
+    column-gap: 6px;
+    row-gap: 1px;
 }
 
 .ctrl-time-col {
-    align-items: flex-end;
+    justify-content: flex-end;
 }
 
 .ctrl-rel-time {
@@ -535,8 +539,10 @@
 
 .usage-pie-info {
     display: flex;
-    flex-direction: column;
-    gap: 1px;
+    flex-flow: row wrap;
+    align-items: center;
+    column-gap: 6px;
+    row-gap: 1px;
 }
 
 .usage-pie-label {

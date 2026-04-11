@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useLayoutEffect, useCallback, useRef, useMemo } from "react";
 import Cookies from "js-cookie";
 import { API } from "../API";
 import "../CSS/Control.css";
@@ -10,7 +10,7 @@ const REFRESH_INTERVAL = 30000;
 const TOAST_DURATION = 3000;
 const FONT_SCALE_KEY = "ctrl-font-scale";
 const FONT_SCALE_MIN = 0.7;
-const FONT_SCALE_MAX = 1.4;
+const FONT_SCALE_MAX = 2.5;
 const FONT_SCALE_STEP = 0.1;
 
 function clampScale(v) {
@@ -43,14 +43,13 @@ const COLUMNS = [
     { label: "#",         key: "id",           getValue: (m) => parseInt(m.id, 10) },
     { label: "현장",      key: "site_name",    getValue: (m) => m.site_name ?? "" },
     { label: "촬영", subLabel: "간격", key: "schedule",     getValue: (m) => m.time_start ?? "" },
-    { label: "상태",        key: "status",       getValue: (m) => m.last_status ?? "" },
     { label: "온도",         key: "cpu_temp",     getValue: (m) => m.cpu_temp },
     { label: "디스크",      key: "disk_usage",   getValue: (m) => m.disk_usage },
     { label: "Pi",          subLabel: "OS", key: "pi_model",     getValue: (m) => formatPiModel(m.pi_model) },
     { label: "기종",      key: "camera",       getValue: (m) => m.camera_model ? m.camera_model.replace(/^Nikon DSC\s*/i, "").replace(/\s*\(.*?\)/g, "").trim() : "" },
     { label: "EV",          subLabel: "ISO · F", key: "exposure_comp", getValue: (m) => m.exposure_comp },
     { label: "화질", subLabel: "해상도", key: "img_quality",  getValue: (m) => m.img_quality ?? "" },
-    { label: "수집",        key: "last_time",    getValue: (m) => {
+    { label: "수집·상태",  key: "last_time",    getValue: (m) => {
         const dt = m.last_success_time !== m.last_attempt_time
             ? m.last_success_time
             : (m.last_attempt_time ?? m.last_log_time);
@@ -233,11 +232,15 @@ export default function ControlPage() {
         const stored = parseFloat(localStorage.getItem(FONT_SCALE_KEY));
         return Number.isFinite(stored) ? clampScale(stored) : 1;
     });
+    const [maxFitScale, setMaxFitScale] = useState(FONT_SCALE_MAX);
     const { pushModal } = useKeyboardContext();
     const searchRef = useRef(null);
+    const tableOuterRef = useRef(null);
+    const fontScaleRef = useRef(fontScale);
     const eventSourcesRef = useRef({});
     const toastTimerRef = useRef(null);
     const hasRestoredRef = useRef(false);
+    fontScaleRef.current = fontScale;
 
     const handleSort = useCallback((key) => {
         setSort(prev => {
@@ -273,6 +276,35 @@ export default function ControlPage() {
 
     const adjustFontScale = useCallback((delta) => {
         setFontScale((prev) => clampScale(prev + delta));
+    }, []);
+
+    // Auto-rollback scale when content would need horizontal scroll
+    useLayoutEffect(() => {
+        const outer = tableOuterRef.current;
+        if (!outer) return;
+
+        const check = () => {
+            if (outer.scrollWidth > outer.clientWidth + 1) {
+                const cur = fontScaleRef.current;
+                const capped = clampScale(cur - FONT_SCALE_STEP);
+                if (capped < cur) {
+                    setFontScale(capped);
+                    setMaxFitScale(capped);
+                }
+            }
+        };
+
+        check();
+        const ro = new ResizeObserver(check);
+        ro.observe(outer);
+        return () => ro.disconnect();
+    }, [fontScale, data]);
+
+    // Allow re-expansion after window widens
+    useEffect(() => {
+        const onResize = () => setMaxFitScale(FONT_SCALE_MAX);
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
     }, []);
 
     const closeUpdateStream = useCallback((moduleId) => {
@@ -580,7 +612,7 @@ export default function ControlPage() {
                         type="button"
                         className="ctrl-font-btn"
                         onClick={() => adjustFontScale(FONT_SCALE_STEP)}
-                        disabled={fontScale >= FONT_SCALE_MAX}
+                        disabled={fontScale >= Math.min(FONT_SCALE_MAX, maxFitScale)}
                         title="글자 크게"
                     >A+</button>
                 </div>
@@ -598,7 +630,7 @@ export default function ControlPage() {
                 )}
 
                 {!loading && !error && (
-                    <div className="control-table-outer" style={{ zoom: fontScale }}>
+                    <div className="control-table-outer" ref={tableOuterRef} style={{ zoom: fontScale }}>
                     <div className="control-table-wrap">
                         <div className="control-table-header">
                             {COLUMNS.map(col => (
@@ -655,21 +687,6 @@ export default function ControlPage() {
                                         <span className="ctrl-cell ctrl-schedule">
                                             <ScheduleBar timeStart={m.time_start} timeEnd={m.time_end} interval={m.time_interval} />
                                         </span>
-                                        <span className="ctrl-cell">
-                                            <StatusTypeBadge
-                                                status={m.last_status}
-                                                type={m.type}
-                                                moduleVersion={m.module_version}
-                                                canClick={m.type === "modern"}
-                                                updateState={updateStatus}
-                                                title={`${getModuleUpdateState(m.type, m.is_latest)} · ${getUpdatePhaseLabel(updateStatus) ?? "대기"} · ${m.type} · ${m.last_status ?? "데이터 없음"} · v${m.module_version ?? "-"}`}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    if (m.type !== "modern") return;
-                                                    openUpdateDialog(m);
-                                                }}
-                                            />
-                                        </span>
                                         <span className={`ctrl-cell${w(m.cpu_temp == null || m.cpu_temp >= 50)}`}><CpuTempBadge temp={m.cpu_temp} /></span>
                                         <UsagePie value={m.disk_usage} used={m.disk_used_gb} total={m.disk_total_gb} warnAt={60} dangerAt={75} alertAt={75} />
                                         <span className={`ctrl-col${w(m.pi_model == null)}`}>
@@ -702,6 +719,19 @@ export default function ControlPage() {
                                                       </span>
                                                     : <span className="ctrl-sub">—</span>;
                                             })()}
+                                            <StatusTypeBadge
+                                                status={m.last_status}
+                                                type={m.type}
+                                                moduleVersion={m.module_version}
+                                                canClick={m.type === "modern"}
+                                                updateState={updateStatus}
+                                                title={`${getModuleUpdateState(m.type, m.is_latest)} · ${getUpdatePhaseLabel(updateStatus) ?? "대기"} · ${m.type} · ${m.last_status ?? "데이터 없음"} · v${m.module_version ?? "-"}`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (m.type !== "modern") return;
+                                                    openUpdateDialog(m);
+                                                }}
+                                            />
                                         </span>
                                     </li>
                                     );
