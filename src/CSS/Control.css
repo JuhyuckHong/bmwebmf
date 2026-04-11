@@ -323,6 +323,11 @@
     justify-content: flex-start;
 }
 
+/* 디스크: 좌측 정렬 (도넛 차트 시작 위치 정렬) */
+.control-row > *:nth-child(6) {
+    justify-content: flex-start;
+}
+
 .ctrl-cell {
     display: flex;
     align-items: center;
