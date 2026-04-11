@@ -661,25 +661,24 @@ export default function ControlPage() {
                                     const updateStatus = updateStatuses[m.id]?.status ?? "idle";
                                     const updateMessage = updateStatuses[m.id]?.message;
                                     const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
-                                    const msSinceSuccess = m.last_status === "ERROR"
-                                        ? (m.last_success_time
-                                            ? Date.now() - new Date(m.last_success_time).getTime()
-                                            : ONE_WEEK)
-                                        : 0;
-                                    const fadeRatio = Math.min(msSinceSuccess / ONE_WEEK, 1);
+                                    const hasData = m.last_status != null || m.last_success_time != null;
+                                    const msSinceSuccess = m.last_success_time
+                                        ? Date.now() - new Date(m.last_success_time).getTime()
+                                        : ONE_WEEK;
+                                    const fadeRatio = Math.min(Math.max(msSinceSuccess / ONE_WEEK, 0), 1);
                                     const isWithdrawn = fadeRatio >= 1;
+                                    const isErrorStatus = m.last_status === "ERROR";
+                                    const rowClasses = !hasData
+                                        ? "row-unknown"
+                                        : isWithdrawn
+                                            ? "row-withdrawn"
+                                            : fadeRatio > 0.05
+                                                ? (isErrorStatus ? "row-error row-fading" : "row-fading")
+                                                : (isErrorStatus ? "row-error" : "");
                                     return (
                                     <li
                                         key={m.id}
-                                        className={`control-row ${
-                                            isWithdrawn
-                                                ? "row-withdrawn"
-                                                : m.last_status === "ERROR"
-                                                  ? "row-error row-fading"
-                                                  : !m.last_status
-                                                    ? "row-unknown"
-                                                    : ""
-                                        }`}
+                                        className={`control-row ${rowClasses}`}
                                         onClick={() => setSelectedModule(m)}
                                         style={{ cursor: "pointer", ...(fadeRatio > 0 && { "--row-fade": fadeRatio }) }}>
                                         <span className="ctrl-id">{parseInt(m.id, 10)}</span>
