@@ -220,7 +220,7 @@
 
 .control-table-wrap {
     display: grid;
-    grid-template-columns: max-content 1fr max-content max-content max-content max-content max-content max-content max-content max-content max-content max-content;
+    grid-template-columns: max-content 1fr max-content max-content max-content max-content max-content max-content max-content max-content max-content;
     min-width: max-content;
     font-size: 0.84rem;
 }
@@ -300,8 +300,8 @@
     opacity: 1;
 }
 
-/* camera setting columns (10–14: 카메라, ISO, 노출보정, 포커스, 화질/해상도): slightly different tint */
-.control-table-header > span:nth-child(n+10):nth-child(-n+14) {
+/* camera setting columns (9–13: 카메라, ISO, 노출보정, 포커스, 화질/해상도): slightly different tint */
+.control-table-header > span:nth-child(n+9):nth-child(-n+13) {
     background: color-mix(in srgb, var(--surface-alt-color) 60%, var(--accent-color) 5%);
 }
 

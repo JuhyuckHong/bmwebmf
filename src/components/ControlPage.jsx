@@ -37,7 +37,6 @@ const COLUMNS = [
     { label: "촬영", subLabel: "간격", key: "schedule",     getValue: (m) => m.time_start ?? "" },
     { label: "상태",        key: "status",       getValue: (m) => m.last_status ?? "" },
     { label: "온도",         key: "cpu_temp",     getValue: (m) => m.cpu_temp },
-    { label: "메모리",      key: "mem_usage",    getValue: (m) => m.mem_usage },
     { label: "디스크",      key: "disk_usage",   getValue: (m) => m.disk_usage },
     { label: "Pi",          subLabel: "OS", key: "pi_model",     getValue: (m) => formatPiModel(m.pi_model) },
     { label: "기종",      key: "camera",       getValue: (m) => m.camera_model ? m.camera_model.replace(/^Nikon DSC\s*/i, "").replace(/\s*\(.*?\)/g, "").trim() : "" },
@@ -629,7 +628,6 @@ export default function ControlPage() {
                                             />
                                         </span>
                                         <span className={`ctrl-cell${w(m.cpu_temp == null || m.cpu_temp >= 50)}`}><CpuTempBadge temp={m.cpu_temp} /></span>
-                                        <UsagePie value={m.mem_usage} alertAt={90} />
                                         <UsagePie value={m.disk_usage} used={m.disk_used_gb} total={m.disk_total_gb} warnAt={60} dangerAt={75} alertAt={75} />
                                         <span className={`ctrl-col${w(m.pi_model == null)}`}>
                                             <span className="ctrl-sub"><Highlight text={formatPiModel(m.pi_model)} query={q} /></span>
