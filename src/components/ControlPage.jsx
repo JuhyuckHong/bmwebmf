@@ -8,6 +8,14 @@ import { useKeyboardContext } from "../context/KeyboardNavigationContext";
 
 const REFRESH_INTERVAL = 30000;
 const TOAST_DURATION = 3000;
+const FONT_SCALE_KEY = "ctrl-font-scale";
+const FONT_SCALE_MIN = 0.7;
+const FONT_SCALE_MAX = 1.4;
+const FONT_SCALE_STEP = 0.1;
+
+function clampScale(v) {
+    return Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, Math.round(v * 10) / 10));
+}
 
 function formatTime(dt) {
     if (!dt) return null;
@@ -221,6 +229,10 @@ export default function ControlPage() {
     const [updateDialog, setUpdateDialog] = useState(null);
     const [updateStatuses, setUpdateStatuses] = useState({});
     const [toast, setToast] = useState(null);
+    const [fontScale, setFontScale] = useState(() => {
+        const stored = parseFloat(localStorage.getItem(FONT_SCALE_KEY));
+        return Number.isFinite(stored) ? clampScale(stored) : 1;
+    });
     const { pushModal } = useKeyboardContext();
     const searchRef = useRef(null);
     const eventSourcesRef = useRef({});
@@ -254,6 +266,14 @@ export default function ControlPage() {
         const id = setInterval(fetchData, REFRESH_INTERVAL);
         return () => clearInterval(id);
     }, [fetchData]);
+
+    useEffect(() => {
+        localStorage.setItem(FONT_SCALE_KEY, String(fontScale));
+    }, [fontScale]);
+
+    const adjustFontScale = useCallback((delta) => {
+        setFontScale((prev) => clampScale(prev + delta));
+    }, []);
 
     const closeUpdateStream = useCallback((moduleId) => {
         const current = eventSourcesRef.current[moduleId];
@@ -541,6 +561,29 @@ export default function ControlPage() {
                 )}
                 {q && <span className="control-filter-result">{filtered.length}개</span>}
                 <div className="ctrl-toolbar-spacer" />
+                <div className="ctrl-font-scale">
+                    <button
+                        type="button"
+                        className="ctrl-font-btn"
+                        onClick={() => adjustFontScale(-FONT_SCALE_STEP)}
+                        disabled={fontScale <= FONT_SCALE_MIN}
+                        title="글자 작게"
+                    >A-</button>
+                    <button
+                        type="button"
+                        className="ctrl-font-btn ctrl-font-reset"
+                        onClick={() => setFontScale(1)}
+                        disabled={fontScale === 1}
+                        title="기본 크기"
+                    >{Math.round(fontScale * 100)}%</button>
+                    <button
+                        type="button"
+                        className="ctrl-font-btn"
+                        onClick={() => adjustFontScale(FONT_SCALE_STEP)}
+                        disabled={fontScale >= FONT_SCALE_MAX}
+                        title="글자 크게"
+                    >A+</button>
+                </div>
                 <p className="ctrl-refresh-info">
                     <span className="live-dot" />
                     {lastFetched ? lastFetched.toLocaleTimeString("ko-KR") : "..."}
@@ -555,7 +598,7 @@ export default function ControlPage() {
                 )}
 
                 {!loading && !error && (
-                    <div className="control-table-outer">
+                    <div className="control-table-outer" style={{ zoom: fontScale }}>
                     <div className="control-table-wrap">
                         <div className="control-table-header">
                             {COLUMNS.map(col => (
