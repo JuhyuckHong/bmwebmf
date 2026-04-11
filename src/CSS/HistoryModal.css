@@ -134,13 +134,7 @@
     color: #ef4444;
 }
 
-/* ── Charts row ───────────────────────────────────── */
-.hist-charts-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-}
-
+/* ── Chart panel ──────────────────────────────────── */
 .hist-chart-panel {
     border: 1px solid var(--border-color);
     border-radius: 10px;
@@ -149,12 +143,10 @@
     min-width: 0;
 }
 
-.hist-chart-label {
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: 0 6px 6px;
+.hist-chart-toolbar {
+    display: flex;
+    justify-content: flex-start;
+    padding: 0 6px 8px;
 }
 
 /* ── Tooltip ─────────────────────────────────────── */

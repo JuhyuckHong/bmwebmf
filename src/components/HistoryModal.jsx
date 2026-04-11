@@ -15,6 +15,12 @@ import "../CSS/HistoryModal.css";
 
 const HOUR_OPTIONS = [0, 12, 24, 48, 72];
 
+const CHART_OPTIONS = [
+    { key: "temp", label: "CPU 온도", dataKey: "temp", color: "#ef4444", unit: "°C", domain: [0, 70], tickFormatter: (v) => `${v}°`, refY: 50, refLabel: "50°C" },
+    { key: "mem",  label: "메모리",   dataKey: "mem",  color: "#f59e0b", unit: "%",  domain: [0, 100], tickFormatter: (v) => `${v}%`, refY: 90, refLabel: "90%" },
+    { key: "disk", label: "디스크",   dataKey: "disk", color: "#22c55e", unit: "%",  domain: [0, 100], tickFormatter: (v) => `${v}%`, refY: 75, refLabel: "75%" },
+];
+
 function formatExpComp(val) {
     if (val == null) return null;
     const n = parseFloat(val);
@@ -145,6 +151,7 @@ export default function HistoryModal({ module, onClose }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [eventsView, setEventsView] = useState("fields");
+    const [chartView, setChartView] = useState("temp");
 
     const fetchHistory = useCallback(async () => {
         setLoading(true);
@@ -231,63 +238,38 @@ export default function HistoryModal({ module, onClose }) {
                         <>
                             {chartData.length === 0 ? (
                                 <div className="hist-empty">데이터가 없습니다.</div>
-                            ) : (
-                                <div className="hist-charts-row">
-                                    {/* CPU 온도 */}
+                            ) : (() => {
+                                const active = CHART_OPTIONS.find((c) => c.key === chartView) ?? CHART_OPTIONS[0];
+                                return (
                                     <div className="hist-chart-panel">
-                                        <div className="hist-chart-label" style={{ color: "#ef4444" }}>CPU 온도</div>
-                                        <ResponsiveContainer width="100%" height={200}>
+                                        <div className="hist-chart-toolbar">
+                                            <div className="hist-tab-group">
+                                                {CHART_OPTIONS.map((c) => (
+                                                    <button
+                                                        key={c.key}
+                                                        className={`hist-tab-btn${chartView === c.key ? " active" : ""}`}
+                                                        style={chartView === c.key ? { color: c.color, borderColor: c.color } : undefined}
+                                                        onClick={() => setChartView(c.key)}
+                                                    >{c.label}</button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <ResponsiveContainer width="100%" height={240}>
                                             <ComposedChart data={chartData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                                                 <XAxis dataKey="ts" type="number" scale="time" domain={["auto", "auto"]} tickFormatter={fmtAxisTime} tick={{ fontSize: 9, fill: "var(--muted-text-color)" }} tickCount={4} />
-                                                <YAxis domain={[0, 70]} tick={{ fontSize: 9, fill: "var(--muted-text-color)" }} tickFormatter={(v) => `${v}°`} width={32} />
+                                                <YAxis domain={active.domain} tick={{ fontSize: 9, fill: "var(--muted-text-color)" }} tickFormatter={active.tickFormatter} width={32} />
                                                 <Tooltip content={<CustomTooltip />} />
-                                                <ReferenceLine y={50} stroke="#ef4444" strokeDasharray="6 3" strokeWidth={1} label={{ value: "50°C", position: "insideTopRight", fontSize: 9, fill: "#ef4444" }} />
+                                                <ReferenceLine y={active.refY} stroke={active.color} strokeDasharray="6 3" strokeWidth={1} label={{ value: active.refLabel, position: "insideTopRight", fontSize: 9, fill: active.color }} />
                                                 {hwTimes.map((t, i) => <ReferenceLine key={`hw-${i}`} x={t} stroke="#a855f7" strokeDasharray="4 3" strokeWidth={1.5} />)}
                                                 {cfgTimes.map((t, i) => <ReferenceLine key={`cfg-${i}`} x={t} stroke="#3b82f6" strokeDasharray="4 3" strokeWidth={1.5} />)}
                                                 {updTimes.map((t, i) => <ReferenceLine key={`upd-${i}`} x={t} stroke="#16a34a" strokeDasharray="2 2" strokeWidth={1.5} />)}
-                                                <Line type="monotone" dataKey="temp" name="CPU 온도" stroke="#ef4444" strokeWidth={1.5} dot={false} unit="°C" connectNulls />
+                                                <Line type="monotone" dataKey={active.dataKey} name={active.label} stroke={active.color} strokeWidth={1.5} dot={false} unit={active.unit} connectNulls />
                                             </ComposedChart>
                                         </ResponsiveContainer>
                                     </div>
-
-                                    {/* 메모리 */}
-                                    <div className="hist-chart-panel">
-                                        <div className="hist-chart-label" style={{ color: "#f59e0b" }}>메모리</div>
-                                        <ResponsiveContainer width="100%" height={200}>
-                                            <ComposedChart data={chartData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-                                                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                                                <XAxis dataKey="ts" type="number" scale="time" domain={["auto", "auto"]} tickFormatter={fmtAxisTime} tick={{ fontSize: 9, fill: "var(--muted-text-color)" }} tickCount={4} />
-                                                <YAxis domain={[0, 100]} tick={{ fontSize: 9, fill: "var(--muted-text-color)" }} tickFormatter={(v) => `${v}%`} width={32} />
-                                                <Tooltip content={<CustomTooltip />} />
-                                                <ReferenceLine y={90} stroke="#f59e0b" strokeDasharray="6 3" strokeWidth={1} label={{ value: "90%", position: "insideTopRight", fontSize: 9, fill: "#f59e0b" }} />
-                                                {hwTimes.map((t, i) => <ReferenceLine key={`hw-${i}`} x={t} stroke="#a855f7" strokeDasharray="4 3" strokeWidth={1.5} />)}
-                                                {cfgTimes.map((t, i) => <ReferenceLine key={`cfg-${i}`} x={t} stroke="#3b82f6" strokeDasharray="4 3" strokeWidth={1.5} />)}
-                                                {updTimes.map((t, i) => <ReferenceLine key={`upd-${i}`} x={t} stroke="#16a34a" strokeDasharray="2 2" strokeWidth={1.5} />)}
-                                                <Line type="monotone" dataKey="mem" name="메모리" stroke="#f59e0b" strokeWidth={1.5} dot={false} unit="%" connectNulls />
-                                            </ComposedChart>
-                                        </ResponsiveContainer>
-                                    </div>
-
-                                    {/* 디스크 */}
-                                    <div className="hist-chart-panel">
-                                        <div className="hist-chart-label" style={{ color: "#22c55e" }}>디스크</div>
-                                        <ResponsiveContainer width="100%" height={200}>
-                                            <ComposedChart data={chartData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-                                                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                                                <XAxis dataKey="ts" type="number" scale="time" domain={["auto", "auto"]} tickFormatter={fmtAxisTime} tick={{ fontSize: 9, fill: "var(--muted-text-color)" }} tickCount={4} />
-                                                <YAxis domain={[0, 100]} tick={{ fontSize: 9, fill: "var(--muted-text-color)" }} tickFormatter={(v) => `${v}%`} width={32} />
-                                                <Tooltip content={<CustomTooltip />} />
-                                                <ReferenceLine y={75} stroke="#22c55e" strokeDasharray="6 3" strokeWidth={1} label={{ value: "75%", position: "insideTopRight", fontSize: 9, fill: "#22c55e" }} />
-                                                {hwTimes.map((t, i) => <ReferenceLine key={`hw-${i}`} x={t} stroke="#a855f7" strokeDasharray="4 3" strokeWidth={1.5} />)}
-                                                {cfgTimes.map((t, i) => <ReferenceLine key={`cfg-${i}`} x={t} stroke="#3b82f6" strokeDasharray="4 3" strokeWidth={1.5} />)}
-                                                {updTimes.map((t, i) => <ReferenceLine key={`upd-${i}`} x={t} stroke="#16a34a" strokeDasharray="2 2" strokeWidth={1.5} />)}
-                                                <Line type="monotone" dataKey="disk" name="디스크" stroke="#22c55e" strokeWidth={1.5} dot={false} unit="%" connectNulls />
-                                            </ComposedChart>
-                                        </ResponsiveContainer>
-                                    </div>
-                                </div>
-                            )}
+                                );
+                            })()}
 
                             <div className="hist-events">
                                 <div className="hist-events-title">
