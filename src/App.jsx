@@ -39,7 +39,7 @@ const getInitialTheme = () => {
     return prefersDark ? "dark" : "light";
 };
 
-const HamburgerMenu = ({ admin, isAdminPage, setAuth, onOpenKeyboardHelp, onAdminToggle, onNavigateControl }) => {
+const HamburgerMenu = ({ admin, isAdminPage, setAuth, onOpenKeyboardHelp, onAdminToggle, onNavigateControl, onNavigateTimeline }) => {
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef(null);
 
@@ -98,6 +98,16 @@ const HamburgerMenu = ({ admin, isAdminPage, setAuth, onOpenKeyboardHelp, onAdmi
                             <span className="menu-item-icon">💻</span>
                             <span className="menu-item-label">모듈 정보</span>
                             <span className="menu-item-kbd">c</span>
+                        </button>
+                    )}
+                    {admin && (
+                        <button
+                            type="button"
+                            className="menu-item"
+                            onClick={() => { setShowMenu(false); onNavigateTimeline(); }}>
+                            <span className="menu-item-icon">📅</span>
+                            <span className="menu-item-label">타임라인</span>
+                            <span className="menu-item-kbd">t</span>
                         </button>
                     )}
                     <Logout
@@ -394,6 +404,10 @@ function App() {
         navigate("/control");
     }, [navigate]);
 
+    const handleNavigateTimeline = useCallback(() => {
+        navigate("/timeline");
+    }, [navigate]);
+
     const handleLoginSuccess = (redirectTo = "/all") => {
         navigate(redirectTo, { replace: true });
     };
@@ -437,6 +451,7 @@ function App() {
                         onOpenKeyboardHelp={handleOpenKeyboardHelp}
                         onAdminToggle={handleAdminToggle}
                         onNavigateControl={handleNavigateControl}
+                        onNavigateTimeline={handleNavigateTimeline}
                     />
                     </div>
                 )}
@@ -461,6 +476,7 @@ function App() {
                         <div className="shortcut-group">
                             <h4>전역</h4>
                             <div className="shortcut-row"><kbd>H</kbd><span>전체 현장으로 이동</span></div>
+                            <div className="shortcut-row"><kbd>T</kbd><span>타임라인</span></div>
                             <div className="shortcut-row"><kbd>ESC</kbd><span>뒤로가기 / 닫기</span></div>
                         </div>
                         <button className="close-help-btn" onClick={() => setShowKeyboardHelp(false)}>닫기</button>

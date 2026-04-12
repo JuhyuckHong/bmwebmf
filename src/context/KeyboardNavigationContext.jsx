@@ -63,6 +63,16 @@ export function KeyboardNavigationProvider({ children }) {
                 navigate('/control');
             }
         },
+        't': () => {
+            if (location.pathname !== '/timeline') {
+                navigate('/timeline');
+            }
+        },
+        'T': () => {
+            if (location.pathname !== '/timeline') {
+                navigate('/timeline');
+            }
+        },
         'l': () => {
             if (location.pathname !== '/logs') {
                 navigate('/logs');

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Cookies from "js-cookie";
 import { API } from "../API";
 import "../CSS/Timeline.css";
@@ -23,52 +23,112 @@ const buildDateRange = (from, to) => {
 
 const today = () => fmt(new Date());
 
+const trimModuleId = (id) => String(Number(id));
+
+const subtractDays = (dateStr, days) => {
+    const d = new Date(dateStr + "T00:00:00");
+    d.setDate(d.getDate() - days);
+    return fmt(d);
+};
+
 const getDefaultRange = () => {
     const now = new Date();
-    const y = now.getFullYear();
-    const m = now.getMonth();
-    const monthEnd = fmt(new Date(y, m + 1, 0));
+    const from = new Date(now);
+    from.setMonth(from.getMonth() - 1);
+    from.setDate(1);
     return {
-        from: fmt(new Date(y, m, 1)),
-        to: monthEnd > today() ? today() : monthEnd,
+        from: fmt(from),
+        to: today(),
     };
 };
 
 export default function TimelinePage() {
     const defaults = getDefaultRange();
-    const [dateFrom, setDateFrom] = useState(defaults.from);
+    const [inputFrom, setInputFrom] = useState(defaults.from);
     const [dateTo, setDateTo] = useState(defaults.to);
     const [axis, setAxis] = useState("module");
-    const [data, setData] = useState(null);
+    const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [dateFrom, setDateFrom] = useState(defaults.from);
+    const wrapRef = useRef(null);
 
     const effectiveTo = dateTo > today() ? today() : dateTo;
 
-    const fetchData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const headers = { Authorization: Cookies.get("BM") };
-            const res = await API.getOperationTimeline(headers, {
-                date_from: dateFrom,
-                date_to: effectiveTo,
-                axis,
-            });
-            setData(res.data);
-        } catch (err) {
-            console.error("timeline fetch error", err);
-            setData({ rows: [] });
-        } finally {
-            setLoading(false);
-        }
-    }, [dateFrom, effectiveTo, axis]);
+    const fetchData = useCallback(async (from, to) => {
+        const headers = { Authorization: Cookies.get("BM") };
+        const res = await API.getOperationTimeline(headers, {
+            date_from: from,
+            date_to: to,
+            axis,
+        });
+        return res.data?.rows || [];
+    }, [axis]);
 
+    // 초기 로드 및 사용자가 직접 날짜/축을 변경했을 때
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        let cancelled = false;
+        setLoading(true);
+        setDateFrom(inputFrom);
+        fetchData(inputFrom, effectiveTo).then((newRows) => {
+            if (cancelled) return;
+            setRows(newRows);
+            setLoading(false);
+            setTimeout(() => {
+                if (wrapRef.current) {
+                    wrapRef.current.scrollLeft = wrapRef.current.scrollWidth;
+                }
+            }, 0);
+        }).catch(() => {
+            if (!cancelled) {
+                setRows([]);
+                setLoading(false);
+            }
+        });
+        return () => { cancelled = true; };
+    }, [inputFrom, effectiveTo, fetchData]);
+
+    const loadMore = useCallback(async () => {
+        if (loadingMore) return;
+        setLoadingMore(true);
+        const newFrom = subtractDays(dateFrom, 30);
+        const newTo = subtractDays(dateFrom, 1);
+        try {
+            const prevScrollWidth = wrapRef.current?.scrollWidth || 0;
+            const prevScrollLeft = wrapRef.current?.scrollLeft || 0;
+            const moreRows = await fetchData(newFrom, newTo);
+            setRows((prev) => {
+                const merged = new Map();
+                for (const row of prev) {
+                    merged.set(row.key, { ...row });
+                }
+                for (const row of moreRows) {
+                    if (merged.has(row.key)) {
+                        const existing = merged.get(row.key);
+                        existing.segments = [...row.segments, ...existing.segments];
+                    } else {
+                        merged.set(row.key, { ...row });
+                    }
+                }
+                return Array.from(merged.values());
+            });
+            setDateFrom(newFrom);
+            requestAnimationFrame(() => {
+                if (wrapRef.current) {
+                    const diff = wrapRef.current.scrollWidth - prevScrollWidth;
+                    wrapRef.current.scrollLeft = prevScrollLeft + diff;
+                }
+            });
+        } catch (err) {
+            console.error("timeline load more error", err);
+        } finally {
+            setLoadingMore(false);
+        }
+    }, [dateFrom, loadingMore, fetchData]);
+
 
     const dates = useMemo(() => buildDateRange(dateFrom, effectiveTo), [dateFrom, effectiveTo]);
 
-    // 년도/월 헤더 span 계산
     const yearSpans = useMemo(() => {
         const spans = [];
         for (let i = 0; i < dates.length; i++) {
@@ -96,20 +156,18 @@ export default function TimelinePage() {
         return spans;
     }, [dates]);
 
-    // 각 row의 segments를 날짜-인덱스 기반 merged span으로 변환
     const rowSpans = useMemo(() => {
-        if (!data?.rows) return [];
-        let rows = [...data.rows];
+        if (!rows.length) return [];
+        let sorted = [...rows];
         if (axis === "site") {
-            rows = rows.filter((row) =>
+            sorted = sorted.filter((row) =>
                 row.segments.some((seg) => seg.end_date >= dateFrom && seg.start_date <= effectiveTo)
             );
         }
         if (axis === "module") {
-            rows.sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
+            sorted.sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
         }
-        return rows.map((row) => {
-            // dateIndex -> segment 매핑
+        return sorted.map((row) => {
             const cellMap = {};
             for (const seg of row.segments) {
                 const s = Math.max(dates.indexOf(seg.start_date), 0);
@@ -123,8 +181,7 @@ export default function TimelinePage() {
                 }
             }
 
-            // 인접한 같은 segment를 merge (같은 라벨 기준)
-            const labelKey = (seg) => axis === "module" ? seg.site_name : seg.module_id;
+            const labelKey = (seg) => axis === "module" ? seg.site_name : trimModuleId(seg.module_id);
             const spans = [];
             let i = 0;
             while (i < dates.length) {
@@ -142,9 +199,17 @@ export default function TimelinePage() {
                 spans.push({ start: i, len: j - i, seg, label, confidence: seg.confidence });
                 i = j;
             }
-            return { key: row.key, label: row.label, spans };
+            // 현재 운영중인 최신 segment에서 부가 정보
+            const latest = [...row.segments]
+                .filter((s) => s.is_operating)
+                .sort((a, b) => b.end_date.localeCompare(a.end_date))[0];
+            const sub = latest
+                ? axis === "module" ? latest.site_name : trimModuleId(latest.module_id)
+                : null;
+            const displayLabel = axis === "module" ? trimModuleId(row.label) : row.label;
+            return { key: row.key, label: displayLabel, sub, spans };
         });
-    }, [data, dates, axis, effectiveTo]);
+    }, [rows, dates, axis, dateFrom, effectiveTo]);
 
     return (
         <div className="timeline-page">
@@ -155,8 +220,8 @@ export default function TimelinePage() {
                         시작
                         <input
                             type="date"
-                            value={dateFrom}
-                            onChange={(e) => setDateFrom(e.target.value)}
+                            value={inputFrom}
+                            onChange={(e) => setInputFrom(e.target.value)}
                         />
                     </label>
                     <label>
@@ -175,21 +240,31 @@ export default function TimelinePage() {
                             <option value="site">현장</option>
                         </select>
                     </label>
+                    {loadingMore && <span className="timeline-loading-more">과거 데이터 로딩중...</span>}
                 </div>
 
                 {loading && <div className="timeline-loading">불러오는 중...</div>}
 
-                {!loading && data && rowSpans.length === 0 && (
+                {!loading && rowSpans.length === 0 && (
                     <div className="timeline-empty">해당 기간에 데이터가 없습니다.</div>
                 )}
 
                 {!loading && rowSpans.length > 0 && (
-                    <div className="timeline-table-wrap">
+                    <div className="timeline-table-wrap" ref={wrapRef}>
                         <table className="timeline-table">
                             <thead>
                                 <tr>
                                     <th className="timeline-corner" rowSpan={3}>
                                         {axis === "module" ? "모듈" : "현장"}
+                                    </th>
+                                    <th className="timeline-load-more-cell" rowSpan={3}>
+                                        <button
+                                            className="timeline-load-more"
+                                            onClick={loadMore}
+                                            disabled={loadingMore}
+                                        >
+                                            {loadingMore ? "..." : "← 이전"}
+                                        </button>
                                     </th>
                                     {yearSpans.map((s) => (
                                         <th key={s.label} colSpan={s.len} className="timeline-year">
@@ -228,7 +303,11 @@ export default function TimelinePage() {
                             <tbody>
                                 {rowSpans.map((row) => (
                                     <tr key={row.key}>
-                                        <th>{row.label}</th>
+                                        <th>
+                                            {row.label}
+                                            {row.sub && <span className="timeline-row-sub"> ({row.sub})</span>}
+                                        </th>
+                                        <td className="timeline-load-more-cell" />
                                         {row.spans.map((span) =>
                                             span.seg ? (
                                                 <td
