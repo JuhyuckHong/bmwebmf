@@ -359,6 +359,8 @@
     border-bottom: 1px solid var(--border-color);
     border-right: 1px solid var(--border-color);
     align-self: stretch;
+    position: relative;
+    isolation: isolate;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -419,11 +421,16 @@
 }
 
 /* progressive fade: error → withdrawn 구간 + 철수 후 (ctrl-id 제외) */
-.control-row.row-fading > *:not(.ctrl-id),
-.control-row.row-withdrawn > *:not(.ctrl-id) {
-    opacity: calc(1 - var(--row-fade, 0) * 0.85);
-    filter: grayscale(calc(var(--row-fade, 0) * 0.6));
-    transition: opacity 0.5s ease, filter 0.5s ease;
+.control-row.row-fading > *:not(.ctrl-id)::after,
+.control-row.row-withdrawn > *:not(.ctrl-id)::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 1px 0;
+    background: var(--surface-color);
+    opacity: calc(var(--row-fade, 0) * 0.95);
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    z-index: 1;
 }
 .control-row.row-withdrawn .ctrl-id {
     opacity: 1;

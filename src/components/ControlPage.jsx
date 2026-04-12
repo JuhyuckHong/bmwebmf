@@ -660,12 +660,16 @@ export default function ControlPage() {
                                 sorted.map((m) => {
                                     const updateStatus = updateStatuses[m.id]?.status ?? "idle";
                                     const updateMessage = updateStatuses[m.id]?.message;
-                                    const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+                                    const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
+                                    const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
                                     const hasData = m.last_status != null || m.last_success_time != null;
                                     const msSinceSuccess = m.last_success_time
                                         ? Date.now() - new Date(m.last_success_time).getTime()
-                                        : ONE_WEEK;
-                                    const fadeRatio = Math.min(Math.max(msSinceSuccess / ONE_WEEK, 0), 1);
+                                        : SEVEN_DAYS;
+                                    const fadeRatio = Math.min(
+                                        Math.max((msSinceSuccess - THREE_DAYS) / (SEVEN_DAYS - THREE_DAYS), 0),
+                                        1,
+                                    );
                                     const isWithdrawn = fadeRatio >= 1;
                                     const isErrorStatus = m.last_status === "ERROR";
                                     const rowClasses = !hasData
