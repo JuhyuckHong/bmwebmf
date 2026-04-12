@@ -22,6 +22,7 @@ import UserPermission from "./components/UserPermission";
 import WidthAdjuster from "./components/WidthAdjuster";
 import LogsPage from "./components/LogsPage";
 import ControlPage from "./components/ControlPage";
+import TimelinePage from "./components/TimelinePage";
 import { SortingStyle } from "./styled-components/allsites";
 import { KeyboardNavigationProvider } from "./context";
 
@@ -160,7 +161,8 @@ function App() {
     const isAdminPage =
         location.pathname.startsWith("/setting") ||
         location.pathname.startsWith("/logs") ||
-        location.pathname.startsWith("/control");
+        location.pathname.startsWith("/control") ||
+        location.pathname.startsWith("/timeline");
     const isAllPage = location.pathname === "/all";
     const goToAllSites = () => navigate("/all");
 
@@ -253,15 +255,12 @@ function App() {
             return;
         }
 
+        if (!isAllPage) return;
+
         fetchAllSitesData();
-    }, [auth, reload, fetchAllSitesData, clearStaticCache]);
-
-    useEffect(() => {
-        if (!auth || !isAllPage) return;
-
         const intervalId = setInterval(fetchAllSitesData, thumbnailIntervalMs);
         return () => clearInterval(intervalId);
-    }, [auth, isAllPage, fetchAllSitesData]);
+    }, [auth, reload, isAllPage, fetchAllSitesData, clearStaticCache]);
 
     // Keep static thumbnails cached across navigation and update only when the source url changes.
     useEffect(() => {
@@ -581,6 +580,16 @@ function App() {
                             <ProtectedRoute requireAdmin>
                                 <div className="display">
                                     <ControlPage />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/timeline"
+                        element={
+                            <ProtectedRoute requireAdmin>
+                                <div className="display">
+                                    <TimelinePage />
                                 </div>
                             </ProtectedRoute>
                         }
