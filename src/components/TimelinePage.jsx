@@ -3,7 +3,12 @@ import Cookies from "js-cookie";
 import { API } from "../API";
 import "../CSS/Timeline.css";
 
-const fmt = (d) => d.toISOString().slice(0, 10);
+const fmt = (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+};
 
 const buildDateRange = (from, to) => {
     const dates = [];
@@ -16,13 +21,16 @@ const buildDateRange = (from, to) => {
     return dates;
 };
 
+const today = () => fmt(new Date());
+
 const getDefaultRange = () => {
     const now = new Date();
     const y = now.getFullYear();
     const m = now.getMonth();
+    const monthEnd = fmt(new Date(y, m + 1, 0));
     return {
         from: fmt(new Date(y, m, 1)),
-        to: fmt(new Date(y, m + 1, 0)),
+        to: monthEnd > today() ? today() : monthEnd,
     };
 };
 
@@ -34,13 +42,15 @@ export default function TimelinePage() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
 
+    const effectiveTo = dateTo > today() ? today() : dateTo;
+
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
             const headers = { Authorization: Cookies.get("BM") };
             const res = await API.getOperationTimeline(headers, {
                 date_from: dateFrom,
-                date_to: dateTo,
+                date_to: effectiveTo,
                 axis,
             });
             setData(res.data);
@@ -50,13 +60,13 @@ export default function TimelinePage() {
         } finally {
             setLoading(false);
         }
-    }, [dateFrom, dateTo, axis]);
+    }, [dateFrom, effectiveTo, axis]);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
 
-    const dates = useMemo(() => buildDateRange(dateFrom, dateTo), [dateFrom, dateTo]);
+    const dates = useMemo(() => buildDateRange(dateFrom, effectiveTo), [dateFrom, effectiveTo]);
 
     // 년도/월 헤더 span 계산
     const yearSpans = useMemo(() => {
@@ -89,13 +99,22 @@ export default function TimelinePage() {
     // 각 row의 segments를 날짜-인덱스 기반 merged span으로 변환
     const rowSpans = useMemo(() => {
         if (!data?.rows) return [];
-        return data.rows.map((row) => {
+        let rows = [...data.rows];
+        if (axis === "site") {
+            rows = rows.filter((row) =>
+                row.segments.some((seg) => seg.end_date >= dateFrom && seg.start_date <= effectiveTo)
+            );
+        }
+        if (axis === "module") {
+            rows.sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
+        }
+        return rows.map((row) => {
             // dateIndex -> segment 매핑
             const cellMap = {};
             for (const seg of row.segments) {
                 const s = Math.max(dates.indexOf(seg.start_date), 0);
                 const e = Math.min(
-                    seg.end_date > dateTo ? dates.length - 1 : dates.indexOf(seg.end_date),
+                    seg.end_date > effectiveTo ? dates.length - 1 : dates.indexOf(seg.end_date),
                     dates.length - 1,
                 );
                 if (s < 0 || e < 0) continue;
@@ -104,7 +123,8 @@ export default function TimelinePage() {
                 }
             }
 
-            // 인접한 같은 segment를 merge
+            // 인접한 같은 segment를 merge (같은 라벨 기준)
+            const labelKey = (seg) => axis === "module" ? seg.site_name : seg.module_id;
             const spans = [];
             let i = 0;
             while (i < dates.length) {
@@ -114,9 +134,9 @@ export default function TimelinePage() {
                     i++;
                     continue;
                 }
-                const label = axis === "module" ? seg.site_name : seg.module_id;
+                const label = labelKey(seg);
                 let j = i + 1;
-                while (j < dates.length && cellMap[j] === seg) {
+                while (j < dates.length && cellMap[j] && labelKey(cellMap[j]) === label) {
                     j++;
                 }
                 spans.push({ start: i, len: j - i, seg, label, confidence: seg.confidence });
@@ -124,7 +144,7 @@ export default function TimelinePage() {
             }
             return { key: row.key, label: row.label, spans };
         });
-    }, [data, dates, axis, dateTo]);
+    }, [data, dates, axis, effectiveTo]);
 
     return (
         <div className="timeline-page">
@@ -144,6 +164,7 @@ export default function TimelinePage() {
                         <input
                             type="date"
                             value={dateTo}
+                            max={today()}
                             onChange={(e) => setDateTo(e.target.value)}
                         />
                     </label>
@@ -185,15 +206,20 @@ export default function TimelinePage() {
                                 </tr>
                                 <tr>
                                     {dates.map((d) => {
-                                        const dow = new Date(d + "T00:00:00").getDay();
+                                        const dt = new Date(d + "T00:00:00");
+                                        const dow = dt.getDay();
                                         const isWeekend = dow === 0 || dow === 6;
+                                        const day = String(dt.getDate());
+                                        const top = day.length > 1 ? day[0] : "";
+                                        const bottom = day.length > 1 ? day[1] : day[0];
                                         return (
                                             <th
                                                 key={d}
-                                                className={isWeekend ? "timeline-weekend" : ""}
+                                                className={"timeline-day" + (isWeekend ? " timeline-weekend" : "")}
                                                 title={d}
                                             >
-                                                {parseInt(d.slice(8), 10)}
+                                                <span className="timeline-day-top">{top}</span>
+                                                <span className="timeline-day-bottom">{bottom}</span>
                                             </th>
                                         );
                                     })}
