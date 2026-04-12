@@ -2,7 +2,6 @@ import axios from "axios";
 
 const apiBaseUrl = import.meta.env.REACT_APP_API_URL;
 const relayBaseUrl = import.meta.env.REACT_APP_RELAY_URL;
-
 const relay = axios.create({
     baseURL: relayBaseUrl,
     headers: {},
@@ -95,4 +94,7 @@ export const API = {
     // 모듈 활성 업데이트 조회
     getActiveModuleUpdate: (headers, moduleId) =>
         relay.get(`/modules/${moduleId}/update-active`, { headers }),
+    // 운영 타임라인 조회
+    getOperationTimeline: (headers, params) =>
+        relay.get("/operation-timeline", { headers, params }),
 };
