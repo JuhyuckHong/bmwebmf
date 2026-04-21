@@ -254,7 +254,7 @@ export default function HistoryModal({ module, onClose }) {
                                                 ))}
                                             </div>
                                         </div>
-                                        <ResponsiveContainer width="100%" height={240}>
+                                        <ResponsiveContainer width="100%" height={190}>
                                             <ComposedChart data={chartData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                                                 <XAxis dataKey="ts" type="number" scale="time" domain={["auto", "auto"]} tickFormatter={fmtAxisTime} tick={{ fontSize: 9, fill: "var(--muted-text-color)" }} tickCount={4} />
