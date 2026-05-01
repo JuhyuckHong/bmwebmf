@@ -11,6 +11,11 @@ import {
     ResponsiveContainer,
 } from "recharts";
 import { API } from "../API";
+import {
+    filterHistoryDataByDateRange,
+    formatRangeLabel,
+    hasValidDateRange,
+} from "./historyDateRange";
 import "../CSS/HistoryModal.css";
 
 const HOUR_OPTIONS = [0, 12, 24, 48, 72];
@@ -152,29 +157,44 @@ export default function HistoryModal({ module, onClose }) {
     const [error, setError] = useState(null);
     const [eventsView, setEventsView] = useState("fields");
     const [chartView, setChartView] = useState("temp");
+    const [isRangePickerOpen, setIsRangePickerOpen] = useState(false);
+    const [draftStartDate, setDraftStartDate] = useState("");
+    const [draftEndDate, setDraftEndDate] = useState("");
+    const [rangeStartDate, setRangeStartDate] = useState("");
+    const [rangeEndDate, setRangeEndDate] = useState("");
+
+    const isRangeActive = hasValidDateRange(rangeStartDate, rangeEndDate);
+    const canApplyDraftRange = hasValidDateRange(draftStartDate, draftEndDate);
+    const rangeLabel = formatRangeLabel(rangeStartDate, rangeEndDate);
 
     const fetchHistory = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
             const headers = { Authorization: Cookies.get("BM") };
-            const res = await API.getHistory(headers, module.id, hours);
+            const requestHours = isRangeActive ? 0 : hours;
+            const res = await API.getHistory(headers, module.id, requestHours);
             setData(res.data);
         } catch (err) {
             setError(err.message);
         } finally {
             setLoading(false);
         }
-    }, [module.id, hours]);
+    }, [hours, isRangeActive, module.id]);
 
     useEffect(() => {
         fetchHistory();
     }, [fetchHistory]);
 
-    const snapshots = data?.metrics ?? [];
-    const hardwareEvents = data?.hardware_events ?? [];
-    const configEvents = data?.config_events ?? [];
-    const updateEvents = data?.update_events ?? [];
+    const visibleData = useMemo(() => {
+        if (!isRangeActive) return data;
+        return filterHistoryDataByDateRange(data, rangeStartDate, rangeEndDate);
+    }, [data, isRangeActive, rangeEndDate, rangeStartDate]);
+
+    const snapshots = visibleData?.metrics ?? [];
+    const hardwareEvents = visibleData?.hardware_events ?? [];
+    const configEvents = visibleData?.config_events ?? [];
+    const updateEvents = visibleData?.update_events ?? [];
 
     // Build chart data: each snapshot becomes a point, timestamp as numeric key
     const chartData = snapshots.map((s) => ({
@@ -207,6 +227,36 @@ export default function HistoryModal({ module, onClose }) {
         return map;
     }, [allEvents]);
 
+    const openRangePicker = () => {
+        setDraftStartDate(rangeStartDate);
+        setDraftEndDate(rangeEndDate);
+        setIsRangePickerOpen((prev) => !prev);
+    };
+
+    const applyDateRange = () => {
+        if (!canApplyDraftRange) return;
+        setRangeStartDate(draftStartDate);
+        setRangeEndDate(draftEndDate);
+        setIsRangePickerOpen(false);
+    };
+
+    const resetDateRange = () => {
+        setDraftStartDate("");
+        setDraftEndDate("");
+        setRangeStartDate("");
+        setRangeEndDate("");
+        setIsRangePickerOpen(false);
+    };
+
+    const handleHourSelect = (nextHours) => {
+        setHours(nextHours);
+        setRangeStartDate("");
+        setRangeEndDate("");
+        setDraftStartDate("");
+        setDraftEndDate("");
+        setIsRangePickerOpen(false);
+    };
+
     return (
         <div className="hist-overlay" onClick={onClose}>
             <div className="hist-modal" onClick={(e) => e.stopPropagation()}>
@@ -217,11 +267,62 @@ export default function HistoryModal({ module, onClose }) {
                         <span className="hist-subtitle">히스토리</span>
                     </div>
                     <div className="hist-controls">
+                        <div className="hist-range-wrap">
+                            <button
+                                className={`hist-range-trigger${isRangeActive ? " active" : ""}`}
+                                onClick={openRangePicker}
+                                type="button"
+                            >
+                                {rangeLabel || "YYYY.MM.DD ~ YYYY.MM.DD"}
+                            </button>
+                            {isRangePickerOpen && (
+                                <div className="hist-range-popover">
+                                    <div className="hist-range-fields">
+                                        <label className="hist-range-field">
+                                            <span>Start</span>
+                                            <input
+                                                type="date"
+                                                value={draftStartDate}
+                                                onChange={(e) => setDraftStartDate(e.target.value)}
+                                            />
+                                        </label>
+                                        <label className="hist-range-field">
+                                            <span>End</span>
+                                            <input
+                                                type="date"
+                                                value={draftEndDate}
+                                                onChange={(e) => setDraftEndDate(e.target.value)}
+                                            />
+                                        </label>
+                                    </div>
+                                    <div className="hist-range-note">
+                                        Inclusive whole-day range: 00:00 to 23:59
+                                    </div>
+                                    <div className="hist-range-actions">
+                                        <button
+                                            type="button"
+                                            className="hist-range-action ghost"
+                                            onClick={resetDateRange}
+                                        >
+                                            Reset
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="hist-range-action primary"
+                                            onClick={applyDateRange}
+                                            disabled={!canApplyDraftRange}
+                                        >
+                                            Apply
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                         {HOUR_OPTIONS.map((h) => (
                             <button
                                 key={h}
-                                className={`hist-hour-btn${hours === h ? " active" : ""}`}
-                                onClick={() => setHours(h)}
+                                className={`hist-hour-btn${!isRangeActive && hours === h ? " active" : ""}`}
+                                onClick={() => handleHourSelect(h)}
                             >
                                 {h === 0 ? "전체" : `${h}h`}
                             </button>
