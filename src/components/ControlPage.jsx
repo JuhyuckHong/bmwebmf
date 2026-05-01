@@ -5,7 +5,6 @@ import "../CSS/Control.css";
 import HistoryModal from "./HistoryModal";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 import { useKeyboardContext } from "../context/KeyboardNavigationContext";
-import { getControlRowFadeState } from "./controlRowFade.mjs";
 
 const REFRESH_INTERVAL = 30000;
 const TOAST_DURATION = 3000;
@@ -661,7 +660,25 @@ export default function ControlPage() {
                                 sorted.map((m) => {
                                     const updateStatus = updateStatuses[m.id]?.status ?? "idle";
                                     const updateMessage = updateStatuses[m.id]?.message;
-                                    const { fadeRatio, rowClasses } = getControlRowFadeState(m);
+                                    const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
+                                    const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+                                    const hasData = m.last_status != null || m.last_success_time != null;
+                                    const msSinceSuccess = m.last_success_time
+                                        ? Date.now() - new Date(m.last_success_time).getTime()
+                                        : SEVEN_DAYS;
+                                    const fadeRatio = Math.min(
+                                        Math.max((msSinceSuccess - THREE_DAYS) / (SEVEN_DAYS - THREE_DAYS), 0),
+                                        1,
+                                    );
+                                    const isWithdrawn = fadeRatio >= 1;
+                                    const isErrorStatus = m.last_status === "ERROR";
+                                    const rowClasses = !hasData
+                                        ? "row-unknown"
+                                        : isWithdrawn
+                                            ? "row-withdrawn"
+                                            : fadeRatio > 0.05
+                                                ? (isErrorStatus ? "row-error row-fading" : "row-fading")
+                                                : (isErrorStatus ? "row-error" : "");
                                     return (
                                     <li
                                         key={m.id}
