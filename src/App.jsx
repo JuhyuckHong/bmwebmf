@@ -302,7 +302,10 @@ function App() {
 
             for (const thumbnail of thumbnails) {
                 const cached = nextCache[thumbnail.site];
-                if (cached && cached.source === thumbnail.url) continue;
+                const recentPhoto =
+                    siteInformation[thumbnail.site]?.recent_photo;
+                const cacheKey = `${thumbnail.url}|${recentPhoto || ""}`;
+                if (cached && cached.source === cacheKey) continue;
 
                 try {
                     const cacheBuster = `?_t=${Date.now()}`;
@@ -321,7 +324,7 @@ function App() {
                     }
 
                     nextCache[thumbnail.site] = {
-                        source: thumbnail.url,
+                        source: cacheKey,
                         objectURL,
                     };
 
@@ -330,7 +333,7 @@ function App() {
                     const fallback = apiBaseUrl + "/static/no_image_today.jpg";
 
                     nextCache[thumbnail.site] = {
-                        source: thumbnail.url,
+                        source: cacheKey,
                         objectURL: fallback,
                     };
 
