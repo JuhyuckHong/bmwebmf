@@ -34,8 +34,9 @@ export function usePhotoData(site) {
             try {
                 setLoading(true);
                 const response = await API.getSiteDate(authHeader, site);
-                setDates(response.data);
-                const lastIndex = response.data.length - 1;
+                const sortedDates = [...response.data].sort();
+                setDates(sortedDates);
+                const lastIndex = sortedDates.length - 1;
                 setTempDateIndex(lastIndex);
                 setSelectedDateIndex(lastIndex);
             } catch (err) {
@@ -78,8 +79,9 @@ export function usePhotoData(site) {
                     site,
                     dates[selectedDateIndex]
                 );
-                setTimes(response.data);
-                const lastIndex = response.data.length - 1;
+                const sortedTimes = [...response.data].sort();
+                setTimes(sortedTimes);
+                const lastIndex = sortedTimes.length - 1;
                 setTempTimeIndex(lastIndex);
                 setSelectedTimeIndex(lastIndex);
             } catch (err) {
@@ -217,7 +219,7 @@ export function useVideoData(site) {
             try {
                 setLoading(true);
                 const response = await API.getSiteDailyVideoList(authHeader, site);
-                const mp4Only = response.data.filter((f) => !f.includes("gif"));
+                const mp4Only = response.data.filter((f) => !f.includes("gif")).sort();
                 setDates(mp4Only);
                 const lastIndex = mp4Only.length - 1;
                 setTempDateIndex(lastIndex);

@@ -249,7 +249,7 @@ function TimelineSelector({
                                                 onClick={() => {
                                                     const minutes = timeStructure[h];
                                                     if (minutes && minutes.length > 0) {
-                                                        onTimeChange(minutes[0].index);
+                                                        onTimeChange(minutes[minutes.length - 1].index);
                                                     }
                                                 }}
                                                 type="button"
