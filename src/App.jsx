@@ -178,7 +178,10 @@ function App() {
 
     // API 401 응답 시 로그아웃 처리
     useEffect(() => {
-        setUnauthorizedHandler(() => setAuth(false));
+        setUnauthorizedHandler(() => {
+            Cookies.remove("BM");
+            setAuth(false);
+        });
         return () => setUnauthorizedHandler(null);
     }, []);
 

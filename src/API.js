@@ -1,5 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
+import { isCurrentTokenUnauthorized } from "./authToken";
 
 const apiBaseUrl = import.meta.env.REACT_APP_API_URL;
 const relayBaseUrl = import.meta.env.REACT_APP_RELAY_URL;
@@ -16,15 +17,15 @@ const api = axios.create({
     withCredentials: false,
 });
 
-// 401 응답 시 토큰 삭제 후 App에서 등록한 로그아웃 콜백 호출
+// 현재 토큰으로 보낸 요청이 401이면 App에서 등록한 로그아웃 콜백 호출
+// (쿠키 삭제는 콜백에서 처리)
 let unauthorizedHandler = null;
 export const setUnauthorizedHandler = (handler) => {
     unauthorizedHandler = handler;
 };
 
 const handleResponseError = (error) => {
-    if (error?.response?.status === 401) {
-        Cookies.remove("BM");
+    if (isCurrentTokenUnauthorized(error, Cookies.get("BM"))) {
         if (unauthorizedHandler) unauthorizedHandler();
     }
     return Promise.reject(error);
@@ -76,7 +77,7 @@ export const API = {
 
     // Thumbnail 목록 조회
     getThumbnails: (headers) => api.get("/thumbnails", { headers }),
-    // Thumbnail 이미지 조회
+    // Thumbnail 이미지 조회 (file은 서버가 준 경로에 호출부가 쿼리스트링을 붙여 넘기므로 인코딩하지 않음)
     getStatic: (headers, file) =>
         api.get(`/static/${file}`, { headers, responseType: "blob" }),
     // 사진 한개 조회 date: YYYY-MM-DD, photo: YYYY-MM-DD_hh-mm-ss
@@ -111,7 +112,7 @@ export const API = {
         relay.post(`/modules/${enc(moduleId)}/update`, "", { headers }),
     // 모듈 업데이트 SSE 스트림 URL
     getModuleUpdateEventsUrl: (moduleId, jobId) =>
-        `${relayBaseUrl}/modules/${enc(moduleId)}/update/events?job_id=${encodeURIComponent(jobId)}`,
+        `${relayBaseUrl}/modules/${enc(moduleId)}/update/events?job_id=${enc(jobId)}`,
     // 모듈 활성 업데이트 조회
     getActiveModuleUpdate: (headers, moduleId) =>
         relay.get(`/modules/${enc(moduleId)}/update-active`, { headers }),
