@@ -5,7 +5,7 @@
             "destination": "https://bmtl.codebuild.pe.kr/api/:path*"
         },
         {
-            "source": "/(.*)",
+            "source": "/((?!assets/|relay/).*)",
             "destination": "/index.html"
         }
     ],
