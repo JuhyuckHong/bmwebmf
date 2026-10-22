@@ -33,6 +33,9 @@ const handleResponseError = (error) => {
 api.interceptors.response.use((response) => response, handleResponseError);
 relay.interceptors.response.use((response) => response, handleResponseError);
 
+// 경로 변수 인코딩
+const enc = encodeURIComponent;
+
 // API 목록
 export const API = {
     // 회원가입
@@ -41,18 +44,18 @@ export const API = {
     pendingUsers: (headers) => api.get("/users/pending", { headers }),
     // 회원 가입 승인
     approveUser: (headers, username) =>
-        api.put(`/approve/${username}`, "", { headers }),
+        api.put(`/approve/${enc(username)}`, "", { headers }),
     // 회원 가입 거절
     declineUser: (headers, username) =>
-        api.put(`/decline/${username}`, "", { headers }),
+        api.put(`/decline/${enc(username)}`, "", { headers }),
     // 사용자 삭제
     deleteUser: (headers, username) =>
-        api.delete(`/user/${username}`, { headers }),
+        api.delete(`/user/${enc(username)}`, { headers }),
     // 사용자 활성화/비활성화
     deactivateUser: (headers, username) =>
-        api.put(`/user/${username}/deactivate`, "", { headers }),
+        api.put(`/user/${enc(username)}/deactivate`, "", { headers }),
     activateUser: (headers, username) =>
-        api.put(`/user/${username}/activate`, "", { headers }),
+        api.put(`/user/${enc(username)}/activate`, "", { headers }),
     // 로그인
     signIn: (body) => api.post("/login", body),
     // 사용자 토큰 확인
@@ -61,7 +64,7 @@ export const API = {
     allUsers: (headers) => api.get("/users", { headers }),
     // 사용자 사이트 조회 권한 변경
     userSiteViewAuthSet: (headers, username, sites) =>
-        api.put(`/user/${username}/update`, sites, { headers }),
+        api.put(`/user/${enc(username)}/update`, sites, { headers }),
     // 서비스 중인 전체 현장 목록 조회
     allSites: (headers) => api.get("/sites/all", { headers }),
 
@@ -69,7 +72,7 @@ export const API = {
     getAllInformation: (headers) => api.get("/information/all", { headers }),
     // 선택 현장 정보 조회
     getInformation: (headers, site) =>
-        api.get(`/information/${site}`, { headers }),
+        api.get(`/information/${enc(site)}`, { headers }),
 
     // Thumbnail 목록 조회
     getThumbnails: (headers) => api.get("/thumbnails", { headers }),
@@ -78,40 +81,40 @@ export const API = {
         api.get(`/static/${file}`, { headers, responseType: "blob" }),
     // 사진 한개 조회 date: YYYY-MM-DD, photo: YYYY-MM-DD_hh-mm-ss
     getImage: (headers, site, date, photo) =>
-        api.get(`/images/${site}/${date}/${photo}`, {
+        api.get(`/images/${enc(site)}/${enc(date)}/${enc(photo)}`, {
             headers,
             responseType: "blob",
         }),
     // 최근 사진 조회(미사용)
     getRecent: (headers, site) =>
-        api.get(`/images/${site}/recent`, { headers, responseType: "blob" }),
+        api.get(`/images/${enc(site)}/recent`, { headers, responseType: "blob" }),
     // 사이트에 사진이 있는 날짜 조회
-    getSiteDate: (headers, site) => api.get(`/images/${site}`, { headers }),
+    getSiteDate: (headers, site) => api.get(`/images/${enc(site)}`, { headers }),
     // 사이트 특정 날짜에 있는 사진 목록 조회
     getSiteDateList: (headers, site, date) =>
-        api.get(`/images/${site}/${date}`, { headers }),
+        api.get(`/images/${enc(site)}/${enc(date)}`, { headers }),
     // 사이트 특정 날짜에 있는 영상 목록 조회
     getSiteDailyVideoList: (headers, site) =>
-        api.get(`/video/${site}`, { headers }),
+        api.get(`/video/${enc(site)}`, { headers }),
     // 사이트 특정 날짜에 있는 영상 목록 조회
     getSiteDailyVideo: (headers, site, video) =>
-        api.get(`/video/${site}/${video}`, { headers, responseType: "blob" }),
+        api.get(`/video/${enc(site)}/${enc(video)}`, { headers, responseType: "blob" }),
     // 서버 로그 조회
     getLogs: (headers, params) => api.get("/logs", { headers, params }),
     // 모듈 최신 현황 조회
     getLatest: (headers) => relay.get("/latest", { headers }),
     // 모듈 히스토리 조회
     getHistory: (headers, moduleId, hours = 24) =>
-        relay.get(`/history/${moduleId}`, { headers, params: { hours } }),
+        relay.get(`/history/${enc(moduleId)}`, { headers, params: { hours } }),
     // 모듈 업데이트 시작
     startModuleUpdate: (headers, moduleId) =>
-        relay.post(`/modules/${moduleId}/update`, "", { headers }),
+        relay.post(`/modules/${enc(moduleId)}/update`, "", { headers }),
     // 모듈 업데이트 SSE 스트림 URL
     getModuleUpdateEventsUrl: (moduleId, jobId) =>
-        `${relayBaseUrl}/modules/${moduleId}/update/events?job_id=${encodeURIComponent(jobId)}`,
+        `${relayBaseUrl}/modules/${enc(moduleId)}/update/events?job_id=${encodeURIComponent(jobId)}`,
     // 모듈 활성 업데이트 조회
     getActiveModuleUpdate: (headers, moduleId) =>
-        relay.get(`/modules/${moduleId}/update-active`, { headers }),
+        relay.get(`/modules/${enc(moduleId)}/update-active`, { headers }),
     // 운영 타임라인 조회
     getOperationTimeline: (headers, params) =>
         relay.get("/operation-timeline", { headers, params }),
