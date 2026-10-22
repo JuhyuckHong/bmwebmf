@@ -2,6 +2,7 @@
     "name": "bmwebmf",
     "version": "0.1.0",
     "private": true,
+    "type": "module",
     "dependencies": {
         "@testing-library/jest-dom": "^5.14.1",
         "@testing-library/react": "^13.0.0",
@@ -21,7 +22,7 @@
         "dev": "vite --port 4000",
         "start": "vite --port 4000",
         "build": "vite build",
-        "test": "echo \"No tests configured\"",
+        "test": "node --test src/__tests__/*.test.js src/components/__tests__/*.test.js",
         "preview": "vite preview --port 4000"
     },
     "browserslist": {
