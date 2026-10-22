@@ -1,4 +1,5 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const apiBaseUrl = import.meta.env.REACT_APP_API_URL;
 const relayBaseUrl = import.meta.env.REACT_APP_RELAY_URL;
@@ -14,6 +15,23 @@ const api = axios.create({
     headers: {},
     withCredentials: false,
 });
+
+// 401 응답 시 토큰 삭제 후 App에서 등록한 로그아웃 콜백 호출
+let unauthorizedHandler = null;
+export const setUnauthorizedHandler = (handler) => {
+    unauthorizedHandler = handler;
+};
+
+const handleResponseError = (error) => {
+    if (error?.response?.status === 401) {
+        Cookies.remove("BM");
+        if (unauthorizedHandler) unauthorizedHandler();
+    }
+    return Promise.reject(error);
+};
+
+api.interceptors.response.use((response) => response, handleResponseError);
+relay.interceptors.response.use((response) => response, handleResponseError);
 
 // API 목록
 export const API = {

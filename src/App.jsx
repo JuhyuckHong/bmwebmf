@@ -12,7 +12,7 @@ import Login from "./components/Login";
 import Logout from "./components/Logout";
 import AllSites from "./components/AllSites";
 import GlobalStyle from './styled-components/GlobalStyle';
-import { API } from "./API";
+import { API, setUnauthorizedHandler } from "./API";
 import "./App.css";
 import "./CSS/Admin.css";
 import SingleSite from "./components/SingleSite";
@@ -175,6 +175,12 @@ function App() {
         location.pathname.startsWith("/timeline");
     const isAllPage = location.pathname === "/all";
     const goToAllSites = () => navigate("/all");
+
+    // API 401 응답 시 로그아웃 처리
+    useEffect(() => {
+        setUnauthorizedHandler(() => setAuth(false));
+        return () => setUnauthorizedHandler(null);
+    }, []);
 
     useEffect(() => {
         const token = Cookies.get("BM");
