@@ -1,5 +1,6 @@
 import { API } from "../API";
 import Cookies from "js-cookie";
+import { decodeJwt } from "jose";
 import { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 
@@ -311,7 +312,18 @@ function Login({ setAuth, onLoginSuccess, onSwitchToSignup }) {
 
         API.signIn(data)
             .then((res) => {
-                Cookies.set("BM", "Bearer " + res.data.access_token);
+                const token = res.data.access_token;
+                const cookieOptions = {
+                    sameSite: "strict",
+                    secure: window.location.protocol === "https:",
+                };
+                try {
+                    const { exp } = decodeJwt(token);
+                    if (exp) cookieOptions.expires = new Date(exp * 1000);
+                } catch (error) {
+                    // exp를 읽지 못하면 세션 쿠키로 저장
+                }
+                Cookies.set("BM", "Bearer " + token, cookieOptions);
                 setAuth(true);
                 if (onLoginSuccess) {
                     onLoginSuccess();
