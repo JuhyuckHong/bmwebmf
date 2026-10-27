@@ -23,6 +23,7 @@ import WidthAdjuster from "./components/WidthAdjuster";
 import LogsPage from "./components/LogsPage";
 import ControlPage from "./components/ControlPage";
 import TimelinePage from "./components/TimelinePage";
+import CameraPage from "./components/CameraPage";
 import { SortingStyle } from "./styled-components/allsites";
 import { KeyboardNavigationProvider } from "./context";
 
@@ -39,7 +40,7 @@ const getInitialTheme = () => {
     return prefersDark ? "dark" : "light";
 };
 
-const HamburgerMenu = ({ admin, isAdminPage, setAuth, onOpenKeyboardHelp, onAdminToggle, onNavigateControl, onNavigateTimeline }) => {
+const HamburgerMenu = ({ admin, isAdminPage, setAuth, onOpenKeyboardHelp, onAdminToggle, onNavigateControl, onNavigateTimeline, onNavigateCameras }) => {
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef(null);
 
@@ -110,6 +111,15 @@ const HamburgerMenu = ({ admin, isAdminPage, setAuth, onOpenKeyboardHelp, onAdmi
                             <span className="menu-item-kbd">t</span>
                         </button>
                     )}
+                    {admin && (
+                        <button
+                            type="button"
+                            className="menu-item"
+                            onClick={() => { setShowMenu(false); onNavigateCameras(); }}>
+                            <span className="menu-item-icon">📷</span>
+                            <span className="menu-item-label">카메라 정보</span>
+                        </button>
+                    )}
                     <Logout
                         className="menu-item"
                         icon="👋"
@@ -172,7 +182,8 @@ function App() {
         location.pathname.startsWith("/setting") ||
         location.pathname.startsWith("/logs") ||
         location.pathname.startsWith("/control") ||
-        location.pathname.startsWith("/timeline");
+        location.pathname.startsWith("/timeline") ||
+        location.pathname.startsWith("/cameras");
     const isAllPage = location.pathname === "/all";
     const goToAllSites = () => navigate("/all");
 
@@ -420,6 +431,10 @@ function App() {
         navigate("/timeline");
     }, [navigate]);
 
+    const handleNavigateCameras = useCallback(() => {
+        navigate("/cameras");
+    }, [navigate]);
+
     const handleLoginSuccess = (redirectTo = "/all") => {
         navigate(redirectTo, { replace: true });
     };
@@ -464,6 +479,7 @@ function App() {
                         onAdminToggle={handleAdminToggle}
                         onNavigateControl={handleNavigateControl}
                         onNavigateTimeline={handleNavigateTimeline}
+                        onNavigateCameras={handleNavigateCameras}
                     />
                     </div>
                 )}
@@ -618,6 +634,16 @@ function App() {
                             <ProtectedRoute requireAdmin>
                                 <div className="display">
                                     <TimelinePage />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/cameras"
+                        element={
+                            <ProtectedRoute requireAdmin>
+                                <div className="display">
+                                    <CameraPage />
                                 </div>
                             </ProtectedRoute>
                         }

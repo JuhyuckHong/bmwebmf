@@ -1,0 +1,174 @@
+.camera-page {
+    width: 95vw;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.camera-card {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.camera-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.camera-toolbar-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+}
+
+.camera-summary {
+    font-size: 0.8rem;
+    color: var(--text-muted-color, #999);
+    font-weight: 600;
+}
+
+.camera-toolbar input[type="search"],
+.camera-toolbar select,
+.camera-refresh {
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-alt-color);
+    color: var(--text-color);
+    font-size: 0.85rem;
+}
+
+.camera-toolbar input[type="search"] {
+    min-width: 200px;
+}
+
+.camera-refresh {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.camera-refresh:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.camera-table-wrap {
+    overflow-x: auto;
+}
+
+.camera-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.camera-table th {
+    text-align: left;
+    font-weight: 700;
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+}
+
+.camera-table th.is-sorted {
+    color: var(--accent-color);
+}
+
+.camera-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.camera-row {
+    cursor: pointer;
+}
+
+.camera-row:hover,
+.camera-row.is-open {
+    background: var(--surface-alt-color);
+}
+
+.camera-num {
+    text-align: right !important;
+    font-variant-numeric: tabular-nums;
+}
+
+.camera-shutter {
+    font-weight: 700;
+}
+
+.camera-module {
+    font-weight: 700;
+}
+
+.camera-serial {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.8rem;
+}
+
+.camera-muted {
+    color: var(--text-muted-color, #999);
+}
+
+.camera-stale {
+    color: #d97706;
+    font-weight: 600;
+}
+
+.camera-detail-row > td {
+    background: var(--surface-alt-color);
+    padding: 12px 16px;
+    white-space: normal;
+}
+
+.camera-detail {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.camera-detail-section h4 {
+    margin: 0 0 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.camera-subtable {
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.camera-subtable th,
+.camera-subtable td {
+    padding: 4px 10px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+    cursor: default;
+}
+
+.camera-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted-color, #999);
+    font-size: 0.9rem;
+}
+
+.camera-footnote {
+    font-size: 0.75rem;
+    color: var(--text-muted-color, #999);
+    line-height: 1.5;
+}

@@ -119,4 +119,9 @@ export const API = {
     // 운영 타임라인 조회
     getOperationTimeline: (headers, params) =>
         relay.get("/operation-timeline", { headers, params }),
+    // 카메라별 요약 (기종, 장착 모듈, 셔터 횟수)
+    getCameras: (headers) => relay.get("/cameras", { headers }),
+    // 카메라 셔터 횟수 기록 (days=0이면 전체)
+    getCameraHistory: (headers, cameraId, days = 90) =>
+        relay.get(`/cameras/${enc(cameraId)}`, { headers, params: { days } }),
 };
