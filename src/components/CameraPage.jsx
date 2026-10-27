@@ -94,6 +94,7 @@ function CameraDetail({ camera }) {
 
 export default function CameraPage() {
     const [cameras, setCameras] = useState([]);
+    const [backfill, setBackfill] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [query, setQuery] = useState("");
@@ -108,6 +109,7 @@ export default function CameraPage() {
             const headers = { Authorization: Cookies.get("BM") };
             const res = await API.getCameras(headers);
             setCameras(res.data?.cameras || []);
+            setBackfill(res.data?.backfill || null);
         } catch (err) {
             console.error("camera list error", err);
             setError(true);
@@ -157,6 +159,9 @@ export default function CameraPage() {
                     <h2 className="camera-toolbar-title">카메라 정보</h2>
                     <span className="camera-summary">
                         카메라 {cameras.length}대 · 셔터 횟수 확인 {withShutter}대
+                        {backfill && backfill.total > 0 && backfill.pending + backfill.error > 0 && (
+                            <> · 과거 기록 수집 중 {backfill.total - backfill.pending}/{backfill.total}</>
+                        )}
                     </span>
                     <input
                         type="search"
@@ -235,7 +240,8 @@ export default function CameraPage() {
                     </div>
                 )}
                 <div className="camera-footnote">
-                    셔터 횟수는 하루 한 번 모듈의 최신 사진 EXIF에서 읽습니다. 하루 평균은 최근 30일 기록이 하루 이상 쌓이면 표시됩니다.
+                    셔터 횟수는 Dropbox에 올라간 사진의 EXIF에서 하루 한 번 읽습니다. 이번 달 사진은 일주일에 걸쳐 날짜별로 소급 수집합니다.
+                    하루 평균은 최근 30일 기록이 하루 이상 쌓이면 표시됩니다.
                     마지막 확인이 7일을 넘긴 카메라는 강조 표시됩니다.
                 </div>
             </div>
