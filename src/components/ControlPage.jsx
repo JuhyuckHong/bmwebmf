@@ -3,6 +3,8 @@ import Cookies from "js-cookie";
 import { API } from "../API";
 import "../CSS/Control.css";
 import HistoryModal from "./HistoryModal";
+import ScheduleDialog from "./ScheduleDialog";
+import { SCHEDULE_STATUS_LABELS } from "./scheduleUtils";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 import { useKeyboardContext } from "../context/KeyboardNavigationContext";
 
@@ -175,7 +177,7 @@ function UsagePie({ value, used, total, warnAt = 70, dangerAt = 90, alertAt = 90
     );
 }
 
-function ScheduleBar({ timeStart, timeEnd, interval }) {
+function ScheduleBar({ timeStart, timeEnd, interval, change }) {
     const fmt = (t) => {
         if (!t || t.length < 4) return null;
         return `${t.slice(0, 2)}:${t.slice(2, 4)}`;
@@ -190,6 +192,11 @@ function ScheduleBar({ timeStart, timeEnd, interval }) {
         <span className="ctrl-col">
             <span className="ctrl-sub">{start && end ? `${start}~${end}` : (start || end || "—")}</span>
             {intervalStr && <span className="ctrl-sub muted">{intervalStr}</span>}
+            {change && change.status !== "applied" && (
+                <span className={`ctrl-sub schedule-badge ${change.status}`} title={change.message ?? ""}>
+                    {SCHEDULE_STATUS_LABELS[change.status] ?? change.status}
+                </span>
+            )}
         </span>
     );
 }
@@ -226,6 +233,7 @@ export default function ControlPage() {
     const [selectedModule, setSelectedModule] = useState(null);
     const [sort, setSort] = useState({ key: null, dir: null });
     const [updateDialog, setUpdateDialog] = useState(null);
+    const [scheduleModule, setScheduleModule] = useState(null);
     const [updateStatuses, setUpdateStatuses] = useState({});
     const [toast, setToast] = useState(null);
     const [fontScale, setFontScale] = useState(() => {
@@ -505,6 +513,20 @@ export default function ControlPage() {
         };
     }, [isHistoryOpen, pushModal]);
 
+    const isScheduleOpen = !!scheduleModule;
+    useEffect(() => {
+        if (!isScheduleOpen) return;
+        pushModal('schedule-dialog');
+        const handler = (e) => {
+            if (e.detail?.modalId === 'schedule-dialog') setScheduleModule(null);
+        };
+        window.addEventListener('closeModal', handler);
+        return () => {
+            window.removeEventListener('closeModal', handler);
+            window.dispatchEvent(new CustomEvent('modalClosed', { detail: { modalId: 'schedule-dialog' } }));
+        };
+    }, [isScheduleOpen, pushModal]);
+
     const isUpdateOpen = !!updateDialog;
     useEffect(() => {
         if (!isUpdateOpen) return;
@@ -687,8 +709,16 @@ export default function ControlPage() {
                                         style={{ cursor: "pointer", ...(fadeRatio > 0 && { "--row-fade": fadeRatio }) }}>
                                         <span className="ctrl-id">{parseInt(m.id, 10)}</span>
                                         <span className="ctrl-name"><Highlight text={m.site_name} query={q} /></span>
-                                        <span className="ctrl-cell ctrl-schedule">
-                                            <ScheduleBar timeStart={m.time_start} timeEnd={m.time_end} interval={m.time_interval} />
+                                        <span
+                                            className="ctrl-cell ctrl-schedule clickable"
+                                            title="클릭해서 촬영 시간·간격 변경"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setScheduleModule(m);
+                                            }}
+                                        >
+                                            <ScheduleBar timeStart={m.time_start} timeEnd={m.time_end} interval={m.time_interval}
+                                                change={m.schedule_change} />
                                         </span>
                                         <span className={`ctrl-cell${w(m.cpu_temp == null || m.cpu_temp >= 55)}`}><CpuTempBadge temp={m.cpu_temp} /></span>
                                         <UsagePie value={m.disk_usage} used={m.disk_used_gb} total={m.disk_total_gb} warnAt={60} dangerAt={75} alertAt={75} />
@@ -751,6 +781,13 @@ export default function ControlPage() {
             <HistoryModal
                 module={selectedModule}
                 onClose={() => setSelectedModule(null)}
+            />
+        )}
+        {scheduleModule && (
+            <ScheduleDialog
+                module={scheduleModule}
+                onClose={() => setScheduleModule(null)}
+                onSaved={fetchData}
             />
         )}
         {updateDialog && (

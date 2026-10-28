@@ -799,3 +799,70 @@
     .stat-card     { min-width: 70px; padding: 10px 12px; }
     .stat-value    { font-size: 1.5rem; }
 }
+
+.ctrl-schedule.clickable {
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.ctrl-schedule.clickable:hover {
+    background: var(--border-color);
+}
+
+.schedule-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.schedule-badge.pending {
+    color: #b45309;
+}
+
+.schedule-badge.failed {
+    color: #dc2626;
+}
+
+.schedule-form {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.schedule-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: var(--muted-text-color);
+}
+
+.schedule-form input,
+.schedule-form select {
+    height: 34px;
+    min-width: 0;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-color);
+    color: inherit;
+    padding: 0 6px;
+    font-size: 0.9rem;
+}
+
+.schedule-apply {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 0.88rem;
+}
+
+.schedule-apply label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.schedule-warn {
+    color: #dc2626;
+}
