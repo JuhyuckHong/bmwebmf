@@ -35,6 +35,9 @@ import V2Users from "./components/v2/V2Users";
 import { SortingStyle } from "./styled-components/allsites";
 import { KeyboardNavigationProvider } from "./context";
 
+// 로그인 후 첫 화면과 /, 알 수 없는 주소가 여는 화면 (기존 화면은 /all)
+const HOME_PATH = "/v2/all";
+
 const ChangesV2 = ({ admin, setAuth }) => <ChangesPage v2={{ admin, setAuth }} />;
 
 const thumbnailIntervalMs = Number(import.meta.env.REACT_APP_THUMBNAIL_INTERVAL) || 60000;
@@ -457,7 +460,7 @@ function App() {
         navigate("/cameras");
     }, [navigate]);
 
-    const handleLoginSuccess = (redirectTo = "/all") => {
+    const handleLoginSuccess = (redirectTo = HOME_PATH) => {
         navigate(redirectTo, { replace: true });
     };
 
@@ -541,7 +544,7 @@ function App() {
                         path="/login"
                         element={
                             auth ? (
-                                <Navigate to="/all" replace />
+                                <Navigate to={HOME_PATH} replace />
                             ) : (
                                 <div className="landing">
                                     <Login
@@ -549,7 +552,7 @@ function App() {
                                         onLoginSuccess={() =>
                                             handleLoginSuccess(
                                                 location.state?.from
-                                                    ?.pathname || "/all",
+                                                    ?.pathname || HOME_PATH,
                                             )
                                         }
                                         onSwitchToSignup={() =>
@@ -564,7 +567,7 @@ function App() {
                         path="/signup"
                         element={
                             auth ? (
-                                <Navigate to="/all" replace />
+                                <Navigate to={HOME_PATH} replace />
                             ) : (
                                 <div className="landing">
                                     <Signup
@@ -621,7 +624,7 @@ function App() {
                     <Route
                         path="/"
                         element={
-                            <Navigate to={auth ? "/all" : "/login"} replace />
+                            <Navigate to={auth ? HOME_PATH : "/login"} replace />
                         }
                     />
                     <Route
@@ -733,7 +736,7 @@ function App() {
                     <Route
                         path="*"
                         element={
-                            <Navigate to={auth ? "/all" : "/login"} replace />
+                            <Navigate to={auth ? HOME_PATH : "/login"} replace />
                         }
                     />
                 </Routes>
