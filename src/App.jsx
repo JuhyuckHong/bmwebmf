@@ -25,6 +25,8 @@ import ControlPage from "./components/ControlPage";
 import TimelinePage from "./components/TimelinePage";
 import CameraPage from "./components/CameraPage";
 import ChangesPage from "./components/ChangesPage";
+import V2AllSites from "./components/v2/V2AllSites";
+import V2SingleSite from "./components/v2/V2SingleSite";
 import { SortingStyle } from "./styled-components/allsites";
 import { KeyboardNavigationProvider } from "./context";
 
@@ -185,7 +187,9 @@ function App() {
         location.pathname.startsWith("/control") ||
         location.pathname.startsWith("/timeline") ||
         location.pathname.startsWith("/cameras");
-    const isAllPage = location.pathname === "/all";
+    const isV2Page = location.pathname.startsWith("/v2");
+    // 전체 현장 썸네일·현황은 기존(/all)과 v2(/v2/all) 화면이 같이 쓴다
+    const isAllPage = location.pathname === "/all" || location.pathname === "/v2/all";
     const goToAllSites = () => navigate("/all");
 
     // API 401 응답 시 로그아웃 처리
@@ -447,7 +451,7 @@ function App() {
         <KeyboardNavigationProvider>
         <div className="app-shell">
             <GlobalStyle />
-            {auth && (
+            {auth && !isV2Page && (
                 <div className="user">
                     <button
                         type="button"
@@ -645,6 +649,34 @@ function App() {
                             <ProtectedRoute requireAdmin>
                                 <div className="display">
                                     <CameraPage />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    {/* v2: 휴대폰 우선 화면. 안정되면 기본 화면으로 전환한다 */}
+                    <Route path="/v2" element={<Navigate to="/v2/all" replace />} />
+                    <Route
+                        path="/v2/all"
+                        element={
+                            <ProtectedRoute>
+                                <div className="display v2-display">
+                                    <V2AllSites
+                                        admin={admin}
+                                        setAuth={setAuth}
+                                        thumbnails={thumbnails}
+                                        siteInformation={siteInformation}
+                                        staticURLs={staticURLs}
+                                    />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/v2/site/:siteId"
+                        element={
+                            <ProtectedRoute>
+                                <div className="display v2-display">
+                                    <V2SingleSite authSites={authSites} admin={admin} setAuth={setAuth} />
                                 </div>
                             </ProtectedRoute>
                         }
