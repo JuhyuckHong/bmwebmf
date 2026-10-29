@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import V2Header from "./V2Header";
-import { computeSiteSummary, formatDeviceNumber, formatTime } from "../siteMetrics";
+import { buildMonitorRows, computeSiteSummary, formatDeviceNumber, formatTime, sortRowsBySeverity } from "../siteMetrics";
 import { STATUS_META, formatAgo, readStored, writeStored } from "./v2Utils";
 import "./v2.css";
 
@@ -11,6 +11,18 @@ const FILTERS = [
     { key: "ok", label: "정상" },
     { key: "off", label: "촬영 시간 외" },
 ];
+
+const VIEWS = [
+    { key: "cards", label: "카드" },
+    { key: "table", label: "표" },
+];
+
+const STATUS_TONE = {
+    "status-red": "red",
+    "status-orange": "orange",
+    "status-green": "green",
+    "status-gray": "gray",
+};
 
 const SORTS = [
     { key: "status", label: "상태순" },
@@ -23,6 +35,9 @@ export default function V2AllSites({ admin, setAuth, thumbnails = [], siteInform
     const [query, setQuery] = useState("");
     const [filter, setFilter] = useState("all");
     const [sort, setSort] = useState(() => readStored("bm-v2-sort", "status"));
+    // 요약표는 기존 화면처럼 관리자만 본다
+    const [view, setView] = useState(() => readStored("bm-v2-view", "cards"));
+    const showTable = admin && view === "table";
 
     const sites = useMemo(() => thumbnails.map((thumbnail) => {
         const info = siteInformation[thumbnail.site] || {};
@@ -58,6 +73,19 @@ export default function V2AllSites({ admin, setAuth, thumbnails = [], siteInform
         });
     }, [sites, query, filter, sort]);
 
+    // 표는 기존 요약보기처럼 상태가 나쁜 순서로 두고, 검색·필터만 같이 적용한다
+    const tableRows = useMemo(() => {
+        if (!showTable) return [];
+        const keep = new Set(visible.map((s) => s.site));
+        const rows = buildMonitorRows(thumbnails.filter((t) => keep.has(t.site)), siteInformation);
+        return sortRowsBySeverity(rows);
+    }, [showTable, visible, thumbnails, siteInformation]);
+
+    const changeView = (key) => {
+        setView(key);
+        writeStored("bm-v2-view", key);
+    };
+
     const changeSort = (key) => {
         setSort(key);
         writeStored("bm-v2-sort", key);
@@ -83,11 +111,23 @@ export default function V2AllSites({ admin, setAuth, thumbnails = [], siteInform
                             </button>
                         ))}
                     </div>
-                    <div className="v2-segment" role="group" aria-label="정렬">
-                        {SORTS.map((s) => (
-                            <button key={s.key} type="button" className={sort === s.key ? "active" : ""}
-                                onClick={() => changeSort(s.key)}>{s.label}</button>
-                        ))}
+                    <div className="v2-toolbar-row">
+                        {admin && (
+                            <div className="v2-segment" role="group" aria-label="보기">
+                                {VIEWS.map((v) => (
+                                    <button key={v.key} type="button" className={view === v.key ? "active" : ""}
+                                        onClick={() => changeView(v.key)}>{v.label}</button>
+                                ))}
+                            </div>
+                        )}
+                        {!showTable && (
+                            <div className="v2-segment" role="group" aria-label="정렬">
+                                {SORTS.map((s) => (
+                                    <button key={s.key} type="button" className={sort === s.key ? "active" : ""}
+                                        onClick={() => changeSort(s.key)}>{s.label}</button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </V2Header>
@@ -95,7 +135,42 @@ export default function V2AllSites({ admin, setAuth, thumbnails = [], siteInform
             <main className="v2-content">
                 {thumbnails.length === 0 && <p className="v2-empty">현장 목록을 불러오는 중...</p>}
                 {thumbnails.length > 0 && visible.length === 0 && <p className="v2-empty">해당하는 현장이 없습니다.</p>}
-                <div className="v2-grid">
+                {showTable && tableRows.length > 0 && (
+                    <div className="v2-table-wrap">
+                        <table className="v2-table">
+                            <thead>
+                                <tr>
+                                    <th>현장</th>
+                                    <th>상태</th>
+                                    <th>모듈</th>
+                                    <th>최근 사진</th>
+                                    <th>촬영</th>
+                                    <th>누락</th>
+                                    <th>원격</th>
+                                    <th>작동 시간 / 간격</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {tableRows.map((row) => (
+                                    <tr key={row.siteKey} className={STATUS_TONE[row.statusClass] ?? "gray"}
+                                        onClick={() => navigate(`/v2/site/${encodeURIComponent(row.siteKey)}`)}>
+                                        <th scope="row">{row.siteLabel}</th>
+                                        <td><span className={`v2-status ${STATUS_TONE[row.statusClass] ?? "gray"}`}>{row.statusLabel}</span></td>
+                                        <td>{row.device}</td>
+                                        <td>{row.recent}</td>
+                                        <td>{row.shots}</td>
+                                        <td>{row.missing}</td>
+                                        <td className={`v2-remote ${row.remoteClass === "remote-on" ? "on" : row.remoteClass === "remote-off" ? "off" : ""}`}>
+                                            {row.remoteLabel}
+                                        </td>
+                                        <td>{row.timeRange} / {row.intervalLabel}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+                {!showTable && <div className="v2-grid">
                     {visible.map((s) => (
                         <button
                             key={s.site}
@@ -130,7 +205,7 @@ export default function V2AllSites({ admin, setAuth, thumbnails = [], siteInform
                             </span>
                         </button>
                     ))}
-                </div>
+                </div>}
             </main>
         </div>
     );

@@ -277,3 +277,66 @@ export const computeSiteSummary = (siteInfo = {}) => {
         siteStatus: getSiteStatus(siteInfo, missingPercentGrace),
     };
 };
+
+// 요약표(전체 현장 표) 한 줄씩
+export const buildMonitorRows = (thumbnails, siteInformation) =>
+    thumbnails.map((thumbnail, idx) => {
+        const siteInfo = siteInformation[thumbnail.site] || {};
+        const siteLabel = thumbnail.site.replaceAll("_", " ");
+        const expectedShots = computeExpectedShots(siteInfo);
+        const uploadedRaw = Number(siteInfo.photos_count);
+        const uploaded = Number.isFinite(uploadedRaw) ? uploadedRaw : 0;
+        const missingRaw =
+            Number.isFinite(expectedShots) && expectedShots > 0
+                ? Math.max(expectedShots - uploaded, 0)
+                : "-";
+        const missing =
+            missingRaw === "-"
+                ? "-"
+                : Math.max(missingRaw - 2, 0); // 초기 2장은 업로드 지연 가능성이 있어 제외
+        const missingPercent =
+            Number.isFinite(expectedShots) && expectedShots > 0
+                ? (missing / expectedShots) * 100
+                : null;
+        const isRecovering = checkIsRecovering(siteInfo);
+        const status = getStatusMeta(missingPercent, siteInfo.ssh, isRecovering);
+        const remote = getRemoteMeta(siteInfo.ssh);
+        const intervalLabel = siteInfo.time_interval
+            ? `${siteInfo.time_interval}분`
+            : "--분";
+
+        return {
+            index: idx + 1,
+            siteKey: thumbnail.site,
+            siteLabel,
+            device: formatDeviceNumber(siteInfo.device_number) || "--",
+            recent: formatRecentPhoto(siteInfo.recent_photo) || "No File",
+            shots:
+                uploaded || uploaded === 0
+                    ? uploaded
+                    : "-",
+            missing,
+            statusLabel: status.label,
+            statusClass: status.className,
+            remoteLabel: remote.label,
+            remoteClass: remote.className,
+            remoteLightClass: remote.lightClass,
+            timeRange: formatTimeRange(siteInfo),
+            intervalLabel,
+        };
+    });
+
+export const sortRowsBySeverity = (rows) => {
+    const order = {
+        "status-red": 0,
+        "status-orange": 1,
+        "status-green": 2,
+        "status-gray": 3,
+    };
+    return [...rows].sort((a, b) => {
+        const oa = order[a.statusClass] ?? 4;
+        const ob = order[b.statusClass] ?? 4;
+        if (oa !== ob) return oa - ob;
+        return a.index - b.index;
+    });
+};

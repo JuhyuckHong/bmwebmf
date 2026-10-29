@@ -186,6 +186,71 @@
     box-shadow: var(--shadow-soft);
 }
 
+.v2-toolbar-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* 요약표: 휴대폰에서는 표 안에서만 가로로 밀고, 현장 이름 열은 고정 */
+.v2-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border-color);
+    background: var(--surface-color);
+}
+
+.v2-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.v2-table th,
+.v2-table td {
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+}
+
+.v2-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--surface-alt-color);
+    color: var(--muted-text-color);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.v2-table tbody th {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    max-width: 42vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: var(--surface-color);
+    font-weight: 700;
+    border-right: 1px solid var(--border-color);
+}
+
+.v2-table thead th:first-child {
+    left: 0;
+    z-index: 2;
+    border-right: 1px solid var(--border-color);
+}
+
+.v2-table tbody tr {
+    cursor: pointer;
+}
+
+.v2-table tbody tr:active td,
+.v2-table tbody tr:active th {
+    background: var(--surface-alt-color);
+}
+
 /* 본문 */
 .v2-content {
     max-width: 1200px;
