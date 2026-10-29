@@ -9,7 +9,7 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 50;
 const DEFAULT_DATE_SORT_ORDER = "desc";
 const DEFAULT_TIME_SORT_ORDER = "desc";
-const PAGE_SIZE_OPTIONS = [50, 100, 200, 500];
+export const PAGE_SIZE_OPTIONS = [50, 100, 200, 500];
 const LOG_PATTERNS = [
     /^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2}(?:[.,]\d{1,6})?)\s+\[?([A-Z]+)\]?\s*[:\-]?\s*(.*)$/,
     /^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2}(?:[.,]\d{1,6})?)\s+([A-Z]+)\s*(.*)$/,
@@ -132,7 +132,7 @@ const parseMessage = (message) => {
     };
 };
 
-const parseLogLine = (line) => {
+export const parseLogLine = (line) => {
     for (const pattern of LOG_PATTERNS) {
         const match = line.match(pattern);
         if (!match) continue;
@@ -160,7 +160,7 @@ const parseLogLine = (line) => {
     };
 };
 
-const parseTimeValue = (time) => {
+export const parseTimeValue = (time) => {
     if (!time || time === "-") return Number.NEGATIVE_INFINITY;
     const [main = "", fraction = ""] = time.replace(",", ".").split(".");
     const [hh = "0", mm = "0", ss = "0"] = main.split(":");
@@ -180,13 +180,13 @@ const parseTimeValue = (time) => {
     return (((hour * 60 + minute) * 60 + second) * 1000) + millis;
 };
 
-const parseDateValue = (date) => {
+export const parseDateValue = (date) => {
     if (!date || date === "-") return Number.NEGATIVE_INFINITY;
     const parsed = Date.parse(`${date}T00:00:00`);
     return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed;
 };
 
-const normalizeTimeInput = (value, isEnd) => {
+export const normalizeTimeInput = (value, isEnd) => {
     if (!value) return "";
     if (value.length === 5) {
         return `${value}:${isEnd ? "59" : "00"}`;
@@ -237,7 +237,7 @@ const collectArrayItems = (value, output) => {
     }
 };
 
-const getListBadgeItems = (line) => {
+export const getListBadgeItems = (line) => {
     const collected = [];
 
     if (line.structured) {
@@ -257,7 +257,7 @@ const getListBadgeItems = (line) => {
     return collected;
 };
 
-const isEmptyStructuredArray = (structuredText) => {
+export const isEmptyStructuredArray = (structuredText) => {
     if (!structuredText) return false;
     try {
         const parsed = JSON.parse(structuredText);
@@ -267,7 +267,7 @@ const isEmptyStructuredArray = (structuredText) => {
     }
 };
 
-const buildPreviewText = (line, hasBadges) => {
+export const buildPreviewText = (line, hasBadges) => {
     const chunks = [];
 
     const cleanedText = stripEmptyListToken(line.text);

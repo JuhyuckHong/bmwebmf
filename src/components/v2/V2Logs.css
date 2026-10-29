@@ -1,0 +1,297 @@
+/* v2 로그 화면 */
+
+.v2-log-searchrow {
+    display: flex;
+    gap: 8px;
+}
+
+.v2-log-searchrow .v2-search {
+    flex: 1;
+    min-width: 0;
+}
+
+.v2-log-filter-btn {
+    flex: 0 0 auto;
+    min-width: 64px;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-alt-color);
+    color: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.v2-log-filter-btn.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--accent-text-color);
+}
+
+.v2-log-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-bottom: 10px;
+    font-size: 0.82rem;
+    color: var(--muted-text-color);
+    font-variant-numeric: tabular-nums;
+}
+
+.v2-log-error {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid var(--v2-red);
+    background: var(--surface-color);
+    color: var(--v2-red);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.v2-log-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border-color);
+}
+
+.v2-log-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-top: 0;
+    border-radius: 0;
+    background: var(--surface-color);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.v2-log-row:active {
+    background: var(--surface-alt-color);
+}
+
+.v2-log-row-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.v2-log-level {
+    flex: 0 0 auto;
+    padding: 1px 6px;
+    border-radius: 0;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: var(--v2-gray);
+}
+
+.v2-log-level.red { background: var(--v2-red); }
+.v2-log-level.orange { background: var(--v2-orange); }
+.v2-log-level.green { background: var(--v2-green); }
+
+.v2-log-when {
+    flex: 1;
+    min-width: 0;
+    color: var(--muted-text-color);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.v2-log-num {
+    flex: 0 0 auto;
+    color: var(--muted-text-color);
+}
+
+.v2-log-preview {
+    font-size: 0.88rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.v2-log-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    min-width: 0;
+}
+
+.v2-log-badge {
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 1px 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    background: var(--surface-alt-color);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    overflow-wrap: anywhere;
+}
+
+.v2-log-badge.more {
+    color: var(--muted-text-color);
+}
+
+.v2-log-pager {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.v2-log-pager-label {
+    flex: 0 0 auto;
+    min-width: 64px;
+    text-align: center;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* 시트 */
+.v2-log-sheet {
+    max-height: calc(88vh - env(safe-area-inset-top));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    gap: 10px;
+}
+
+.v2-log-sheet-title {
+    margin: 0 0 2px;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.v2-log-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--muted-text-color);
+}
+
+.v2-log-input {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    box-sizing: border-box;
+    padding: 0 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-alt-color);
+    color: var(--text-color);
+    font-size: 16px !important;
+    font-variant-numeric: tabular-nums;
+}
+
+.v2-log-field .v2-select.v2-log-input {
+    text-align: left;
+    font-weight: 400;
+}
+
+.v2-log-timerow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-color);
+}
+
+.v2-log-timerow .v2-log-input {
+    flex: 1;
+}
+
+.v2-log-segment {
+    align-self: stretch;
+}
+
+.v2-log-segment button {
+    min-height: 44px;
+    padding: 0 6px;
+}
+
+.v2-log-sheet-actions {
+    margin-top: 6px;
+}
+
+.v2-log-primary {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--accent-text-color);
+}
+
+.v2-log-detail-text {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.v2-log-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.v2-log-block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--muted-text-color);
+}
+
+.v2-log-copy {
+    min-height: 44px;
+    min-width: 72px;
+    padding: 0 12px;
+    border-radius: 0;
+    border: 1px solid var(--border-color);
+    background: var(--surface-alt-color);
+    color: var(--text-color);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.v2-log-pre {
+    margin: 0;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    background: var(--surface-alt-color);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    max-height: 50vh;
+    overflow-y: auto;
+}

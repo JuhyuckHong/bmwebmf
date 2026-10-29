@@ -169,8 +169,8 @@
     padding: 24px 0;
 }
 
-/* 편집 창: 휴대폰에서는 아래에서 올라오는 시트 */
-.changes-page .schedule-apply label {
+/* 편집 창: 휴대폰에서는 아래에서 올라오는 시트 (.schedule-sheet로 감싸면 다른 페이지에서도 같은 모양) */
+:is(.changes-page, .schedule-sheet) .schedule-apply label {
     align-items: flex-start;
     gap: 10px;
     padding: 12px;
@@ -179,25 +179,25 @@
     cursor: pointer;
 }
 
-.changes-page .schedule-apply label.selected {
+:is(.changes-page, .schedule-sheet) .schedule-apply label.selected {
     border-color: var(--accent-color);
     background: var(--surface-alt-color);
 }
 
-.changes-page .schedule-apply input[type="radio"] {
+:is(.changes-page, .schedule-sheet) .schedule-apply input[type="radio"] {
     width: 20px;
     height: 20px;
     margin: 1px 0 0;
     flex: 0 0 auto;
 }
 
-.changes-page .schedule-apply span {
+:is(.changes-page, .schedule-sheet) .schedule-apply span {
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
-.changes-page .schedule-apply small {
+:is(.changes-page, .schedule-sheet) .schedule-apply small {
     color: var(--muted-text-color);
 }
 
@@ -244,12 +244,12 @@
 }
 
 @media (max-width: 640px) {
-    .changes-page .control-modal-overlay {
+    :is(.changes-page, .schedule-sheet) .control-modal-overlay {
         align-items: flex-end;
         padding: 0;
     }
 
-    .changes-page .schedule-dialog {
+    :is(.changes-page, .schedule-sheet) .schedule-dialog {
         width: 100%;
         max-height: 92dvh;
         overflow-y: auto;
@@ -258,28 +258,28 @@
         padding: 18px 16px calc(16px + env(safe-area-inset-bottom));
     }
 
-    .changes-page .schedule-form {
+    :is(.changes-page, .schedule-sheet) .schedule-form {
         grid-template-columns: 1fr 1fr;
     }
 
-    .changes-page .schedule-form label:last-child {
+    :is(.changes-page, .schedule-sheet) .schedule-form label:last-child {
         grid-column: 1 / -1;
     }
 
-    .changes-page .schedule-form input,
-    .changes-page .schedule-form select {
+    :is(.changes-page, .schedule-sheet) .schedule-form input,
+    :is(.changes-page, .schedule-sheet) .schedule-form select {
         height: 44px;
         font-size: 16px;
     }
 
-    .changes-page .schedule-actions {
+    :is(.changes-page, .schedule-sheet) .schedule-actions {
         position: sticky;
         bottom: 0;
         padding-top: 10px;
         background: var(--surface-color);
     }
 
-    .changes-page .schedule-actions button {
+    :is(.changes-page, .schedule-sheet) .schedule-actions button {
         flex: 1;
         min-height: 48px;
     }

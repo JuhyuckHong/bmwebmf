@@ -18,6 +18,7 @@ const fadeIn = keyframes`
 const LoginWrapper = styled.div`
     width: 100%;
     height: 100vh;
+    height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -364,12 +365,16 @@ function Login({ setAuth, onLoginSuccess, onSwitchToSignup }) {
                     <Form onSubmit={RequestLogin}>
                         <Input
                             type="text"
+                            autoComplete="username"
+                            autoCapitalize="none"
+                            autoCorrect="off"
                             placeholder="아이디"
                             value={id}
                             onChange={(e) => setId(e.target.value)}
                         />
                         <Input
                             type="password"
+                            autoComplete="current-password"
                             placeholder="비밀번호"
                             value={pw}
                             onChange={(e) => setPw(e.target.value)}

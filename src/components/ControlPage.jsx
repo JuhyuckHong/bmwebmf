@@ -18,7 +18,7 @@ function clampScale(v) {
     return Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, Math.round(v * 10) / 10));
 }
 
-function formatTime(dt) {
+export function formatTime(dt) {
     if (!dt) return null;
     const d = new Date(dt);
     const mo = String(d.getMonth() + 1);
@@ -40,7 +40,7 @@ function formatRelative(dt) {
 
 const w = (cond) => cond ? " ctrl-warn-bg" : "";
 
-const COLUMNS = [
+export const COLUMNS = [
     { label: "#",         key: "id",           getValue: (m) => parseInt(m.id, 10) },
     { label: "현장",      key: "site_name",    getValue: (m) => m.site_name ?? "" },
     { label: "촬영", subLabel: "간격", key: "schedule",     getValue: (m) => m.time_start ?? "" },
@@ -72,7 +72,7 @@ function Highlight({ text, query }) {
     );
 }
 
-function formatExpComp(val) {
+export function formatExpComp(val) {
     if (val == null) return "—";
     const n = parseFloat(val);
     if (isNaN(n)) return val;
@@ -88,7 +88,7 @@ function formatExpComp(val) {
     return `${sign}${whole} ${frac}`;
 }
 
-function formatOsVersion(raw) {
+export function formatOsVersion(raw) {
     if (!raw) return "—";
     const s = raw.toLowerCase();
     if (s.includes("trixie"))   return "Tr";
@@ -100,7 +100,7 @@ function formatOsVersion(raw) {
     return raw.trim();
 }
 
-function formatPiModel(raw) {
+export function formatPiModel(raw) {
     if (!raw) return "—";
     const s = raw.trim();
     if (/Zero 2 W/i.test(s))              return "02W";
@@ -118,7 +118,7 @@ function formatPiModel(raw) {
     return s;
 }
 
-function formatModuleVersion(version) {
+export function formatModuleVersion(version) {
     if (!version) return "-";
     const parts = String(version).split(".");
     if (parts.length >= 3) return `${parts[1]}.${parts[2]}`;
@@ -126,14 +126,14 @@ function formatModuleVersion(version) {
     return String(version);
 }
 
-function getModuleUpdateState(type, isLatest) {
+export function getModuleUpdateState(type, isLatest) {
     if (type !== "modern") return "-";
     if (isLatest === true) return "최신";
     if (isLatest === false) return "업데이트 필요";
     return "확인 불가";
 }
 
-function getUpdatePhaseLabel(status) {
+export function getUpdatePhaseLabel(status) {
     if (status === "in_progress") return "업데이트 진행 중";
     if (status === "completed") return "업데이트 완료";
     if (status === "failed") return "업데이트 실패";

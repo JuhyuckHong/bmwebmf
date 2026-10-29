@@ -27,6 +27,11 @@ import CameraPage from "./components/CameraPage";
 import ChangesPage from "./components/ChangesPage";
 import V2AllSites from "./components/v2/V2AllSites";
 import V2SingleSite from "./components/v2/V2SingleSite";
+import V2Control from "./components/v2/V2Control";
+import V2Timeline from "./components/v2/V2Timeline";
+import V2Cameras from "./components/v2/V2Cameras";
+import V2Logs from "./components/v2/V2Logs";
+import V2Users from "./components/v2/V2Users";
 import { SortingStyle } from "./styled-components/allsites";
 import { KeyboardNavigationProvider } from "./context";
 
@@ -681,6 +686,25 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
+                    {[
+                        ["/v2/control", V2Control],
+                        ["/v2/timeline", V2Timeline],
+                        ["/v2/cameras", V2Cameras],
+                        ["/v2/logs", V2Logs],
+                        ["/v2/users", V2Users],
+                    ].map(([path, Page]) => (
+                        <Route
+                            key={path}
+                            path={path}
+                            element={
+                                <ProtectedRoute requireAdmin>
+                                    <div className="display v2-display">
+                                        <Page admin={admin} setAuth={setAuth} />
+                                    </div>
+                                </ProtectedRoute>
+                            }
+                        />
+                    ))}
                     {/* 메뉴에 연결하지 않은 페이지: 주소로만 들어온다 */}
                     <Route
                         path="/changes"

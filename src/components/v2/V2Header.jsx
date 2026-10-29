@@ -12,6 +12,14 @@ const readTheme = () => {
     return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 };
 
+const ADMIN_PAGES = [
+    { path: "/v2/control", icon: "💻", label: "모듈 정보" },
+    { path: "/v2/timeline", icon: "📅", label: "타임라인" },
+    { path: "/v2/cameras", icon: "📷", label: "카메라 정보" },
+    { path: "/v2/logs", icon: "📜", label: "로그" },
+    { path: "/v2/users", icon: "⚙️", label: "사용자 설정" },
+];
+
 // v2 화면 공통 상단 바: 뒤로가기, 제목, 메뉴(아래에서 올라오는 시트)
 export default function V2Header({ title, subtitle, onBack, admin, setAuth, legacyPath = "/all", children }) {
     const navigate = useNavigate();
@@ -61,22 +69,14 @@ export default function V2Header({ title, subtitle, onBack, admin, setAuth, lega
                             <span aria-hidden="true">{theme === "dark" ? "🌙" : "☀️"}</span>
                             {theme === "dark" ? "다크 모드" : "라이트 모드"}
                         </button>
-                        {admin && (
-                            <>
-                                <button type="button" className="v2-menu-item" onClick={() => go("/control")}>
-                                    <span aria-hidden="true">💻</span>모듈 정보
-                                </button>
-                                <button type="button" className="v2-menu-item" onClick={() => go("/timeline")}>
-                                    <span aria-hidden="true">📅</span>타임라인
-                                </button>
-                                <button type="button" className="v2-menu-item" onClick={() => go("/cameras")}>
-                                    <span aria-hidden="true">📷</span>카메라 정보
-                                </button>
-                                <button type="button" className="v2-menu-item" onClick={() => go("/setting")}>
-                                    <span aria-hidden="true">⚙️</span>사용자 설정
-                                </button>
-                            </>
-                        )}
+                        <button type="button" className="v2-menu-item" onClick={() => go("/v2/all")}>
+                            <span aria-hidden="true">🏗️</span>전체 현장
+                        </button>
+                        {admin && ADMIN_PAGES.map((page) => (
+                            <button key={page.path} type="button" className="v2-menu-item" onClick={() => go(page.path)}>
+                                <span aria-hidden="true">{page.icon}</span>{page.label}
+                            </button>
+                        ))}
                         <button type="button" className="v2-menu-item" onClick={() => go(legacyPath)}>
                             <span aria-hidden="true">🖥️</span>기존 화면으로 보기
                         </button>

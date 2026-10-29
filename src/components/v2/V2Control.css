@@ -1,0 +1,545 @@
+/* v2 모듈 정보: 카드 목록 + 상세 시트 */
+
+/* 정렬 */
+.v2-ctrl-sortbar {
+    display: flex;
+    gap: 8px;
+}
+
+.v2-ctrl-sort {
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    padding: 0 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-alt-color);
+    color: inherit;
+    font-size: 16px !important;
+}
+
+.v2-ctrl-sortbar .v2-ctrl-dir {
+    flex: 0 0 auto;
+    min-width: 112px;
+}
+
+/* 갱신 시각 줄 */
+.v2-ctrl-statusbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 0.82rem;
+    color: var(--muted-text-color);
+    font-variant-numeric: tabular-nums;
+}
+
+.v2-ctrl-statusbar > span:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+}
+
+.v2-ctrl-statusbar .v2-ctrl-refresh {
+    flex: 0 0 auto;
+}
+
+.v2-ctrl-live {
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--v2-green);
+}
+
+.v2-ctrl-error {
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--v2-red);
+    color: var(--v2-red);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+/* 카드 */
+.v2-ctrl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+    gap: 10px;
+}
+
+.v2-ctrl-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    padding: 12px;
+    border-radius: 0;
+    border: 1px solid var(--border-color);
+    background: var(--surface-color);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.v2-ctrl-card:active {
+    background: var(--surface-alt-color);
+}
+
+/* 3일 넘게 미수신 → 조금 흐리게, 7일 이상(철수 추정)·데이터 없음 → 더 흐리게 */
+.v2-ctrl-card.fading {
+    opacity: 0.8;
+}
+
+.v2-ctrl-card.withdrawn,
+.v2-ctrl-card.unknown {
+    opacity: 0.55;
+    background: var(--surface-alt-color);
+}
+
+.v2-ctrl-card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.v2-ctrl-id {
+    flex: 0 0 auto;
+    font-family: Menlo, Monaco, Consolas, monospace;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--muted-text-color);
+}
+
+.v2-ctrl-site {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 1rem;
+}
+
+.v2-ctrl-card-head .v2-status {
+    flex: 0 0 auto;
+}
+
+.v2-ctrl-mark {
+    background: var(--accent-color);
+    color: var(--accent-text-color);
+    border-radius: 2px;
+}
+
+.v2-ctrl-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.v2-ctrl-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border: 1px solid var(--border-color);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted-text-color);
+    font-variant-numeric: tabular-nums;
+}
+
+.v2-ctrl-tag.orange {
+    color: var(--v2-orange);
+    border-color: var(--v2-orange);
+}
+
+.v2-ctrl-tag.gray {
+    color: var(--v2-gray);
+    border-color: var(--v2-gray);
+}
+
+.v2-ctrl-upd {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.v2-ctrl-dot-spin {
+    width: 10px;
+    height: 10px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: v2-spin 0.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .v2-ctrl-dot-spin { animation-duration: 2.4s; }
+}
+
+.v2-ctrl-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
+}
+
+.v2-ctrl-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.v2-ctrl-k {
+    font-size: 0.72rem;
+    color: var(--muted-text-color);
+}
+
+.v2-ctrl-v {
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.v2-ctrl-bar {
+    display: block;
+    height: 4px;
+    margin-top: 2px;
+    background: var(--surface-alt-color);
+    border: 1px solid var(--border-color);
+}
+
+.v2-ctrl-bar > span {
+    display: block;
+    height: 100%;
+    background: var(--v2-green);
+}
+
+.v2-ctrl-bar > span.orange { background: var(--v2-orange); }
+.v2-ctrl-bar > span.red { background: var(--v2-red); }
+
+.v2-ctrl-sched-badge {
+    margin-left: 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--v2-orange);
+}
+
+.v2-ctrl-sched-badge.failed {
+    color: var(--v2-red);
+}
+
+/* 경고 색 (ControlPage의 깜빡이는 배경 대신 글자색) */
+.v2-ctrl-v.red,
+.v2-ctrl-row dd.red,
+.v2-ctrl-upd.red,
+.v2-ctrl-dialog-status.red { color: var(--v2-red); }
+
+.v2-ctrl-v.orange,
+.v2-ctrl-row dd.orange,
+.v2-ctrl-upd.orange { color: var(--v2-orange); }
+
+.v2-ctrl-row dd.green,
+.v2-ctrl-upd.green,
+.v2-ctrl-dialog-status.green { color: var(--v2-green); }
+
+/* 상세 시트 */
+.v2-ctrl-sheet {
+    max-height: 90dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.v2-ctrl-sheet-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 4px 6px;
+    min-width: 0;
+}
+
+.v2-ctrl-sheet-head strong {
+    flex: 1;
+    min-width: 0;
+    font-size: 1.1rem;
+    overflow-wrap: anywhere;
+}
+
+.v2-ctrl-note {
+    margin: 0 4px 6px;
+    padding: 8px 10px;
+    border: 1px solid var(--v2-orange);
+    color: var(--v2-orange);
+    font-size: 0.85rem;
+}
+
+.v2-ctrl-section {
+    padding: 8px 4px;
+    border-top: 1px solid var(--border-color);
+}
+
+.v2-ctrl-section h3 {
+    margin: 0 0 6px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--muted-text-color);
+}
+
+.v2-ctrl-section dl {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.v2-ctrl-row {
+    display: flex;
+    gap: 12px;
+    font-size: 0.9rem;
+}
+
+.v2-ctrl-row dt {
+    flex: 0 0 76px;
+    color: var(--muted-text-color);
+}
+
+.v2-ctrl-row dd {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+}
+
+.v2-ctrl-row dd.mono {
+    font-family: Menlo, Monaco, Consolas, monospace;
+    font-size: 0.85rem;
+}
+
+.v2-ctrl-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.v2-ctrl-actions .v2-btn {
+    flex: 0 0 auto;
+    min-height: 48px;
+}
+
+/* 업데이트 확인 시트 */
+.v2-sheet-overlay.v2-ctrl-top {
+    z-index: 1500;
+}
+
+.v2-ctrl-dialog-title {
+    margin: 0 4px 8px;
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.v2-ctrl-dialog-text,
+.v2-ctrl-dialog-sub,
+.v2-ctrl-dialog-status {
+    margin: 0 4px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.v2-ctrl-dialog-sub,
+.v2-ctrl-dialog-status {
+    margin-top: 4px;
+    font-size: 0.88rem;
+    color: var(--muted-text-color);
+}
+
+.v2-ctrl-dialog-status {
+    font-weight: 700;
+}
+
+.v2-ctrl-progress {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--v2-orange);
+}
+
+.v2-ctrl-dialog-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.v2-ctrl-dialog-actions .v2-btn {
+    min-height: 48px;
+}
+
+.v2 .v2-ctrl-primary {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--accent-text-color);
+}
+
+/* 토스트 */
+.v2-ctrl-toast {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    z-index: 1600;
+    max-width: 456px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 4px 4px 14px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-color);
+    box-shadow: var(--shadow-soft);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.v2-ctrl-toast span {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.v2-ctrl-toast button {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.v2-ctrl-toast.info { border-color: var(--accent-color); }
+.v2-ctrl-toast.success { border-color: var(--v2-green); color: var(--v2-green); }
+.v2-ctrl-toast.error { border-color: var(--v2-red); color: var(--v2-red); }
+
+/* 상세 시트 위에 뜨는 기존 창(이력·촬영 시간 변경) */
+.v2-ctrl-layer .hist-overlay,
+.v2-ctrl-layer .control-modal-overlay {
+    z-index: 1500;
+}
+
+/* 이력 창(HistoryModal)을 휴대폰에서는 전체 화면으로 */
+@media (max-width: 640px) {
+    .v2-ctrl-layer .hist-overlay {
+        padding: 0;
+        align-items: stretch;
+    }
+
+    .v2-ctrl-layer .hist-modal {
+        max-height: none;
+        height: 100dvh;
+        border-radius: 0;
+        border: 0;
+    }
+
+    .v2-ctrl-layer .hist-header {
+        padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+    }
+
+    .v2-ctrl-layer .hist-title {
+        flex-wrap: wrap;
+        padding-right: 52px;
+    }
+
+    .v2-ctrl-layer .hist-hour-btn {
+        flex: 1;
+        min-height: 44px;
+        padding: 0 6px;
+        font-size: 0.85rem;
+    }
+
+    .v2-ctrl-layer .hist-close-btn {
+        position: absolute;
+        top: calc(8px + env(safe-area-inset-top));
+        right: 10px;
+        width: 44px;
+        height: 44px;
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .v2-ctrl-layer .hist-range-trigger {
+        min-width: 0;
+        min-height: 44px;
+        font-size: 0.8rem;
+    }
+
+    .v2-ctrl-layer .hist-range-field input {
+        height: 44px;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+
+    .v2-ctrl-layer .hist-range-action {
+        min-height: 44px;
+        padding: 0 16px;
+        font-size: 0.85rem;
+    }
+
+    .v2-ctrl-layer .hist-body {
+        padding: 10px 10px calc(16px + env(safe-area-inset-bottom));
+    }
+
+    .v2-ctrl-layer .hist-tab-group {
+        flex-wrap: wrap;
+    }
+
+    .v2-ctrl-layer .hist-tab-btn {
+        min-height: 40px;
+        padding: 0 10px;
+        font-size: 0.8rem;
+    }
+
+    .v2-ctrl-layer .hist-events-title {
+        flex-wrap: wrap;
+        padding: 8px 10px;
+    }
+
+    .v2-ctrl-layer .hist-field-row {
+        flex-wrap: wrap;
+        row-gap: 2px;
+        padding-right: 10px;
+    }
+
+    .v2-ctrl-layer .hist-field-value {
+        width: auto;
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .v2-ctrl-layer .hist-field-chain,
+    .v2-ctrl-layer .hist-field-nochange {
+        flex-basis: 100%;
+    }
+
+    .v2-ctrl-layer .hist-event-row {
+        flex-wrap: wrap;
+        gap: 4px 8px;
+        padding: 8px 10px;
+    }
+
+    .v2-ctrl-layer .hist-event-desc {
+        flex-basis: 100%;
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (min-width: 900px) {
+    .v2-ctrl-card:hover {
+        box-shadow: var(--shadow-soft);
+    }
+}

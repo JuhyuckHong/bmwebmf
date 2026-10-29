@@ -3,20 +3,20 @@ import Cookies from "js-cookie";
 import { API } from "../API";
 import "../CSS/Camera.css";
 
-const trimModuleId = (id) => (id == null ? "" : String(Number(id)));
+export const trimModuleId = (id) => (id == null ? "" : String(Number(id)));
 
-const formatCount = (value) => (value == null ? "-" : value.toLocaleString("ko-KR"));
+export const formatCount = (value) => (value == null ? "-" : value.toLocaleString("ko-KR"));
 
-const formatDate = (value) => (value ? value.slice(0, 16) : "-");
+export const formatDate = (value) => (value ? value.slice(0, 16) : "-");
 
-const daysSince = (value) => {
+export const daysSince = (value) => {
     if (!value) return null;
     const parsed = new Date(value.replace(" ", "T"));
     if (Number.isNaN(parsed.getTime())) return null;
     return Math.floor((Date.now() - parsed.getTime()) / (1000 * 60 * 60 * 24));
 };
 
-const SORTS = {
+export const SORTS = {
     shutter: (a, b) => (b.shutter_count ?? -1) - (a.shutter_count ?? -1),
     rate: (a, b) => (b.shots_per_day ?? -1) - (a.shots_per_day ?? -1),
     module: (a, b) =>

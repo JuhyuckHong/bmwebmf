@@ -1,0 +1,255 @@
+/* v2 카메라 정보 */
+
+.v2-cam-search-row {
+    display: flex;
+    gap: 8px;
+}
+
+.v2-cam-search-row .v2-search {
+    flex: 1;
+    min-width: 0;
+}
+
+.v2-cam-refresh {
+    flex: 0 0 auto;
+}
+
+.v2-cam-selects {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+}
+
+.v2-cam-selects .v2-select {
+    height: 44px;
+    min-width: 0;
+    text-align: left;
+    font-weight: 600;
+}
+
+.v2-cam-backfill {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.v2-cam-progress {
+    display: block;
+    height: 6px;
+    background: var(--surface-alt-color);
+    overflow: hidden;
+}
+
+.v2-cam-progress > span {
+    display: block;
+    height: 100%;
+    background: var(--accent-color);
+    transition: width 0.3s ease;
+}
+
+.v2-cam-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: 10px;
+}
+
+.v2-cam-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    min-height: 44px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    background: var(--surface-color);
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.v2-cam-card:active {
+    background: var(--surface-alt-color);
+}
+
+.v2-cam-card-top {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+}
+
+.v2-cam-module {
+    flex: 0 0 auto;
+    font-size: 1.25rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.v2-cam-model {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.v2-cam-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.v2-cam-stats > span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.78rem;
+}
+
+.v2-cam-stats strong {
+    font-size: 1.1rem;
+    text-align: left;
+}
+
+.v2-cam-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 10px;
+    font-size: 0.8rem;
+}
+
+.v2-cam-route {
+    font-size: 0.78rem;
+    overflow-wrap: anywhere;
+}
+
+.v2-cam-num {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.v2-cam-serial {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    overflow-wrap: anywhere;
+}
+
+.v2-cam-stale {
+    color: var(--v2-orange);
+    font-weight: 700;
+}
+
+.v2-cam-footnote {
+    margin: 16px 0 0;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--muted-text-color);
+}
+
+/* 상세 시트 */
+.v2-cam-sheet {
+    max-height: calc(90vh - env(safe-area-inset-top));
+    max-height: calc(90dvh - env(safe-area-inset-top));
+    max-width: 560px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    gap: 12px;
+}
+
+.v2-cam-sheet-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0 4px;
+    font-size: 1.05rem;
+}
+
+.v2-cam-fields {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1px solid var(--border-color);
+    border-left: 1px solid var(--border-color);
+}
+
+.v2-cam-fields > div {
+    min-width: 0;
+    padding: 8px 10px;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.v2-cam-fields > div:first-child {
+    grid-column: 1 / -1;
+}
+
+.v2-cam-fields dt {
+    font-size: 0.75rem;
+    color: var(--muted-text-color);
+}
+
+.v2-cam-fields dd {
+    margin: 2px 0 0;
+    font-weight: 700;
+    text-align: left;
+}
+
+.v2-cam-section h3 {
+    margin: 0 0 6px;
+    padding: 0 4px;
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.v2-cam-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--border-color);
+}
+
+.v2-cam-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.85rem;
+    min-width: 0;
+}
+
+.v2-cam-reading-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.v2-cam-reading-sub {
+    font-size: 0.78rem;
+    overflow-wrap: anywhere;
+}
+
+.v2-cam-none {
+    margin: 0;
+    padding: 4px;
+    font-size: 0.85rem;
+}
+
+.v2-cam-more {
+    width: 100%;
+    margin-top: 8px;
+}
+
+@media (min-width: 900px) {
+    .v2-cam-card:hover {
+        box-shadow: var(--shadow-soft);
+    }
+}
