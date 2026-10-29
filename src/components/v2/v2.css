@@ -213,20 +213,14 @@
     display: flex;
     flex-direction: column;
     padding: 0;
-    border-radius: 16px;
+    border-radius: 0;
     border: 1px solid var(--border-color);
     background: var(--surface-color);
     color: inherit;
     text-align: left;
     overflow: hidden;
     cursor: pointer;
-    border-left-width: 4px;
 }
-
-.v2-site-card.red { border-left-color: var(--v2-red); }
-.v2-site-card.orange { border-left-color: var(--v2-orange); }
-.v2-site-card.green { border-left-color: var(--v2-green); }
-.v2-site-card.gray { border-left-color: var(--v2-gray); }
 
 .v2-site-card:active {
     transform: scale(0.99);
