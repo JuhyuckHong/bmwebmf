@@ -119,6 +119,8 @@ export const API = {
     // 촬영 시간·간격 변경 (레거시는 apply_mode: next_boot | reboot_now)
     setModuleSchedule: (headers, moduleId, body) =>
         relay.post(`/modules/${enc(moduleId)}/schedule`, body, { headers }),
+    getScheduleChanges: (headers, moduleId) =>
+        relay.get(`/modules/${enc(moduleId)}/schedule-changes`, { headers }),
     // 운영 타임라인 조회
     getOperationTimeline: (headers, params) =>
         relay.get("/operation-timeline", { headers, params }),

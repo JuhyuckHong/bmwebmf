@@ -24,6 +24,7 @@ import LogsPage from "./components/LogsPage";
 import ControlPage from "./components/ControlPage";
 import TimelinePage from "./components/TimelinePage";
 import CameraPage from "./components/CameraPage";
+import ChangesPage from "./components/ChangesPage";
 import { SortingStyle } from "./styled-components/allsites";
 import { KeyboardNavigationProvider } from "./context";
 
@@ -644,6 +645,17 @@ function App() {
                             <ProtectedRoute requireAdmin>
                                 <div className="display">
                                     <CameraPage />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    {/* 메뉴에 연결하지 않은 페이지: 주소로만 들어온다 */}
+                    <Route
+                        path="/changes"
+                        element={
+                            <ProtectedRoute requireAdmin>
+                                <div className="display">
+                                    <ChangesPage />
                                 </div>
                             </ProtectedRoute>
                         }

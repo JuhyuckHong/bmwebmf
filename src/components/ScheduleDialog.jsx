@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { API } from "../API";
 import {
@@ -30,7 +30,16 @@ export default function ScheduleDialog({ module, onClose, onSaved }) {
     const canSubmit = !unchanged || (isLegacy && applyMode === "reboot_now");
     const rebootDuringShooting = isLegacy && applyMode === "reboot_now"
         && isInShootingHours(module.time_start, module.time_end);
-    const lastChange = module.schedule_change;
+    const [history, setHistory] = useState(null);
+
+    useEffect(() => {
+        let cancelled = false;
+        const headers = { Authorization: Cookies.get("BM") };
+        API.getScheduleChanges(headers, module.id)
+            .then((res) => { if (!cancelled) setHistory(res.data?.changes ?? []); })
+            .catch(() => { if (!cancelled) setHistory([]); });
+        return () => { cancelled = true; };
+    }, [module.id, result]);
 
     const submit = async () => {
         if (rebootDuringShooting
@@ -87,15 +96,21 @@ export default function ScheduleDialog({ module, onClose, onSaved }) {
 
                 {isLegacy && (
                     <div className="schedule-apply">
-                        <label>
+                        <label className={applyMode === "next_boot" ? "selected" : ""}>
                             <input type="radio" name="apply_mode" value="next_boot" checked={applyMode === "next_boot"}
                                 onChange={() => setApplyMode("next_boot")} disabled={phase !== "edit"} />
-                            저장만 하기 (다음 05:00 자동 재부팅 때 반영)
+                            <span>
+                                <strong>저장만 하기</strong>
+                                <small>다음 05:00 자동 재부팅 때 반영</small>
+                            </span>
                         </label>
-                        <label>
+                        <label className={applyMode === "reboot_now" ? "selected" : ""}>
                             <input type="radio" name="apply_mode" value="reboot_now" checked={applyMode === "reboot_now"}
                                 onChange={() => setApplyMode("reboot_now")} disabled={phase !== "edit"} />
-                            저장하고 지금 재부팅 (1~2분 동안 모듈 꺼짐)
+                            <span>
+                                <strong>저장하고 지금 재부팅</strong>
+                                <small>1~2분 동안 모듈 꺼짐</small>
+                            </span>
                         </label>
                     </div>
                 )}
@@ -107,12 +122,6 @@ export default function ScheduleDialog({ module, onClose, onSaved }) {
                 {rebootDuringShooting && (
                     <p className="control-confirm-status schedule-warn">지금은 촬영 시간대라 재부팅 중 사진 1장이 누락될 수 있습니다.</p>
                 )}
-                {lastChange && phase === "edit" && !result && (
-                    <p className="control-confirm-subtext">
-                        최근 변경: {lastChange.created_at?.slice(5, 16)} · {SCHEDULE_STATUS_LABELS[lastChange.status] ?? lastChange.status}
-                        {lastChange.message ? ` · ${lastChange.message}` : ""}
-                    </p>
-                )}
                 {phase === "edit" && error && <p className="control-confirm-status schedule-warn">{error}</p>}
                 {result && (
                     <p className={`control-confirm-status${result.ok ? "" : " schedule-warn"}`}>{result.message}</p>
@@ -121,12 +130,36 @@ export default function ScheduleDialog({ module, onClose, onSaved }) {
                     <p key={text} className="control-confirm-subtext">⚠ {text}</p>
                 ))}
 
-                <div className="control-confirm-actions">
+                {history?.length > 0 && (
+                    <div className="schedule-history">
+                        <span className="schedule-history-title">변경 기록</span>
+                        <ul>
+                            {history.slice(0, 5).map((change) => (
+                                <li key={change.id}>
+                                    <span className="schedule-history-head">
+                                        <span>{change.created_at?.slice(5, 16)}</span>
+                                        <span className={`schedule-badge ${change.status}`}>
+                                            {SCHEDULE_STATUS_LABELS[change.status] ?? change.status}
+                                        </span>
+                                    </span>
+                                    <span className="schedule-history-body">
+                                        {toTimeInput(change.old_time_start)}~{toTimeInput(change.old_time_end)} {change.old_time_interval}분
+                                        {" → "}
+                                        {toTimeInput(change.time_start)}~{toTimeInput(change.time_end)} {change.time_interval}분
+                                    </span>
+                                    {change.message && <span className="schedule-history-msg">{change.message}</span>}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
+                <div className="control-confirm-actions schedule-actions">
                     <button className="hist-close-btn" onClick={onClose}>
                         {phase === "done" ? "닫기" : "취소"}
                     </button>
                     {phase !== "done" && (
-                        <button className="admin-btn" onClick={submit} disabled={phase !== "edit" || !!error || !canSubmit}>
+                        <button className="admin-btn primary" onClick={submit} disabled={phase !== "edit" || !!error || !canSubmit}>
                             {phase === "submitting" ? "적용 중..." : "저장"}
                         </button>
                     )}

@@ -800,15 +800,6 @@
     .stat-value    { font-size: 1.5rem; }
 }
 
-.ctrl-schedule.clickable {
-    cursor: pointer;
-    border-radius: 6px;
-}
-
-.ctrl-schedule.clickable:hover {
-    background: var(--border-color);
-}
-
 .schedule-badge {
     font-size: 0.7rem;
     font-weight: 700;

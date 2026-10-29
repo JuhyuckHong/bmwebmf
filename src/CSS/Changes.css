@@ -1,0 +1,286 @@
+/* 설정 변경 페이지 (/changes): 휴대폰 한 손 조작 기준 */
+
+.changes-page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 12px calc(24px + env(safe-area-inset-bottom));
+    color: var(--text-color);
+}
+
+.changes-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 0 10px;
+    background: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.changes-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.changes-title-row h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.changes-refresh {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-alt-color);
+    color: inherit;
+    font-size: 1.3rem;
+    cursor: pointer;
+}
+
+.changes-tabs,
+.changes-filters {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.changes-tabs button,
+.changes-filters button {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-alt-color);
+    color: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.changes-tabs button.active,
+.changes-filters button.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--accent-text-color);
+    font-weight: 700;
+}
+
+/* 16px 미만이면 iOS가 입력할 때 화면을 확대한다 */
+.changes-search {
+    height: 44px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-alt-color);
+    color: inherit;
+    font-size: 16px;
+}
+
+.changes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 10px;
+}
+
+.changes-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-color);
+    color: inherit;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+}
+
+.changes-card:active {
+    background: var(--surface-alt-color);
+}
+
+.changes-card-top,
+.changes-card-bottom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.changes-card-id {
+    font-weight: 800;
+    font-size: 1.05rem;
+    min-width: 2.2em;
+}
+
+.changes-card-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.92rem;
+}
+
+.changes-card-schedule {
+    flex: 1;
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.changes-card-schedule .muted,
+.changes-empty {
+    color: var(--muted-text-color);
+}
+
+.changes-chip {
+    flex: 0 0 auto;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border: 1px solid var(--border-color);
+}
+
+.changes-chip.modern {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.changes-offline {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #dc2626;
+}
+
+.changes-empty {
+    text-align: center;
+    padding: 24px 0;
+}
+
+/* 편집 창: 휴대폰에서는 아래에서 올라오는 시트 */
+.changes-page .schedule-apply label {
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+.changes-page .schedule-apply label.selected {
+    border-color: var(--accent-color);
+    background: var(--surface-alt-color);
+}
+
+.changes-page .schedule-apply input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    margin: 1px 0 0;
+    flex: 0 0 auto;
+}
+
+.changes-page .schedule-apply span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.changes-page .schedule-apply small {
+    color: var(--muted-text-color);
+}
+
+.schedule-history {
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.schedule-history-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--muted-text-color);
+}
+
+.schedule-history ul {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.schedule-history li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.82rem;
+}
+
+.schedule-history-head {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted-text-color);
+}
+
+.schedule-history-body {
+    font-variant-numeric: tabular-nums;
+}
+
+.schedule-history-msg {
+    color: var(--muted-text-color);
+}
+
+@media (max-width: 640px) {
+    .changes-page .control-modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .changes-page .schedule-dialog {
+        width: 100%;
+        max-height: 92dvh;
+        overflow-y: auto;
+        box-sizing: border-box;
+        border-radius: 18px 18px 0 0;
+        padding: 18px 16px calc(16px + env(safe-area-inset-bottom));
+    }
+
+    .changes-page .schedule-form {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .changes-page .schedule-form label:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .changes-page .schedule-form input,
+    .changes-page .schedule-form select {
+        height: 44px;
+        font-size: 16px;
+    }
+
+    .changes-page .schedule-actions {
+        position: sticky;
+        bottom: 0;
+        padding-top: 10px;
+        background: var(--surface-color);
+    }
+
+    .changes-page .schedule-actions button {
+        flex: 1;
+        min-height: 48px;
+    }
+}
