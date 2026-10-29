@@ -11,6 +11,9 @@ import {
 } from "./scheduleUtils";
 
 
+const POLL_INTERVAL_MS = 15000;
+const POLL_LIMIT_MS = 6 * 60 * 1000;
+
 export default function ScheduleDialog({ module, onClose, onSaved }) {
     const isLegacy = module.type !== "modern";
     const [timeStart, setTimeStart] = useState(toTimeInput(module.time_start));
@@ -31,15 +34,44 @@ export default function ScheduleDialog({ module, onClose, onSaved }) {
     const rebootDuringShooting = isLegacy && applyMode === "reboot_now"
         && isInShootingHours(module.time_start, module.time_end);
     const [history, setHistory] = useState(null);
+    const [pollTick, setPollTick] = useState(0);
+    const changeId = result?.changeId;
+    // 저장 뒤 서버가 모듈에서 반영을 확인하는 동안 상태를 다시 받아온다 (05:00 반영 대기는 제외)
+    const waiting = phase === "done" && result?.status === "pending" && result?.applyMode !== "next_boot";
 
     useEffect(() => {
         let cancelled = false;
         const headers = { Authorization: Cookies.get("BM") };
         API.getScheduleChanges(headers, module.id)
-            .then((res) => { if (!cancelled) setHistory(res.data?.changes ?? []); })
-            .catch(() => { if (!cancelled) setHistory([]); });
+            .then((res) => {
+                if (cancelled) return;
+                const changes = res.data?.changes ?? [];
+                setHistory(changes);
+                const found = changeId && changes.find((c) => c.id === changeId);
+                if (found) {
+                    setResult((prev) => (prev?.changeId === found.id && prev.status !== found.status
+                        ? { ...prev, ok: found.status !== "failed", status: found.status, message: found.message }
+                        : prev));
+                }
+            })
+            .catch(() => { if (!cancelled) setHistory((prev) => prev ?? []); });
         return () => { cancelled = true; };
-    }, [module.id, result]);
+    }, [module.id, changeId, pollTick]);
+
+    useEffect(() => {
+        if (!waiting) return;
+        const startedAt = Date.now();
+        const id = setInterval(() => {
+            if (Date.now() - startedAt > POLL_LIMIT_MS) clearInterval(id);
+            else setPollTick((t) => t + 1);
+        }, POLL_INTERVAL_MS);
+        return () => clearInterval(id);
+    }, [waiting]);
+
+    const finalStatus = phase === "done" && result?.status !== "pending" ? result?.status : null;
+    useEffect(() => {
+        if (finalStatus) onSaved?.();
+    }, [finalStatus]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const submit = async () => {
         if (rebootDuringShooting
@@ -55,7 +87,15 @@ export default function ScheduleDialog({ module, onClose, onSaved }) {
                 time_interval: interval,
                 ...(isLegacy && { apply_mode: applyMode }),
             });
-            setResult({ ok: true, message: res.data?.message, warnings: res.data?.warnings ?? [] });
+            const change = res.data?.change;
+            setResult({
+                ok: true,
+                message: res.data?.message,
+                warnings: res.data?.warnings ?? [],
+                changeId: change?.id,
+                status: change?.status,
+                applyMode: change?.apply_mode,
+            });
             setPhase("done");
             onSaved?.();
         } catch (err) {
@@ -124,7 +164,17 @@ export default function ScheduleDialog({ module, onClose, onSaved }) {
                 )}
                 {phase === "edit" && error && <p className="control-confirm-status schedule-warn">{error}</p>}
                 {result && (
-                    <p className={`control-confirm-status${result.ok ? "" : " schedule-warn"}`}>{result.message}</p>
+                    <p className={`control-confirm-status${result.ok ? "" : " schedule-warn"}`}>
+                        {result.status && phase === "done" && (
+                            <span className={`schedule-badge ${result.status}`}>
+                                {SCHEDULE_STATUS_LABELS[result.status] ?? result.status}{" "}
+                            </span>
+                        )}
+                        {result.message}
+                    </p>
+                )}
+                {waiting && (
+                    <p className="control-confirm-subtext">모듈에서 반영을 확인하는 중입니다. 창을 닫아도 계속 확인합니다.</p>
                 )}
                 {result?.warnings?.map((text) => (
                     <p key={text} className="control-confirm-subtext">⚠ {text}</p>
