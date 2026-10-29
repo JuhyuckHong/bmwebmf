@@ -173,8 +173,17 @@ export default function ScheduleDialog({ module, onClose, onSaved }) {
                         {result.message}
                     </p>
                 )}
+                {phase === "submitting" && (
+                    <p className="schedule-progress">
+                        <span className="schedule-spinner" aria-hidden="true" />
+                        모듈에 접속해 설정 파일을 바꾸는 중입니다...
+                    </p>
+                )}
                 {waiting && (
-                    <p className="control-confirm-subtext">모듈에서 반영을 확인하는 중입니다. 창을 닫아도 계속 확인합니다.</p>
+                    <p className="schedule-progress">
+                        <span className="schedule-spinner" aria-hidden="true" />
+                        모듈에서 반영을 확인하는 중입니다. 창을 닫아도 계속 확인합니다.
+                    </p>
                 )}
                 {result?.warnings?.map((text) => (
                     <p key={text} className="control-confirm-subtext">⚠ {text}</p>
@@ -210,7 +219,9 @@ export default function ScheduleDialog({ module, onClose, onSaved }) {
                     </button>
                     {phase !== "done" && (
                         <button className="admin-btn primary" onClick={submit} disabled={phase !== "edit" || !!error || !canSubmit}>
-                            {phase === "submitting" ? "적용 중..." : "저장"}
+                            {phase === "submitting"
+                                ? <><span className="schedule-spinner small" aria-hidden="true" /> 적용 중</>
+                                : "저장"}
                         </button>
                     )}
                 </div>
