@@ -284,3 +284,33 @@
         min-height: 48px;
     }
 }
+
+/* 와이퍼 창: 모듈에서 읽은 현재 상태 */
+.wiper-facts {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 12px;
+    margin: 12px 0;
+    padding: 10px 12px;
+    background: var(--surface-alt-color);
+    font-size: 0.85rem;
+}
+
+.wiper-facts span {
+    color: var(--muted-text-color);
+}
+
+.wiper-facts strong {
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.schedule-form input[readonly] {
+    color: var(--muted-text-color);
+}
+
+@media (max-width: 640px) {
+    :is(.changes-page, .schedule-sheet) .schedule-actions {
+        flex-wrap: wrap;
+    }
+}

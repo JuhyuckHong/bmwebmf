@@ -4,6 +4,7 @@ import { API } from "../API";
 import "../CSS/Control.css";
 import "../CSS/Changes.css";
 import ScheduleDialog from "./ScheduleDialog";
+import WiperDialog from "./WiperDialog";
 import V2Header from "./v2/V2Header";
 import "./v2/v2.css";
 import { SCHEDULE_STATUS_LABELS, toTimeInput } from "./scheduleUtils";
@@ -12,6 +13,7 @@ import { SCHEDULE_STATUS_LABELS, toTimeInput } from "./scheduleUtils";
 // 설정 항목이 늘어나면 SETTINGS에 추가하고 해당 편집 화면을 연결한다.
 const SETTINGS = [
     { key: "schedule", label: "촬영 시간·간격" },
+    { key: "wiper", label: "와이퍼" },
 ];
 
 const TYPE_FILTERS = [
@@ -137,6 +139,9 @@ export default function ChangesPage({ v2 = null }) {
                     onClose={() => setSelected(null)}
                     onSaved={fetchData}
                 />
+            )}
+            {selected && setting === "wiper" && (
+                <WiperDialog module={selected} onClose={() => setSelected(null)} />
             )}
         </>
     );

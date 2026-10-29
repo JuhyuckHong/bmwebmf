@@ -121,6 +121,13 @@ export const API = {
         relay.post(`/modules/${enc(moduleId)}/schedule`, body, { headers }),
     getScheduleChanges: (headers, moduleId) =>
         relay.get(`/modules/${enc(moduleId)}/schedule-changes`, { headers }),
+    // 와이퍼: 모듈에서 바로 읽은 상태, 설정 변경(레거시: enabled+time, 현행: enabled+duration), 한 번 작동
+    getModuleWiper: (headers, moduleId) =>
+        relay.get(`/modules/${enc(moduleId)}/wiper`, { headers }),
+    setModuleWiper: (headers, moduleId, body) =>
+        relay.post(`/modules/${enc(moduleId)}/wiper`, body, { headers }),
+    runModuleWiper: (headers, moduleId) =>
+        relay.post(`/modules/${enc(moduleId)}/wiper/run`, "", { headers }),
     // 운영 타임라인 조회
     getOperationTimeline: (headers, params) =>
         relay.get("/operation-timeline", { headers, params }),
