@@ -35,6 +35,8 @@ import V2Users from "./components/v2/V2Users";
 import { SortingStyle } from "./styled-components/allsites";
 import { KeyboardNavigationProvider } from "./context";
 
+const ChangesV2 = ({ admin, setAuth }) => <ChangesPage v2={{ admin, setAuth }} />;
+
 const thumbnailIntervalMs = Number(import.meta.env.REACT_APP_THUMBNAIL_INTERVAL) || 60000;
 const apiBaseUrl = import.meta.env.REACT_APP_API_URL;
 
@@ -48,7 +50,7 @@ const getInitialTheme = () => {
     return prefersDark ? "dark" : "light";
 };
 
-const HamburgerMenu = ({ admin, isAdminPage, setAuth, onOpenKeyboardHelp, onAdminToggle, onNavigateControl, onNavigateTimeline, onNavigateCameras }) => {
+const HamburgerMenu = ({ admin, isAdminPage, setAuth, onOpenKeyboardHelp, onAdminToggle, onNavigateControl, onNavigateChanges, onNavigateTimeline, onNavigateCameras }) => {
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef(null);
 
@@ -107,6 +109,15 @@ const HamburgerMenu = ({ admin, isAdminPage, setAuth, onOpenKeyboardHelp, onAdmi
                             <span className="menu-item-icon">💻</span>
                             <span className="menu-item-label">모듈 정보</span>
                             <span className="menu-item-kbd">c</span>
+                        </button>
+                    )}
+                    {admin && (
+                        <button
+                            type="button"
+                            className="menu-item"
+                            onClick={() => { setShowMenu(false); onNavigateChanges(); }}>
+                            <span className="menu-item-icon">🎛️</span>
+                            <span className="menu-item-label">설정 변경</span>
                         </button>
                     )}
                     {admin && (
@@ -190,6 +201,7 @@ function App() {
         location.pathname.startsWith("/setting") ||
         location.pathname.startsWith("/logs") ||
         location.pathname.startsWith("/control") ||
+        location.pathname.startsWith("/modules") ||
         location.pathname.startsWith("/timeline") ||
         location.pathname.startsWith("/cameras");
     const isV2Page = location.pathname.startsWith("/v2");
@@ -434,7 +446,7 @@ function App() {
     }, [admin, isAdminPage, navigate]);
 
     const handleNavigateControl = useCallback(() => {
-        navigate("/control");
+        navigate("/modules");
     }, [navigate]);
 
     const handleNavigateTimeline = useCallback(() => {
@@ -488,6 +500,7 @@ function App() {
                         onOpenKeyboardHelp={handleOpenKeyboardHelp}
                         onAdminToggle={handleAdminToggle}
                         onNavigateControl={handleNavigateControl}
+                        onNavigateChanges={() => navigate("/control")}
                         onNavigateTimeline={handleNavigateTimeline}
                         onNavigateCameras={handleNavigateCameras}
                     />
@@ -629,7 +642,7 @@ function App() {
                         }
                     />
                     <Route
-                        path="/control"
+                        path="/modules"
                         element={
                             <ProtectedRoute requireAdmin>
                                 <div className="display">
@@ -687,7 +700,8 @@ function App() {
                         }
                     />
                     {[
-                        ["/v2/control", V2Control],
+                        ["/v2/modules", V2Control],
+                        ["/v2/control", ChangesV2],
                         ["/v2/timeline", V2Timeline],
                         ["/v2/cameras", V2Cameras],
                         ["/v2/logs", V2Logs],
@@ -705,9 +719,9 @@ function App() {
                             }
                         />
                     ))}
-                    {/* 메뉴에 연결하지 않은 페이지: 주소로만 들어온다 */}
+                    <Route path="/changes" element={<Navigate to="/control" replace />} />
                     <Route
-                        path="/changes"
+                        path="/control"
                         element={
                             <ProtectedRoute requireAdmin>
                                 <div className="display">

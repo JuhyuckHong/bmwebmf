@@ -457,7 +457,7 @@ export default function V2Control({ admin, setAuth }) {
                 subtitle={data ? `${counts.all}대` : null}
                 admin={admin}
                 setAuth={setAuth}
-                legacyPath="/control"
+                legacyPath="/modules"
             >
                 <div className="v2-toolbar">
                     <input

@@ -54,13 +54,13 @@ export function KeyboardNavigationProvider({ children }) {
             }
         },
         'c': () => {
-            if (location.pathname !== '/control') {
-                navigate('/control');
+            if (location.pathname !== '/modules') {
+                navigate('/modules');
             }
         },
         'C': () => {
-            if (location.pathname !== '/control') {
-                navigate('/control');
+            if (location.pathname !== '/modules') {
+                navigate('/modules');
             }
         },
         't': () => {

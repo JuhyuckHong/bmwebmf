@@ -13,7 +13,8 @@ const readTheme = () => {
 };
 
 const ADMIN_PAGES = [
-    { path: "/v2/control", icon: "💻", label: "모듈 정보" },
+    { path: "/v2/modules", icon: "💻", label: "모듈 정보" },
+    { path: "/v2/control", icon: "🎛️", label: "설정 변경" },
     { path: "/v2/timeline", icon: "📅", label: "타임라인" },
     { path: "/v2/cameras", icon: "📷", label: "카메라 정보" },
     { path: "/v2/logs", icon: "📜", label: "로그" },

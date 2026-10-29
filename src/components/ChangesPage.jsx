@@ -4,9 +4,11 @@ import { API } from "../API";
 import "../CSS/Control.css";
 import "../CSS/Changes.css";
 import ScheduleDialog from "./ScheduleDialog";
+import V2Header from "./v2/V2Header";
+import "./v2/v2.css";
 import { SCHEDULE_STATUS_LABELS, toTimeInput } from "./scheduleUtils";
 
-// 모듈 설정 변경 페이지 (/changes). 메뉴에서 연결하지 않고 주소로만 들어온다.
+// 모듈 설정 변경 페이지 (/control, v2: /v2/control).
 // 설정 항목이 늘어나면 SETTINGS에 추가하고 해당 편집 화면을 연결한다.
 const SETTINGS = [
     { key: "schedule", label: "촬영 시간·간격" },
@@ -49,7 +51,8 @@ function ModuleCard({ module, onSelect }) {
     );
 }
 
-export default function ChangesPage() {
+// v2를 주면 v2 공통 상단 바(메뉴 포함) 아래에 같은 내용을 보여준다
+export default function ChangesPage({ v2 = null }) {
     const [setting, setSetting] = useState(SETTINGS[0].key);
     const [modules, setModules] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -89,13 +92,8 @@ export default function ChangesPage() {
         });
     }, [modules, query, filter]);
 
-    return (
-        <div className="changes-page">
-            <header className="changes-header">
-                <div className="changes-title-row">
-                    <h2>설정 변경</h2>
-                    <button type="button" className="changes-refresh" onClick={fetchData} aria-label="새로고침">↻</button>
-                </div>
+    const controls = (
+        <>
                 {SETTINGS.length > 1 && (
                     <div className="changes-tabs">
                         {SETTINGS.map((s) => (
@@ -118,8 +116,11 @@ export default function ChangesPage() {
                             onClick={() => setFilter(f.key)}>{f.label}</button>
                     ))}
                 </div>
-            </header>
+        </>
+    );
 
+    const body = (
+        <>
             {loading && <p className="changes-empty">불러오는 중...</p>}
             {error && <p className="changes-empty schedule-warn">{error}</p>}
             {!loading && !error && visible.length === 0 && <p className="changes-empty">해당하는 모듈이 없습니다.</p>}
@@ -137,6 +138,30 @@ export default function ChangesPage() {
                     onSaved={fetchData}
                 />
             )}
+        </>
+    );
+
+    if (v2) {
+        return (
+            <div className="v2">
+                <V2Header title="설정 변경" admin={v2.admin} setAuth={v2.setAuth} legacyPath="/control">
+                    <div className="v2-toolbar changes-v2-toolbar">{controls}</div>
+                </V2Header>
+                <main className="changes-page">{body}</main>
+            </div>
+        );
+    }
+
+    return (
+        <div className="changes-page">
+            <header className="changes-header">
+                <div className="changes-title-row">
+                    <h2>설정 변경</h2>
+                    <button type="button" className="changes-refresh" onClick={fetchData} aria-label="새로고침">↻</button>
+                </div>
+                {controls}
+            </header>
+            {body}
         </div>
     );
 }
